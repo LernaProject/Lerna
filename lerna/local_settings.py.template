@@ -1,0 +1,35 @@
+# This file overrides project settings from settings.py
+
+# Copy this file, rename it to local_settings.py and edit it.
+# It will not be checked into the version control system.
+
+# Explanation of the necessity of local configs: http://habrahabr.ru/post/104686
+
+DEBUG = True
+
+# You may use http://miniwebtool.com/django-secret-key-generator/ to generate a unique secret key.
+# Alternatively, you can call `django-admin startproject` and take it from it's settings.py
+
+SECRET_KEY = ""
+
+DATABASES = {
+    "default": {
+        "ENGINE":   "django.db.backends.postgresql_psycopg2",
+        "NAME":     "lerna",
+        "USER":     "hydra",
+        "PASSWORD": "hydra",
+        "HOST":     "localhost",
+        # "PORT":   5432,
+    }
+}
+
+TESTER = {
+    # User the solutions are invoked under. Leave blank to use current user. Linux only.
+    "INVOKER":           "",
+    # Path to `ejudge-execute`. Leave blank to avoid using it.
+    "EJUDGE_EXECUTE":    "",
+    # Location of the repo with tests and checkers.
+    "PROBLEM_DIRECTORY": "~/lerna/problems",
+    # Location of the standard checkers directory.
+    "CHECKER_DIRECTORY": "~/lerna/checkers",
+}
