@@ -23,9 +23,9 @@ class User(auth.models.AbstractBaseUser):
     email             = models.EmailField(max_length=255, blank=True, null=True)
     created_at        = models.DateTimeField(auto_now_add=True)
     updated_at        = models.DateTimeField(auto_now=True)
-    password_salt     = models.CharField(max_length=255)
-    crypted_password  = models.CharField(max_length=255)
-    persistence_token = models.CharField(max_length=255)
+    password_salt     = models.CharField(max_length=255, blank=True)
+    crypted_password  = models.CharField(max_length=255, blank=True)
+    persistence_token = models.CharField(max_length=255, blank=True)
     rights            = models.IntegerField(default=0x1)
 
     class Meta:
@@ -42,6 +42,20 @@ class User(auth.models.AbstractBaseUser):
         return self.username
 
     get_short_name = get_full_name
+
+    def has_perm(self, perm, obj=None):
+        """
+        Does the user have a specific permission?
+        """
+        # Simplest possible answer: Yes, always.
+        return True
+    
+    def has_module_perms(self, app_label):
+        """
+        Does the user have permissions to view the app `app_label`?
+        """
+        # Simplest possible answer: Yes, always.
+        return True
 
     @property
     def is_staff(self):
