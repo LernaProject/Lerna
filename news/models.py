@@ -10,8 +10,9 @@ class News(models.Model):
     visible     = models.BooleanField(default=True)
 
     class Meta:
-        db_table      = "news"
-        get_latest_by = "created_at"
+        db_table            = "news"
+        get_latest_by       = "created_at"
+        verbose_name_plural = "news"
 
     def __str__(self):
         return self.title
