@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
+import contextlib
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os.path
 
@@ -93,7 +95,7 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = "ru-ru"
+LANGUAGE_CODE = "ru-RU"
 
 TIME_ZONE = "Asia/Novosibirsk"
 
@@ -124,3 +126,11 @@ TESTER = {
 }
 
 from .local_settings import *
+
+with contextlib.suppress(NameError):
+    for key, value in PREPEND.items():
+        globals()[key] = value + globals()[key]
+
+with contextlib.suppress(NameError):
+    for key, value in APPEND.items():
+        globals()[key] += value
