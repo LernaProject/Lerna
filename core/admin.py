@@ -1,7 +1,7 @@
 from django.contrib           import admin
 from django.utils.translation import ugettext as _
 
-from .models import Problem
+from .models import Compiler, Problem
 
 @admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
@@ -54,3 +54,14 @@ class ProblemAdmin(admin.ModelAdmin):
     list_filter = ("created_at", "checker", "origin")
     search_fields = ("name", "author", "developer", "path")
     date_hierarchy = "created_at"
+
+@admin.register(Compiler)
+class CompilerAdmin(admin.ModelAdmin):
+    list_display = ("name", "code_name", "extension")
+    list_display_links = ("name", "code_name")
+    # list_filter = ["extension"]
+    ordering = ["id"]
+    # search_fields = ("name", "code_name", "extension")
+
+    def get_readonly_fields(self, request, obj=None):
+        return ("created_at", "updated_at") if obj is not None else ()
