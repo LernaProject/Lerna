@@ -1,0 +1,14 @@
+{# Uncomment in production: #}{# {% spaceless %} #}
+{% block doctype %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+{% endblock %}
+<html>
+  <head>
+    <title>{% block title %}Lerna{% endblock %}</title>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    {% block body %}{% endblock %}
+  </body>
+</html>
+{# {% endspaceless %} #}
