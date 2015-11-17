@@ -12,10 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 import contextlib
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os.path
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from .base_settings import *
 
 
 # Quick-start development settings - unsuitable for production
@@ -111,11 +108,16 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+)
+
 
 # Authorizing
 # http://djbook.ru/rel1.8/topics/auth/customizing.html
 
 AUTH_USER_MODEL = "users.User"
+
 
 TESTER = {
     "INVOKER": "",
@@ -124,6 +126,7 @@ TESTER = {
     "PROBLEM_DIRECTORY": "",
     "CHECKER_DIRECTORY": "",
 }
+
 
 from .local_settings import *
 

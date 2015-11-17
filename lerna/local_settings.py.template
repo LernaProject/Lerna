@@ -5,6 +5,8 @@
 
 # Explanation of the necessity of local configs: http://habrahabr.ru/post/104686
 
+from .base_settings import *
+
 DEBUG = True
 
 # You may use http://miniwebtool.com/django-secret-key-generator/ to generate a unique secret key.
@@ -24,10 +26,6 @@ DATABASES = {
         # "PORT":   5432,
     }
 }
-
-STATICFILES_DIRS = (
-    "/home/__username__/lerna/static",
-)
 
 PREPEND = {
     "MIDDLEWARE_CLASSES": (
