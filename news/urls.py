@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
-from .views import IndexView, DetailView
+from redirector import redirect_to
+from .views     import IndexView, DetailView
 
 urlpatterns = (
     url(R"^$", IndexView.as_view(), name="index"),
@@ -8,6 +9,5 @@ urlpatterns = (
     url(R"^show/(?P<pk>\d+)/$", DetailView.as_view(), name="show"),
 
     # For compatibility only.
-    # TODO: Replace with redirection pages.
-    url(R"^list_news/(?P<page>\d+)/$", IndexView.as_view()),
+    url(R"^list_news/(?P<page>\d+)/$", redirect_to("news:index")),
 )
