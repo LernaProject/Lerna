@@ -3,6 +3,7 @@ import shlex
 from  .base         import BaseCompiler
 from ..runners.base import Config
 
+
 class MonoCSharp(BaseCompiler):
     code_name = "mono-csharp"
 
@@ -14,6 +15,7 @@ class MonoCSharp(BaseCompiler):
     @classmethod
     def get_config(cls, **kwargs):
         return MonoConfig(cls.binary_name, **kwargs)
+
 
 class MonoConfig(Config):
     def __init__(self, binary_name, mono="mono", fallback=None, **kwargs):

@@ -3,6 +3,7 @@ import sys
 from  .base         import BaseCompiler
 from ..runners.base import Config
 
+
 class Java(BaseCompiler):
     code_name = "java"
 
@@ -14,6 +15,7 @@ class Java(BaseCompiler):
     @classmethod
     def get_config(cls, **kwargs):
         return JavaConfig(cls.binary_name, **kwargs)
+
 
 class JavaConfig(Config):
     memory_limit = None

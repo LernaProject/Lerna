@@ -1,6 +1,7 @@
 from django.db    import models
 from users.models import User
 
+
 class Problem(models.Model):
     name                 = models.CharField(max_length=255)
     path                 = models.CharField(max_length=255)
@@ -40,6 +41,7 @@ class Problem(models.Model):
     def __str__(self):
         return self.name
 
+
 class Contest(models.Model):
     name          = models.CharField(max_length=255)
     description   = models.TextField(blank=True)
@@ -59,6 +61,7 @@ class Contest(models.Model):
     def __str__(self):
         return self.name
 
+
 class ProblemInContest(models.Model):
     problem    = models.ForeignKey(Problem)
     contest    = models.ForeignKey(Contest)
@@ -76,6 +79,7 @@ class ProblemInContest(models.Model):
     def __str__(self):
         return "{0.contest.id:03}#{0.number}: {0.problem}".format(self)
 
+
 class Clarification(models.Model):
     # TODO: Replace contest with problem_in_contest.
     contest    = models.ForeignKey(Contest, db_index=False)
@@ -92,6 +96,7 @@ class Clarification(models.Model):
     def __str__(self):
         return self.question
 
+
 class Notification(models.Model):
     # TODO: Fix the DB foreign key.
     contest_id  = models.IntegerField()
@@ -107,6 +112,7 @@ class Notification(models.Model):
     def __str__(self):
         return self.description if len(self.description) <= 100 else self.description[:97] + "..."
 
+
 class Compiler(models.Model):
     code_name      = models.CharField(max_length=32)
     name           = models.CharField(max_length=255)
@@ -121,6 +127,7 @@ class Compiler(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Attempt(models.Model):
     problem_in_contest = models.ForeignKey(ProblemInContest)
@@ -147,6 +154,7 @@ class Attempt(models.Model):
 
     def __str__(self):
         return "[{0.id}] {0.problem_in_contest} by {0.user}".format(self)
+
 
 class TestInfo(models.Model):
     # TODO: Fix the DB foreign key.

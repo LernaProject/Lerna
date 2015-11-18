@@ -1,6 +1,7 @@
 from django.contrib import auth
 from django.db      import models
 
+
 class UserManager(auth.models.BaseUserManager):
     def create_user(self, login, username, password=None, email=None, rights=0x1):
         u = self.model(
@@ -16,6 +17,7 @@ class UserManager(auth.models.BaseUserManager):
 
     def create_superuser(self, login, username, password, email=None):
         return self.create_user(login, username, password, email, 0x7)
+
 
 class User(auth.models.AbstractBaseUser):
     login             = models.CharField(unique=True, max_length=255)
@@ -63,6 +65,7 @@ class User(auth.models.AbstractBaseUser):
 
     def __str__(self):
         return self.login
+
 
 class Achievement(models.Model):
     # TODO: Add the DB index.

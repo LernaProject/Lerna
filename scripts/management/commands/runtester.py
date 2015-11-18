@@ -19,6 +19,7 @@ from .runners    import EJudgeConfig, SudoConfig, EJudgeRunner, DevRunner, Verdi
 from ...models   import TesterStatus
 from core.models import Attempt, TestInfo
 
+
 COMPILERS = {
     C.code_name: C() for C in (GCC, FPC, Java, FPCCompat, MonoCSharp, GNUFortran)
 }
@@ -36,10 +37,12 @@ VERDICT_DESCRIPTIONS = {
     Verdict.SV: "Security violation",
 }
 
+
 class RecoverableError(Exception):
     """
     An error that does not affect the ability to continue testing other solutions.
     """
+
 
 class SigTermException(BaseException):
     """
@@ -47,8 +50,10 @@ class SigTermException(BaseException):
     Note it is derived from `BaseException`, not from `Exception`.
     """
 
+
 def raise_sigterm(*args):
     raise SigTermException(*args)
+
 
 def redirect_stdout_to_self(method):
     """
@@ -68,6 +73,7 @@ def redirect_stdout_to_self(method):
 
     return handle
 
+
 def file_pattern_iter(pattern, start=1):
     """
     Yields index-annotated file names that match the given pattern.
@@ -78,6 +84,7 @@ def file_pattern_iter(pattern, start=1):
         if not os.path.isfile(file_name):
             return
         yield i, file_name
+
 
 class Command(BaseCommand):
     help = "Run a contest tester that processes unchecked attempts from the DB"

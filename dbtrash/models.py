@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class ActiveAdminComments(models.Model):
     namespace     = models.CharField(max_length=255)
     body          = models.TextField()
@@ -12,6 +13,7 @@ class ActiveAdminComments(models.Model):
 
     class Meta:
         db_table = "active_admin_comments"
+
 
 class CkeditorAssets(models.Model):
     data_file_name    = models.CharField(max_length=255)
@@ -28,11 +30,13 @@ class CkeditorAssets(models.Model):
     class Meta:
         db_table = "ckeditor_assets"
 
+
 class SchemaMigrations(models.Model):
     version = models.CharField(unique=True, max_length=255)
 
     class Meta:
         db_table = "schema_migrations"
+
 
 class UserSessions(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

@@ -3,6 +3,7 @@ from   enum      import Enum
 from   functools import partial
 import sys
 
+
 class Config:
     """
     A base class for runner configurers. Saves given attributes and returns them.
@@ -16,6 +17,7 @@ class Config:
     def get_cmd(self, input_name):
         return self.fallback.get_cmd(input_name) if self.fallback is not None else [ ]
 
+
 def _get(method, self):
     try:
         return self.attrs[method]
@@ -24,6 +26,7 @@ def _get(method, self):
 
 for method in ("stdout", "stderr", "time_limit", "memory_limit", "strict_sv"):
     setattr(Config, method, property(partial(_get, method)))
+
 
 class PlainRunConfig(Config):
     """
@@ -38,7 +41,9 @@ class PlainRunConfig(Config):
         assert input_name is None
         return self.cmd
 
+
 Verdict = Enum("Verdict", "OK TL ML RT SV")
+
 
 class BaseRunner(ABC):
     """

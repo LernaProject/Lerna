@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 
 from .models import User
 
+
 class RightsFilter(admin.SimpleListFilter):
     title = _("rights")
 
@@ -27,6 +28,7 @@ class RightsFilter(admin.SimpleListFilter):
         else:
             # mask == mask | bit
             return queryset.filter(rights=F("rights").bitor(self.value()))
+
 
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
@@ -60,6 +62,7 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
+
 class UserChangeForm(UserCreationForm):
     password = auth.forms.ReadOnlyPasswordHashField()
     password1 = forms.CharField(
@@ -81,6 +84,7 @@ class UserChangeForm(UserCreationForm):
     def clean_password2(self):
         if self.cleaned_data.get("password1") or self.cleaned_data.get("password2"):
             return super().clean_password2()
+
 
 @admin.register(User)
 class UserAdmin(auth.admin.UserAdmin):
@@ -136,5 +140,6 @@ class UserAdmin(auth.admin.UserAdmin):
             }
         ),
     )
+
 
 admin.site.unregister(auth.models.Group)

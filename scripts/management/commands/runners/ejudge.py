@@ -3,6 +3,7 @@ from   subprocess import Popen, PIPE
 
 from .base import Config, BaseRunner, Verdict
 
+
 class EJudgeConfig(Config):
     """
     A configurer that wraps program invocation in `ejudge-execute` call.
@@ -32,6 +33,7 @@ class EJudgeConfig(Config):
             result.append("--stdin=" + shlex.quote(input_name))
         return result + super().get_cmd(None)
 
+
 _ejudge_verdict_mapping = {
     "OK": Verdict.OK,
     "TL": Verdict.TL,
@@ -39,6 +41,7 @@ _ejudge_verdict_mapping = {
     "RT": Verdict.RT,
     "SV": Verdict.SV,
 }
+
 
 class EJudgeRunner(BaseRunner):
     """

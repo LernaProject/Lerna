@@ -19,6 +19,7 @@ from .base_settings import *
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # Must be overridden in local_settings.py
+
 SECRET_KEY = ""
 
 DEBUG = False

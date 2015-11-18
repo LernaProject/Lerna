@@ -3,6 +3,7 @@ from django.utils.translation import ugettext as _
 
 from .models import Compiler, Problem
 
+
 @admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj=None):
@@ -14,11 +15,11 @@ class ProblemAdmin(admin.ModelAdmin):
                         ("time_limit", "memory_limit"),
                         "input_file", "output_file",
                     ),
-                },
+                }
             ), (
                 _("Testing"), {
                     "fields": ("path", "mask_in", "mask_out", "checker"),
-                },
+                }
             ), (
                 _("Description"), {
                     "fields": (
@@ -28,12 +29,12 @@ class ProblemAdmin(admin.ModelAdmin):
                         "notes",
                     ),
                     "classes": ["collapse"],
-                },
+                }
             ), (
                 _("Analysis"), {
                     "fields": ["analysis"],
                     "classes": ["collapse"],
-                },
+                }
             ),
         )
         if obj is not None:
@@ -41,7 +42,7 @@ class ProblemAdmin(admin.ModelAdmin):
                 (
                     _("Statistics"), {
                         "fields": ("created_at", "updated_at"),
-                    },
+                    }
                 ),
             )
         return fieldsets
@@ -54,6 +55,7 @@ class ProblemAdmin(admin.ModelAdmin):
     list_filter = ("created_at", "checker", "origin")
     search_fields = ("name", "author", "developer", "path")
     date_hierarchy = "created_at"
+
 
 @admin.register(Compiler)
 class CompilerAdmin(admin.ModelAdmin):

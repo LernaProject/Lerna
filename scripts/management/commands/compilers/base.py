@@ -3,8 +3,10 @@ from subprocess import Popen, PIPE
 
 from ..runners.base import PlainRunConfig
 
+
 class CompilationError(Exception):
     pass
+
 
 class BaseCompiler(ABC):
     """
