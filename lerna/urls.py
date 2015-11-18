@@ -14,11 +14,16 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(R"^blog/", include(blog_urls))
 """
+
 from django.conf      import settings
 from django.conf.urls import include, url
 from django.contrib   import admin
 
+from news.views import IndexView
+
 urlpatterns = (
+    url(R"^$", IndexView.as_view(), name="index"),
+    url(R"^news/", include("news.urls", namespace="news")),
     url(R"^admin/", include(admin.site.urls)),
 )
 

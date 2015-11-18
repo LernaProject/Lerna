@@ -1,4 +1,4 @@
-{% extends "news/base_news.html" %}
+{% extends 'news/base.html' %}
 
 {% block body %}
 
@@ -22,9 +22,9 @@
       {{ i }}
     {% else %}
       {% if i == 1 %}
-        {% url "index" as u %}
+        {% url 'index' as u %}
       {% else %}
-        {% url "news:index" i as u %}
+        {% url 'news:index' i as u %}
       {% endif %}
       <a href="{{ u }}">{{ i }}</a>
     {% endif %}
