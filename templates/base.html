@@ -2,9 +2,15 @@
 {% block doctype %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 {% endblock %}
+
+{% load staticfiles %}
+
 <html>
   <head>
     <title>{% block title %}Lerna{% endblock %}</title>
+    {% block favicon %}
+      <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}" />
+    {% endblock %}
     {% block head %}{% endblock %}
   </head>
   <body>
