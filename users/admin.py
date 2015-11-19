@@ -95,8 +95,8 @@ class UserAdmin(auth.admin.UserAdmin):
     list_display = ("id", "login", "username", "last_login", "created_at", "rights")
     list_display_links = ("id", "login", "username")
     list_filter = (RightsFilter, "last_login", "created_at")
-    search_fields = ("login", "username", "email")
     date_hierarchy = "created_at"
+    search_fields = ("login", "username", "email")
     filter_horizontal = ()
 
     fieldsets = (

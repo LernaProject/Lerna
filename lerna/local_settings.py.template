@@ -75,5 +75,5 @@ TESTER = {
     # Location of the repo with tests and checkers.
     "PROBLEM_DIRECTORY": "~/lerna.problems",
     # Location of the standard checkers directory.
-    "CHECKER_DIRECTORY": "~/lerna.checkers",
+    "CHECKER_DIRECTORY": "~/lerna.checkers/bin",
 }

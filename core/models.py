@@ -53,10 +53,15 @@ class Contest(models.Model):
     is_training   = models.BooleanField()
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
+    problems      = models.ManyToManyField(Problem, through="ProblemInContest")
 
     class Meta:
         db_table      = "contests"
         get_latest_by = "created_at"
+
+    @property
+    def problem_count(self):
+        return self.problem_in_contest_set.count()
 
     def __str__(self):
         return self.name
@@ -71,10 +76,10 @@ class ProblemInContest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table            = "problem_in_contests"
-        unique_together     = ("problem", "contest", "number")
-        verbose_name_plural = "problems in contest"
-        get_latest_by       = "created_at"
+        db_table             = "problem_in_contests"
+        default_related_name = "problem_in_contest_set"
+        verbose_name_plural  = "problems in contest"
+        get_latest_by        = "created_at"
 
     def __str__(self):
         return "{0.contest.id:03}#{0.number}: {0.problem}".format(self)

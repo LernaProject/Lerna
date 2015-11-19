@@ -8,8 +8,8 @@ class NewsAdmin(admin.ModelAdmin):
         return ("created_at", "updated_at") if obj is not None else ()
 
     raw_id_fields = ["user"]
-    list_display = ("id", "title", "visible", "created_at")
+    list_display = ("id", "title", "user", "visible", "created_at")
     list_display_links = ("id", "title")
     list_filter = ("visible", "created_at")
-    search_fields = ("title", "user__login", "user__username", "user__email")
     date_hierarchy = "created_at"
+    search_fields = ("title", "user__login", "user__username", "user__email")
