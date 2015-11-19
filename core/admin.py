@@ -1,10 +1,10 @@
 from django.contrib           import admin
 from django.utils.translation import ugettext as _
 
-from .models import Problem, Contest, ProblemInContest, Compiler
+from . import models
 
 
-@admin.register(Problem)
+@admin.register(models.Problem)
 class ProblemAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = (
@@ -57,7 +57,7 @@ class ProblemAdmin(admin.ModelAdmin):
 
 # TODO: Put a constraint on problem numbers (must be unique, consecutive and start from 1).
 class ProblemInContestInline(admin.TabularInline):
-    model = ProblemInContest
+    model = models.ProblemInContest
     fields = ("number", "problem", "score")
     raw_id_fields = ["problem"]
     ordering = ["number"]
@@ -70,7 +70,7 @@ class ProblemInContestInline(admin.TabularInline):
         return super().get_queryset(request).select_related("problem", "contest")
 
 
-@admin.register(Contest)
+@admin.register(models.Contest)
 class ContestAdmin(admin.ModelAdmin):
     def get_fields(self, request, obj=None):
         fields = (
@@ -101,13 +101,37 @@ class ContestAdmin(admin.ModelAdmin):
         return super().get_queryset(request).prefetch_related("problem_in_contest_set")
 
 
-@admin.register(Compiler)
+@admin.register(models.Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    def get_fields(self, request, obj=None):
+        fields = ("contest", "description", "visible")
+        if obj is not None:
+            fields += (
+                self.readonly_fields,
+            )
+        return fields
+
+    readonly_fields = ("created_at", "updated_at")
+    raw_id_fields = ["contest"]
+    list_display = ("contest", "__str__", "visible")
+    list_display_links = ("contest", "__str__")
+    list_per_page = 30
+    date_hierarchy = "created_at"
+    search_fields = ("contest__name", "description")
+
+@admin.register(models.Compiler)
 class CompilerAdmin(admin.ModelAdmin):
+    def get_fields(self, request, obj=None):
+        fields = ("name", "code_name", "extension", "compile_string")
+        if obj is not None:
+            fields += (
+                self.readonly_fields,
+            )
+        return fields
+
+    readonly_fields = ("created_at", "updated_at")
     list_display = ("name", "code_name", "extension")
     list_display_links = ("name", "code_name")
     # list_filter = ["extension"]
     ordering = ["id"]
     # search_fields = ("name", "code_name", "extension")
-
-    def get_readonly_fields(self, request, obj=None):
-        return ("created_at", "updated_at") if obj is not None else ()

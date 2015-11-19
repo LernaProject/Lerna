@@ -31,12 +31,14 @@ class Problem(models.Model):
 
     @property
     def time_limit_in_secs(self):
-        result = self.time_limit / 1000
-        return int(result) if result.is_integer() else result
+        if self.time_limit % 1000 == 0:
+            return self.time_limit // 1000
+        else:
+            return self.time_limit / 1000
 
     @time_limit_in_secs.setter
     def time_limit_in_secs(self, value):
-        self.time_limit = int(value * 1000)
+        self.time_limit = int(value * 1000 + .5)
 
     def __str__(self):
         return self.name
@@ -103,8 +105,8 @@ class Clarification(models.Model):
 
 
 class Notification(models.Model):
-    # TODO: Fix the DB foreign key.
-    contest_id  = models.IntegerField()
+    # TODO: Add the DB index.
+    contest     = models.ForeignKey(Contest, db_index=False)
     description = models.TextField()
     visible     = models.BooleanField(default=True)
     created_at  = models.DateTimeField(auto_now_add=True)
@@ -162,8 +164,8 @@ class Attempt(models.Model):
 
 
 class TestInfo(models.Model):
-    # TODO: Fix the DB foreign key.
-    attempt_id  = models.IntegerField()
+    # TODO: Add the DB index.
+    attempt     = models.ForeignKey(Attempt, db_index=False)
     test_number = models.PositiveIntegerField()
     result      = models.CharField(max_length=255, blank=True, null=True)
     used_memory = models.PositiveIntegerField(blank=True, null=True)
