@@ -22,12 +22,13 @@ class RightsFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() is None:
             return queryset
-        elif int(self.value()) == 0:
-            # mask == mask & ~0x7
+        mask = int(self.value())
+        if mask == 0x0:
+            # rights == rights & ~0x7
             return queryset.filter(rights=F("rights").bitand(~0x7))
         else:
-            # mask == mask | bit
-            return queryset.filter(rights=F("rights").bitor(self.value()))
+            # rights == rights | mask
+            return queryset.filter(rights=F("rights").bitor(mask))
 
 
 class UserCreationForm(forms.ModelForm):
@@ -102,11 +103,13 @@ class UserAdmin(auth.admin.UserAdmin):
     fieldsets = (
         (
             None, {
-                "fields": ("login", "username", "email"),
+                "fields": ("login", "username"),
             }
         ), (
-            _("Permissions"), {
-                "fields": ("password", "password1", "password2", "invalidate_password", "rights"),
+            _("Security"), {
+                "fields": (
+                    "email", "password", "password1", "password2", "invalidate_password", "rights",
+                ),
                 "classes": ["collapse"],
             }
         ), (
