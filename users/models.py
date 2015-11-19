@@ -64,7 +64,7 @@ class User(auth.models.AbstractBaseUser):
         return bool(self.rights & 0x4)
 
     def __str__(self):
-        return self.login
+        return self.username
 
 
 class Achievement(models.Model):

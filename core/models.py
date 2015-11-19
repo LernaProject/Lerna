@@ -100,8 +100,12 @@ class Clarification(models.Model):
         db_table      = "clarifications"
         get_latest_by = "created_at"
 
+    def has_answer(self):
+        return bool(self.answer)
+    has_answer.boolean = True
+
     def __str__(self):
-        return self.question
+        return self.question if len(self.question) <= 70 else self.question[:67] + "..."
 
 
 class Notification(models.Model):
@@ -117,7 +121,7 @@ class Notification(models.Model):
         get_latest_by = "created_at"
 
     def __str__(self):
-        return self.description if len(self.description) <= 100 else self.description[:97] + "..."
+        return self.description if len(self.description) <= 70 else self.description[:67] + "..."
 
 
 class Compiler(models.Model):
