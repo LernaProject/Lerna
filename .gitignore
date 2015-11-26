@@ -1,3 +1,25 @@
+# `./manage.py fetchstatic` can be used to download all these files at once.
+
+#! fetchstatic(begin)
+
+# https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js
+/static/jquery.min.js
+
+# https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js
+/static/jquery-ui.min.js
+
+# https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/themes/smoothness/jquery-ui.min.css
+/static/jquery-ui.min.css
+
+# https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/themes/smoothness/images/ui-icons_222222_256x240.png
+/static/images/ui-icons_222222_256x240.png
+
+# https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/themes/smoothness/images/ui-bg_flat_75_ffffff_40x100.png
+/static/images/ui-bg_flat_75_ffffff_40x100.png
+
+#! fetchstatic(end)
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

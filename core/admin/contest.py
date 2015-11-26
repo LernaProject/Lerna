@@ -1,14 +1,22 @@
+from ajax_select              import make_ajax_form
+from ajax_select.admin        import AjaxSelectAdminTabularInline
 from django.contrib           import admin
 from django.utils.translation import ugettext as _
+
+from jquery_model_admin import JQueryModelAdmin
 
 from .. import models
 
 
 # TODO: Put a constraint on problem numbers (must be unique, consecutive and start from 1).
-class ProblemInContestInline(admin.TabularInline):
+class ProblemInContestInline(AjaxSelectAdminTabularInline):
     model = models.ProblemInContest
+    form = make_ajax_form(
+        model, {
+            "problem": "problems",
+        }
+    )
     fields = ("number", "problem", "score")
-    raw_id_fields = ["problem"]
     ordering = ["number"]
 
     def get_extra(self, request, obj=None, **kwargs):
@@ -20,7 +28,7 @@ class ProblemInContestInline(admin.TabularInline):
 
 
 @admin.register(models.Contest)
-class ContestAdmin(admin.ModelAdmin):
+class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
     def get_fields(self, request, obj=None):
         fields = (
             "name", "description",

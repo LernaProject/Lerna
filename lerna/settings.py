@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "ajax_select",
     "scripts",
     "core",
     "users",
@@ -112,6 +113,8 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+
+AJAX_SELECT_BOOTSTRAP = False
 
 
 # Authorizing

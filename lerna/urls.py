@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(R"^blog/", include(blog_urls))
 """
 
+from ajax_select      import urls as ajax_select_urls
 from django.conf      import settings
 from django.conf.urls import include, url
 from django.contrib   import admin
@@ -25,6 +26,7 @@ urlpatterns = (
     url(R"^$", IndexView.as_view(), name="index"),
     url(R"^news/", include("news.urls", namespace="news")),
     url(R"^admin/", include(admin.site.urls)),
+    url(R"^ajax_select/", include(ajax_select_urls)),
 )
 
 if settings.DEBUG:

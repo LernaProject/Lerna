@@ -1,8 +1,11 @@
+from ajax_select              import make_ajax_form
+from django                   import forms
 from django.contrib           import admin
 from django.utils.translation import ugettext as _
 
-from .. import models
+from jquery_model_admin import JQueryModelAdmin
 
+from .. import models
 
 class ClarificationAnswerFilter(admin.SimpleListFilter):
     title = _("has answer")
@@ -25,7 +28,14 @@ class ClarificationAnswerFilter(admin.SimpleListFilter):
 
 
 @admin.register(models.Clarification)
-class ClarificationAdmin(admin.ModelAdmin):
+class ClarificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
+    form = make_ajax_form(
+        models.Clarification, {
+            "contest": "contests",
+            "user": "users",
+        }
+    )
+
     def get_fields(self, request, obj=None):
         fields = ("contest", "user", "question", "answer")
         if obj is not None:
@@ -35,7 +45,6 @@ class ClarificationAdmin(admin.ModelAdmin):
         return fields
 
     readonly_fields = ("created_at", "updated_at")
-    raw_id_fields = ("contest", "user")
     list_display = ("__str__", "has_answer", "contest", "user")
     list_filter = [ClarificationAnswerFilter]
     list_per_page = 30
