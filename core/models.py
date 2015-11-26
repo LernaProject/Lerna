@@ -159,6 +159,18 @@ class Attempt(models.Model):
     created_at         = models.DateTimeField(auto_now_add=True)
     updated_at         = models.DateTimeField(auto_now=True)
 
+    @property
+    def problem(self):
+        return self.problem_in_contest.problem
+
+    @property
+    def contest(self):
+        return self.problem_in_contest.contest
+
+    @property
+    def verdict(self):
+        return self.result if self.score is None else "{0.score:.0f}%".format(self)
+
     class Meta:
         db_table      = "attempts"
         get_latest_by = "time"

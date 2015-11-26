@@ -1,3 +1,4 @@
+from .attempt       import *
 from .clarification import *
 from .compiler      import *
 from .contest       import *
