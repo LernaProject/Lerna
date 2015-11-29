@@ -8,6 +8,13 @@ from jquery_model_admin import JQueryModelAdmin
 from .. import models
 
 
+class TestInfoInline(admin.TabularInline):
+    model = models.TestInfo
+    fields = ("test_number", "result", "used_time", "used_memory")
+    ordering = ["test_number"]
+    extra = 0
+
+
 @admin.register(models.Attempt)
 class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
     form = make_ajax_form(
@@ -38,18 +45,24 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
             fieldsets += (
                 (
                     _("Statistics"), {
-                        "fields": self.readonly_fields,
+                        "fields": [self.readonly_fields],
                     }
                 ),
             )
         return fieldsets
 
     readonly_fields = ("time", "updated_at")
+
+    def get_inline_instances(self, request, obj=None):
+        if obj is None or obj.score is not None:
+            return [TestInfoInline(self.model, self.admin_site)]
+        else:
+            return ()
+
     list_display = (
         "id", "user", "problem", "compiler", "contest", "verdict", "time",
         "used_time", "used_memory",
     )
-    # list_filter = [("user", admin.RelatedOnlyFieldListFilter)]
     list_display_links = ("id", "user", "problem")
     date_hierarchy = "time"
 
