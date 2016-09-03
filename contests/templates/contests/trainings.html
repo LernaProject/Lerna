@@ -1,0 +1,33 @@
+{% extends 'contests/base.html' %}
+
+{% block body %}
+ 
+{% if trainings %}
+  {% for t in trainings %}
+    {% if t.is_terminal %}
+      <div>
+        <span>
+        {% for i in t.tab %}
+          &nbsp;&nbsp;&nbsp;&nbsp;
+        {% endfor %}
+        <a href="/contests/training/{{ t.id }}">
+          {{ t.name }}
+        </a>
+        </span>
+      </div>
+    {% else %}
+      <div>
+        <span>
+        {% for i in t.tab %}
+          &nbsp;&nbsp;&nbsp;&nbsp;
+        {% endfor %}
+        {{ t.name }}
+        </span>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% else %}
+  <p>Пока нет заведённых тренировок</p>
+{% endif %}
+
+{% endblock %}

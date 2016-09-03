@@ -1,0 +1,19 @@
+{% extends 'contests/base.html' %}
+
+{% block body %}
+ 
+{% if training %}
+  <h2>{{ training.name }}</h2>
+{% endif %}
+
+{% if pics %}
+   <ul>
+  {% for pic in pics %}
+    <li>{{ pic.number }} : {{ pic.problem.name }}</li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <p>Нет задач для отображения</p>
+{% endif %}
+
+{% endblock %}

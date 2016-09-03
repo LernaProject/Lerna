@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     "core",
     "users",
     "news",
+    "contests",
     "dbtrash",
 )
 

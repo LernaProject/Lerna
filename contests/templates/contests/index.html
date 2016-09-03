@@ -1,0 +1,55 @@
+{% extends 'contests/base.html' %}
+
+{% block body %}
+
+<h2>Текущие и ожидаемые олимпиады</h2>
+
+{% if actual_contest_list or wait_contest_list %}
+  <ul>
+  {% for contest in actual_contest_list %}
+    <li>{{ contest.name }}</li>
+  {% endfor %}
+  {% for contest in wait_contest_list %}
+    <li>{{ contest.name }}</li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <p>В данный момент нет активных или ожидаемых олимпиад</p>
+{% endif %}
+
+<h2>Прошедшие олимпиады</h2>
+
+{% if past_contest_list %}
+  <ul>
+  {% for contest in past_contest_list %}
+    <li>{{ contest.name }}</li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <p>Пока нет прошедших олимпиад</p>
+{% endif %}
+
+{% if page_obj %}
+<div class="pagination">
+  <span class="step-links">
+
+  {% for i in paginator.page_range %}
+    [
+    {% if i == page_obj.number %}
+      {{ i }}
+    {% else %}
+      {% if i == 1 %}
+        {% url 'index' as u %}
+      {% else %}
+        {% url 'news:index' i as u %}
+      {% endif %}
+      <a href="{{ u }}">{{ i }}</a>
+    {% endif %}
+    ]
+  {% endfor %}
+  
+  </span>
+</div>
+{% endif %}
+
+{% endblock %}
