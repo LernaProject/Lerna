@@ -1,9 +1,6 @@
 from django.conf.urls import url
 
-from redirector import redirect_to
-from .views     import ContestIndexView
-from .views     import TrainingIndexView
-from .views     import TrainingView
+from .views import ContestIndexView, TrainingIndexView, TrainingView
 
 urlpatterns = (
     url(R"^$", ContestIndexView.as_view(), name="index"),

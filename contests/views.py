@@ -1,9 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import TemplateView
 
-from core.models import Contest
-from core.models import Problem
-from core.models import ProblemInContest
+from core.models import Problem, Contest, ProblemInContest
 
 import datetime
 import pytz
@@ -11,7 +9,7 @@ import pytz
 import os
 
 class ContestIndexView(TemplateView):
-    template_name = 'contests/index.html'
+    template_name = 'contests/contests.html'
 
     def get_context_data(self, **kwargs):
         def get_contests():
@@ -29,15 +27,16 @@ class ContestIndexView(TemplateView):
                     actual.append(contest)
             return actual, wait, past
 
-        context = super(ContestIndexView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['actual_contest_list'], context['wait_contest_list'], context['past_contest_list'] = get_contests()
         return context
+
 
 class TrainingIndexView(TemplateView):
     template_name = 'contests/trainings.html'
 
     def get_context_data(self, **kwargs):
-        context = super(TrainingIndexView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         trainings_raw = (
             Contest.objects.filter(is_training=True)
             .order_by("name")
@@ -53,7 +52,7 @@ class TrainingIndexView(TemplateView):
             idx = len(cur_prefixes)
 
             while idx < len(name_parts):
-                if (idx == len(name_parts) - 1):
+                if idx == len(name_parts) - 1:
                     trainings.append({'tab': ' '*idx, 'is_terminal': True, 'id': t.id, 'name': name_parts[idx]})
                 else:
                     cur_prefixes.append(name_parts[idx])
@@ -62,6 +61,7 @@ class TrainingIndexView(TemplateView):
 
         context.update(trainings=trainings)
         return context
+
 
 class TrainingView(TemplateView):
     template_name = 'contests/training.html'

@@ -2,9 +2,9 @@
 
 {% block links %}
   <p>
-    <a href="/news">Новости</a>
-    <a href="/contests">Олимпиады</a>
-    <a href="/contests/trainings">Тренировки</a>
+    <a href="{% url 'news:index' %}">Новости</a>
+    <a href="{% url 'contests:index' %}">Олимпиады</a>
+    <a href="{% url 'contests:trainings' %}">Тренировки</a>
     Глобальный рейтинг
   </p>
 {% endblock %}
