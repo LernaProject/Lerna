@@ -26,6 +26,7 @@ urlpatterns = (
     url(R"^$", IndexView.as_view(), name="index"),
     url(R"^news/", include("news.urls", namespace="news")),
     url(R"^contests/", include("contests.urls", namespace="contests")),
+    url(R"^global_statistics/", include("global_statistics.urls", namespace="global_statistics")),
     url(R"^admin/", include(admin.site.urls)),
     url(R"^ajax_select/", include(ajax_select_urls)),
 )
