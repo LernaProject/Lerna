@@ -10,7 +10,7 @@
       {% endfor %}
 
       {% if t.is_terminal %}
-        <a href="/contests/training/{{ t.id }}">
+        <a href="{% url 'contests:training' t.id %}">
           {{ t.name }}
         </a>
       {% else %}

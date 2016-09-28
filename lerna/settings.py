@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     "users",
     "news",
     "contests",
+    "global_statistics",
     "dbtrash",
 )
 

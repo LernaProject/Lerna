@@ -1,0 +1,47 @@
+{% extends 'global.html' %}
+
+{% block body %}
+
+<h2>Глобальный рейтинг</h2>
+
+{% if user_list %}
+  <table>
+  <tr>
+  	<th>Имя</th>
+  	<th>Задач</th>
+  </tr>
+  {% for user in user_list %}
+    <tr>
+       <td>{{ user.username }}</td>
+       <td>{{ user.rating }}</td>
+    </tr>
+  {% endfor %}
+  </table>
+{% else %}
+  <p>Нет достпуных для отображения в рейтинге пользователей</p>
+{% endif %}
+
+{% if page_obj %}
+<div class="pagination">
+  <span class="step-links">
+
+  {% for i in paginator.page_range %}
+    [
+    {% if i == page_obj.number %}
+      {{ i }}
+    {% else %}
+      {% if i == 1 %}
+        {% url 'global_statistics:rating' as u %}
+      {% else %}
+        {% url 'global_statistics:rating' i as u %}
+      {% endif %}
+      <a href="{{ u }}">{{ i }}</a>
+    {% endif %}
+    ]
+  {% endfor %}
+  
+  </span>
+</div>
+{% endif %}
+
+{% endblock %}
