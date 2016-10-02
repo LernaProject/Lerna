@@ -84,12 +84,12 @@ class AttemptsView(TemplateView):
     def get_context_data(self, *, id, **kwargs):
         context = super().get_context_data(id=id, **kwargs)
         training = Contest.objects.get(id=id)
-        if True: #self.request.user.is_authenticated():
+        if self.request.user.is_authenticated():
           attempts = (
               Attempt.objects
                   .filter(problem_in_contest__contest=training)
-                  #.filter(user_id=self.request.user.id)
-                  .order_by("time")
+                  .filter(user_id=self.request.user.id)
+                  .order_by("-time")
                   .select_related("problem_in_contest")
                   .select_related("compiler")
           )
