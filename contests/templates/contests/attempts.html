@@ -16,10 +16,16 @@
         <tr>
           <td>{{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}</td>
           <td>{{ attempt.compiler.name }}</td>
-          <td>{{ attempt.result }}</td>
+          <td>
+            {% if attempt.result == "Compilation error" %}
+              <a href="{% url 'contests:errors' id=attempt.id %}">{{ attempt.result }}</a>
+            {% else %}
+              {{ attempt.result }}
+            {% endif %}
+          </td>
           <td>{{ attempt.used_time|default_if_none:'' }}</td>
           <td>{{ attempt.used_memory|default_if_none:'' }}</td>
-          <td>[link]</td>
+          <td><a href="{% url 'contests:source' id=attempt.id %}">[link]</a></td>
         </tr>
       {% endfor %}
       </table>

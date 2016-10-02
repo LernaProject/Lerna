@@ -1,0 +1,13 @@
+{% extends 'contests/inner.html' %}
+
+{% block body %}
+  {% if user.is_authenticated %}
+    {% if attempt.user_id == user.id %}
+      <pre>{{ attempt.source }}</pre>
+    {% else %}
+      <p>Вы не можете просматривать исходный код чужих посылок</p>
+    {% endif %}  
+  {% else %}
+    <p>Войдите в систему используя аккаунт пользователя, чтобы просматривать исходный код своих посылок</p>
+  {% endif %}
+{% endblock body %}

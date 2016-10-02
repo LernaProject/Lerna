@@ -83,11 +83,11 @@ class AttemptsView(TemplateView):
 
     def get_context_data(self, *, id, **kwargs):
         context = super().get_context_data(id=id, **kwargs)
-        training = Contest.objects.get(id=id)
+        contest = Contest.objects.get(id=id)
         if self.request.user.is_authenticated():
           attempts = (
               Attempt.objects
-                  .filter(problem_in_contest__contest=training)
+                  .filter(problem_in_contest__contest=contest)
                   .filter(user_id=self.request.user.id)
                   .order_by("-time")
                   .select_related("problem_in_contest")
@@ -95,5 +95,37 @@ class AttemptsView(TemplateView):
           )
         else:
           attempts = None
-        context.update(contest=training, attempts=attempts)
+        context.update(contest=contest, attempts=attempts)
+        return context
+
+class SourceView(TemplateView):
+    template_name = 'contests/source.html'
+
+    def get_context_data(self, *, id, **kwargs):
+        context = super().get_context_data(id=id, **kwargs)
+        if self.request.user.is_authenticated():
+          attempt = Attempt.objects.get(id=id)
+          if attempt != None:
+            contest = Contest.objects.get(id=attempt.problem_in_contest.contest_id)
+          else:
+            contest = None
+        else:
+          attempt = None
+        context.update(contest=contest, attempt=attempt)
+        return context
+
+class ErrorsView(TemplateView):
+    template_name = 'contests/errors.html'
+
+    def get_context_data(self, *, id, **kwargs):
+        context = super().get_context_data(id=id, **kwargs)
+        if self.request.user.is_authenticated():
+          attempt = Attempt.objects.get(id=id)
+          if attempt != None:
+            contest = Contest.objects.get(id=attempt.problem_in_contest.contest_id)
+          else:
+            contest = None
+        else:
+          attempt = None
+        context.update(contest=contest, attempt=attempt)
         return context
