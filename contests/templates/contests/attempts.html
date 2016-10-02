@@ -1,0 +1,28 @@
+{% extends 'contests/inner.html' %}
+
+{% block body %}
+  {% if attempts %}
+    <table style="width: 100%">
+    <tr>
+      <th>Задача</th>
+      <th>Компилятор</th>
+      <th>Вердикт</th>
+      <th>Используемое<br/>время, сек</th>
+      <th>Используемая<br/>память, КБ</th>
+      <th>Исходный<br/>код</th>
+    </tr>
+    {% for attempt in attempts %}
+      <tr>
+        <td>{{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}</td>
+        <td>{{ attempt.compiler.name }}</td>
+        <td>{{ attempt.result }}</td>
+        <td>{{ attempt.used_time|default_if_none:'' }}</td>
+        <td>{{ attempt.used_memory|default_if_none:'' }}</td>
+        <td>[link]</td>
+      </tr>
+    {% endfor %}
+    </table>
+  {% else %}
+    <p>На этой странице будет отображаться очередь ваших посылок</p>
+  {% endif %}
+{% endblock body %}

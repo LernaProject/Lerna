@@ -20,8 +20,9 @@
     {% else %}
       <p><a href="/login">Войдите</a> в систему или <a href="/registration">зарегистрируйтесь</a></p>
     {% endif %}
-    {% block links %}{% endblock %}
-    {% block body %}{% endblock %}
+    {% block local_title %}{% endblock local_title %}
+    {% block links %}{% endblock links %}
+    {% block body %}{% endblock body %}
   </body>
 </html>
 {# {% endspaceless %} #}

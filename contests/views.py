@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import TemplateView
 
-from core.models import Problem, Contest, ProblemInContest
+from core.models import Problem, Contest, ProblemInContest, Attempt
 
 import datetime
 import pytz
@@ -75,5 +75,25 @@ class TrainingView(TemplateView):
             .order_by("number")
             .select_related("problem")
         )
-        context.update(training=training, pics=pics)
+        context.update(contest=training, pics=pics)
+        return context
+
+class AttemptsView(TemplateView):
+    template_name = 'contests/attempts.html'
+
+    def get_context_data(self, *, id, **kwargs):
+        context = super().get_context_data(id=id, **kwargs)
+        training = Contest.objects.get(id=id)
+        if True: #self.request.user.is_authenticated():
+          attempts = (
+              Attempt.objects
+                  .filter(problem_in_contest__contest=training)
+                  #.filter(user_id=self.request.user.id)
+                  .order_by("time")
+                  .select_related("problem_in_contest")
+                  .select_related("compiler")
+          )
+        else:
+          attempts = None
+        context.update(contest=training, attempts=attempts)
         return context
