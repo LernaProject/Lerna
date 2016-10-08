@@ -1,7 +1,6 @@
 from django.shortcuts     import render
 from django.views.generic import TemplateView
 from django               import forms
-from django               import forms
 from users.models         import User
 from django.contrib.auth  import authenticate, login
 

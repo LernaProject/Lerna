@@ -1,0 +1,9 @@
+{% extends 'contests/inner.html' %}
+
+{% block body %}
+  {% if user.is_authenticated %}
+    <p>Тут будет форма сабмита, но пока её нет</p>
+  {% else %}
+    <p>Войдите в систему используя аккаунт пользователя, чтобы посылать решения на задачи</p>
+  {% endif %}
+{% endblock body %}

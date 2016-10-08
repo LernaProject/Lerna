@@ -9,7 +9,7 @@
 {% block links %}
   <p>
     <a href="{% url 'contests:training' id=contest.id %}">Задания</a>
-    <a href="">Послать</a>
+    <a href="{% url 'contests:submit' id=contest.id %}">Послать</a>
     <a href="{% url 'contests:attempts' id=contest.id %}">Очередь</a>
     <a href="">Рейтинг</a>
     <a href="">Вопросы</a>

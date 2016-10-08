@@ -1,5 +1,6 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts     import get_object_or_404, render
 from django.views.generic import TemplateView
+from django               import forms
 
 from core.models import Problem, Contest, ProblemInContest, Attempt
 
@@ -7,6 +8,7 @@ import datetime
 import pytz
 
 import os
+
 
 class ContestIndexView(TemplateView):
     template_name = 'contests/contests.html'
@@ -78,6 +80,38 @@ class TrainingView(TemplateView):
         context.update(contest=training, pics=pics)
         return context
 
+
+class SubmitForm(forms.Form):
+    compiler = forms.ChoiceField()
+    problem  = forms.ChoiceField()
+    source   = forms.CharField()
+
+
+class SubmitView(TemplateView):
+    template_name = 'contests/submit.html'
+    form_class = SubmitForm
+
+    def get_context_data(self, *, id, **kwargs):
+        context = super().get_context_data(id=id, **kwargs)
+        contest = Contest.objects.get(id=id)
+        pics = (
+            ProblemInContest.objects
+            .filter(contest=contest)
+            .order_by("number")
+            .select_related("problem")
+        )
+        context.update(contest=contest, pics=pics)
+        return context
+
+    # def get(self, request, *args, **kwargs):
+    #     form = self.form_class()
+    #     return render(request, self.template_name, {'form': form})
+
+    # def post(self, request, *args, **kwargs):
+    #     form = self.form_class(request.POST)
+    #     return render(request, self.template_name, {'form': form})
+
+
 class AttemptsView(TemplateView):
     template_name = 'contests/attempts.html'
 
@@ -98,6 +132,7 @@ class AttemptsView(TemplateView):
         context.update(contest=contest, attempts=attempts)
         return context
 
+
 class SourceView(TemplateView):
     template_name = 'contests/source.html'
 
@@ -113,6 +148,7 @@ class SourceView(TemplateView):
           attempt = None
         context.update(contest=contest, attempt=attempt)
         return context
+
 
 class ErrorsView(TemplateView):
     template_name = 'contests/errors.html'
