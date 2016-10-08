@@ -24,15 +24,6 @@ class RatingIndexView(generic.ListView):
         .exclude(rating=0)
     )
 
-    tst = (
-    ProblemInContest.objects
-        .select_related('attempt')
-        .select_related('users')
-        .select_related('problems')
-        .select_related('contests')
-        .annotate(Count('problem', distinct=True))
-    )
-
     ordering = "-rating"
     template_name = "global_statistics/rating.html"
     allow_empty = True
