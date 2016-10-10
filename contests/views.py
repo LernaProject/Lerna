@@ -1,8 +1,9 @@
-from django.shortcuts     import get_object_or_404, render
-from django.views.generic import TemplateView
-from django               import forms
+from django.shortcuts          import get_object_or_404, render, redirect
+from django.views.generic      import TemplateView
+from django.views.generic.edit import FormView
+from django                    import forms
 
-from core.models import Problem, Contest, ProblemInContest, Attempt
+from core.models import Contest, ProblemInContest, Attempt, Compiler
 
 import datetime
 import pytz
@@ -15,7 +16,7 @@ class ContestIndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         def get_contests():
-            time_now = datetime.datetime.now(pytz.timezone('US/Pacific')) # TODO: not US/Pacific! Use local settings 
+            time_now = datetime.datetime.now(pytz.timezone('US/Pacific'))  # TODO: not US/Pacific! Use local settings
             contests = Contest.objects.filter(is_training=False)
             actual = []
             wait = []
@@ -68,9 +69,9 @@ class TrainingIndexView(TemplateView):
 class TrainingView(TemplateView):
     template_name = 'contests/training.html'
 
-    def get_context_data(self, *, id, **kwargs):
-        context = super().get_context_data(id=id, **kwargs)
-        training = Contest.objects.get(id=id)
+    def get_context_data(self, *, contest_id, **kwargs):
+        context = super().get_context_data(id=contest_id, **kwargs)
+        training = Contest.objects.get(id=contest_id)
         pics = (
             ProblemInContest.objects
             .filter(contest=training)
@@ -82,53 +83,69 @@ class TrainingView(TemplateView):
 
 
 class SubmitForm(forms.Form):
-    compiler = forms.ChoiceField()
-    problem  = forms.ChoiceField()
-    source   = forms.CharField()
+    def __init__(self, contest_id, *args, **kwargs):
+        super(SubmitForm, self).__init__(*args, **kwargs)
+
+        self.fields['compiler'] = forms.ChoiceField(
+            choices=[(compiler.id, compiler.name) for compiler in Compiler.objects.all()]
+        )
+
+        contest = Contest.objects.get(id=contest_id)
+        pics = (
+            ProblemInContest.objects
+                .filter(contest=contest)
+                .order_by("number")
+                .select_related("problem")
+        )
+        self.fields['problem'] = forms.ChoiceField(
+            choices=[(pic.id, '{0} {1}'.format(pic.number, pic.problem.name)) for pic in pics]
+        )
+
+        self.fields['source'] = forms.CharField(widget=forms.Textarea)
 
 
-class SubmitView(TemplateView):
+class SubmitView(FormView):
     template_name = 'contests/submit.html'
     form_class = SubmitForm
 
-    def get_context_data(self, *, id, **kwargs):
-        context = super().get_context_data(id=id, **kwargs)
-        contest = Contest.objects.get(id=id)
-        pics = (
-            ProblemInContest.objects
-            .filter(contest=contest)
-            .order_by("number")
-            .select_related("problem")
-        )
-        context.update(contest=contest, pics=pics)
-        return context
+    def get(self, request, *args, **kwargs):
+        contest_id = self.kwargs['contest_id']
+        contest = Contest.objects.get(id=contest_id)
+        form = self.form_class(contest_id)
+        return render(request, self.template_name, {'form': form, 'contest': contest})
 
-    # def get(self, request, *args, **kwargs):
-    #     form = self.form_class()
-    #     return render(request, self.template_name, {'form': form})
-
-    # def post(self, request, *args, **kwargs):
-    #     form = self.form_class(request.POST)
-    #     return render(request, self.template_name, {'form': form})
+    def post(self, request, *args, **kwargs):
+        contest_id = self.kwargs['contest_id']
+        contest = Contest.objects.get(id=contest_id)
+        form = self.form_class(contest_id, request.POST)
+        if form.is_valid():
+            Attempt.objects.create(
+                user_id=self.request.user.id,
+                problem_in_contest_id=form.cleaned_data['problem'],
+                compiler_id=form.cleaned_data['compiler'],
+                source=form.cleaned_data['source'],
+            )
+            return redirect('/contests/attempts/{0}'.format(contest_id))
+        return render(request, self.template_name, {'form': form, 'contest': contest})
 
 
 class AttemptsView(TemplateView):
     template_name = 'contests/attempts.html'
 
-    def get_context_data(self, *, id, **kwargs):
-        context = super().get_context_data(id=id, **kwargs)
-        contest = Contest.objects.get(id=id)
+    def get_context_data(self, *, contest_id, **kwargs):
+        context = super().get_context_data(id=contest_id, **kwargs)
+        contest = Contest.objects.get(id=contest_id)
         if self.request.user.is_authenticated():
-          attempts = (
-              Attempt.objects
-                  .filter(problem_in_contest__contest=contest)
-                  .filter(user_id=self.request.user.id)
-                  .order_by("-time")
-                  .select_related("problem_in_contest")
-                  .select_related("compiler")
-          )
+            attempts = (
+                Attempt.objects
+                    .filter(problem_in_contest__contest=contest)
+                    .filter(user_id=self.request.user.id)
+                    .order_by("-time")
+                    .select_related("problem_in_contest")
+                    .select_related("compiler")
+            )
         else:
-          attempts = None
+            attempts = None
         context.update(contest=contest, attempts=attempts)
         return context
 
@@ -136,16 +153,15 @@ class AttemptsView(TemplateView):
 class SourceView(TemplateView):
     template_name = 'contests/source.html'
 
-    def get_context_data(self, *, id, **kwargs):
-        context = super().get_context_data(id=id, **kwargs)
+    def get_context_data(self, *, attempt_id, **kwargs):
+        context = super().get_context_data(id=attempt_id, **kwargs)
+        contest = None
         if self.request.user.is_authenticated():
-          attempt = Attempt.objects.get(id=id)
-          if attempt != None:
-            contest = Contest.objects.get(id=attempt.problem_in_contest.contest_id)
-          else:
-            contest = None
+            attempt = Attempt.objects.get(id=attempt_id)
+            if attempt is not None:
+                contest = Contest.objects.get(id=attempt.problem_in_contest.contest_id)
         else:
-          attempt = None
+            attempt = None
         context.update(contest=contest, attempt=attempt)
         return context
 
@@ -153,15 +169,14 @@ class SourceView(TemplateView):
 class ErrorsView(TemplateView):
     template_name = 'contests/errors.html'
 
-    def get_context_data(self, *, id, **kwargs):
-        context = super().get_context_data(id=id, **kwargs)
+    def get_context_data(self, *, attempt_id, **kwargs):
+        context = super().get_context_data(id=attempt_id, **kwargs)
+        contest = None
         if self.request.user.is_authenticated():
-          attempt = Attempt.objects.get(id=id)
-          if attempt != None:
-            contest = Contest.objects.get(id=attempt.problem_in_contest.contest_id)
-          else:
-            contest = None
+            attempt = Attempt.objects.get(id=attempt_id)
+            if attempt is not None:
+                contest = Contest.objects.get(id=attempt.problem_in_contest.contest_id)
         else:
-          attempt = None
+            attempt = None
         context.update(contest=contest, attempt=attempt)
         return context

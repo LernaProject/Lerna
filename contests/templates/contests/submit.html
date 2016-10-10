@@ -2,7 +2,29 @@
 
 {% block body %}
   {% if user.is_authenticated %}
-    <p>Тут будет форма сабмита, но пока её нет</p>
+    {% if form.errors %}
+      <p>Some errors occured. Please try again.</p>
+    {% endif %}
+
+    <form method="post" action="">
+    {% csrf_token %}
+    <table>
+    <tr>
+        <td>компилятор</td>
+        <td>{{ form.compiler }}</td>
+    </tr>
+    <tr>
+        <td>задача</td>
+        <td>{{ form.problem }}</td>
+    </tr>
+    <tr>
+        <td>код</td>
+        <td>{{ form.source }}</td>
+    </tr>
+    </table>
+
+    <input type="submit" value="Отправить" />
+    </form>
   {% else %}
     <p>Войдите в систему используя аккаунт пользователя, чтобы посылать решения на задачи</p>
   {% endif %}
