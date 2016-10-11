@@ -125,7 +125,7 @@ class SubmitView(FormView):
                 compiler_id=form.cleaned_data['compiler'],
                 source=form.cleaned_data['source'],
             )
-            return redirect('/contests/attempts/{0}'.format(contest_id))
+            return redirect('contests:attempts', contest_id=contest_id)
         return render(request, self.template_name, {'form': form, 'contest': contest})
 
 
