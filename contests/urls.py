@@ -1,6 +1,9 @@
 from django.conf.urls import url
 
-from .views import ContestIndexView, TrainingIndexView, TrainingView, AttemptsView, SourceView, ErrorsView, SubmitView
+from .views import (
+    ContestIndexView, TrainingIndexView, TrainingView, AttemptsView, SourceView, ErrorsView,
+    SubmitView,
+)
 
 urlpatterns = (
     url(R"^$", ContestIndexView.as_view(), name="contests"),

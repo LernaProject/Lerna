@@ -16,7 +16,8 @@ class ContestIndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         def get_contests():
-            time_now = datetime.datetime.now(pytz.timezone('US/Pacific'))  # TODO: not US/Pacific! Use local settings
+            # TODO: not US/Pacific! Use local settings
+            time_now = datetime.datetime.now(pytz.timezone('US/Pacific'))
             contests = Contest.objects.filter(is_training=False)
             actual = []
             wait = []
@@ -31,7 +32,8 @@ class ContestIndexView(TemplateView):
             return actual, wait, past
 
         context = super().get_context_data(**kwargs)
-        context['actual_contest_list'], context['wait_contest_list'], context['past_contest_list'] = get_contests()
+        actual, wait, past = get_contests()
+        context.update(actual_contest_list=actual, wait_contest_list=wait, past_contest_list=past)
         return context
 
 
@@ -56,13 +58,23 @@ class TrainingIndexView(TemplateView):
 
             while idx < len(name_parts):
                 if idx == len(name_parts) - 1:
-                    trainings.append({'tab': ' '*idx, 'is_terminal': True, 'id': t.id, 'name': name_parts[idx]})
+                    trainings.append({
+                        'tab': ' ' * idx,
+                        'is_terminal': True,
+                        'id': t.id,
+                        'name': name_parts[idx]
+                    })
                 else:
                     cur_prefixes.append(name_parts[idx])
-                    trainings.append({'tab': ' '*idx, 'is_terminal': False, 'id': None, 'name': name_parts[idx]})
+                    trainings.append({
+                        'tab': ' ' * idx,
+                        'is_terminal': False,
+                        'id': None,
+                        'name': name_parts[idx]
+                    })
                 idx += 1
 
-        context.update(trainings=trainings)
+        context['trainings'] = trainings
         return context
 
 

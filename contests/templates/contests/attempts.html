@@ -14,7 +14,9 @@
       </tr>
       {% for attempt in attempts %}
         <tr>
-          <td>{{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}</td>
+          <td>
+            {{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}
+          </td>
           <td>{{ attempt.compiler.name }}</td>
           <td>
             {% if attempt.result == "Compilation error" %}
@@ -33,6 +35,8 @@
       <p>На этой странице будет отображаться очередь ваших посылок</p>
     {% endif %}
   {% else %}
-    <p>Войдите в систему используя аккаунт пользователя, чтобы просматривать очередь своих попыток</p>
+    <p>
+      Войдите в систему, используя аккаунт пользователя, чтобы просматривать очередь своих попыток.
+    </p>
   {% endif %}
 {% endblock body %}

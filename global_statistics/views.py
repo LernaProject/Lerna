@@ -11,19 +11,25 @@ import pytz
 class RatingIndexView(generic.ListView):
     context_object_name = 'user_list'
     queryset = (
-    	User.objects.all().annotate(
+        User.objects.all().annotate(
             rating=Count(
                 Case(
-            	    When(attempt__problem_in_contest__contest__is_admin=True, then=None),
-                    When(attempt__result='Accepted', then=F('attempt__problem_in_contest__problem_id')),
-                    When(Q(attempt__result='Tested') & Q(attempt__score='100'), then=F('attempt__problem_in_contest__problem_id')),
+                    When(attempt__problem_in_contest__contest__is_admin=True, then=None),
+                    When(
+                        attempt__result='Accepted',
+                        then=F('attempt__problem_in_contest__problem_id')
+                    ),
+                    When(
+                        Q(attempt__result='Tested', attempt__score='100'),
+                        then=F('attempt__problem_in_contest__problem_id')
+                    ),
                     default=None,
-                ), distinct=True
+                ),
+                distinct=True,
             )
         )
         .exclude(rating=0)
     )
-
     ordering = "-rating"
     template_name = "global_statistics/rating.html"
     allow_empty = True

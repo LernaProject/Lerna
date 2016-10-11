@@ -33,7 +33,7 @@ urlpatterns = (
     url(R"^admin/", include(admin.site.urls)),
     url(R"^ajax_select/", include(ajax_select_urls)),
 
-    #url('^', include('django.contrib.auth.urls')),
+    # url('^', include('django.contrib.auth.urls')),
     url(R'^login/$', auth_views.login, {'template_name': 'users/login.html'}, name='login'),
     url(R'^logout/$', auth_views.logout, name='logout'),
     url(R'^registration/$', Registration.as_view(), name='registration'),
