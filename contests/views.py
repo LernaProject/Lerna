@@ -1,39 +1,28 @@
 from django.shortcuts          import get_object_or_404, render, redirect
 from django.views.generic      import TemplateView
 from django.views.generic.edit import FormView
-from django                    import forms
-
-from core.models import Contest, ProblemInContest, Attempt, Compiler
+from django                    import conf, forms
 
 import datetime
+import os
 import pytz
 
-import os
+from core.models import Contest, ProblemInContest, Attempt, Compiler
 
 
 class ContestIndexView(TemplateView):
     template_name = 'contests/contests.html'
 
     def get_context_data(self, **kwargs):
-        def get_contests():
-            # TODO: not US/Pacific! Use local settings
-            time_now = datetime.datetime.now(pytz.timezone('US/Pacific'))
-            contests = Contest.objects.filter(is_training=False)
-            actual = []
-            wait = []
-            past = []
-            for contest in contests:
-                if time_now < contest.start_time:
-                    wait.append(contest)
-                elif contest.start_time + datetime.timedelta(minutes=contest.duration) < time_now:
-                    past.append(contest)
-                else:
-                    actual.append(contest)
-            return actual, wait, past
-
         context = super().get_context_data(**kwargs)
-        actual, wait, past = get_contests()
-        context.update(actual_contest_list=actual, wait_contest_list=wait, past_contest_list=past)
+        contests = Contest.objects.filter(is_training=False)
+        now = datetime.datetime.now(pytz.timezone(conf.settings.TIME_ZONE))
+        actual, awaiting, past = Contest.three_way_split(contests, now)
+        context.update(
+            actual_contest_list=actual,
+            wait_contest_list=awaiting,
+            past_contest_list=past,
+        )
         return context
 
 

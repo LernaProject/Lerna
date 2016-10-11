@@ -1,6 +1,8 @@
 from django.db    import models
 from users.models import User
 
+import datetime
+
 
 class Problem(models.Model):
     name                 = models.CharField(max_length=255)
@@ -67,6 +69,25 @@ class Contest(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def three_way_split(cls, contests, threshold_time):
+        """
+        Splits the given iterable into three lists: actual, awaiting and past contests,
+        regarding the given time point.
+        """
+
+        actual = []
+        awaiting = []
+        past = []
+        for contest in contests:
+            if contest.start_time > threshold_time:
+                awaiting.append(contest)
+            elif contest.start_time + datetime.timedelta(minutes=contest.duration) < threshold_time:
+                past.append(contest)
+            else:
+                actual.append(contest)
+        return actual, awaiting, past
 
 
 class ProblemInContest(models.Model):
