@@ -1,17 +1,17 @@
 from django.shortcuts import get_object_or_404, render
 from django.views     import generic
-
 from django.db.models import IntegerField, Count, Case, When, Q, F
-from core.models import Problem, Contest, ProblemInContest, Attempt
-from users.models import User
 
-import datetime
-import pytz
+from core.models  import Problem, Contest, ProblemInContest, Attempt
+from users.models import User
 
 class RatingIndexView(generic.ListView):
     context_object_name = 'user_list'
     queryset = (
-        User.objects.all().annotate(
+        User
+        .objects
+        .all()
+        .annotate(
             rating=Count(
                 Case(
                     When(attempt__problem_in_contest__contest__is_admin=True, then=None),

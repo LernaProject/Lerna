@@ -11,7 +11,8 @@ class UserLookup(LookupChannel):
 
     def get_query(self, q, request):
         return (
-            self.model.objects
+            self.model
+            .objects
             .filter(Q(login__icontains=q) | Q(username__icontains=q) | Q(email__icontains=q))
             .order_by('username')
             .only('id', 'login', 'username')

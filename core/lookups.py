@@ -12,7 +12,8 @@ class ProblemLookup(LookupChannel):
 
     def get_query(self, q, request):
         return (
-            self.model.objects
+            self.model
+            .objects
             .filter(Q(name__icontains=q) | Q(path__icontains=q))
             .order_by('name')
             .only('id', 'name')
@@ -30,7 +31,8 @@ class ContestLookup(LookupChannel):
 
     def get_query(self, q, request):
         return (
-            self.model.objects
+            self.model
+            .objects
             .filter(name__icontains=q)
             .order_by('-id')
             .only('id', 'name')
@@ -83,7 +85,8 @@ class ProblemInContestLookup(LookupChannel):
             query &= problem_query
 
         return (
-            self.model.objects
+            self.model
+            .objects
             .select_related('problem', 'contest')
             .filter(query)
             .order_by('-contest__id', 'number')

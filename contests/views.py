@@ -15,7 +15,11 @@ class ContestIndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        contests = Contest.objects.filter(is_training=False)
+        contests = (
+            Contest
+            .objects
+            .filter(is_training=False)
+        )
         now = datetime.datetime.now(pytz.timezone(conf.settings.TIME_ZONE))
         actual, awaiting, past = Contest.three_way_split(contests, now)
         context.update(
@@ -32,7 +36,9 @@ class TrainingIndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         trainings_raw = (
-            Contest.objects.filter(is_training=True)
+            Contest
+            .objects
+            .filter(is_training=True)
             .order_by('name')
         )
 
@@ -74,7 +80,8 @@ class TrainingView(TemplateView):
         context = super().get_context_data(id=contest_id, **kwargs)
         training = Contest.objects.get(id=contest_id)
         pics = (
-            ProblemInContest.objects
+            ProblemInContest
+            .objects
             .filter(contest=training)
             .order_by('number')
             .select_related('problem')
@@ -85,7 +92,7 @@ class TrainingView(TemplateView):
 
 class SubmitForm(forms.Form):
     def __init__(self, contest_id, *args, **kwargs):
-        super(SubmitForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['compiler'] = forms.ChoiceField(
             choices=[(compiler.id, compiler.name) for compiler in Compiler.objects.all()]
@@ -93,10 +100,11 @@ class SubmitForm(forms.Form):
 
         contest = Contest.objects.get(id=contest_id)
         pics = (
-            ProblemInContest.objects
-                .filter(contest=contest)
-                .order_by('number')
-                .select_related('problem')
+            ProblemInContest
+            .objects
+            .filter(contest=contest)
+            .order_by('number')
+            .select_related('problem')
         )
         self.fields['problem'] = forms.ChoiceField(
             choices=[(pic.id, '{0} {1}'.format(pic.number, pic.problem.name)) for pic in pics]
@@ -109,24 +117,22 @@ class SubmitView(FormView):
     template_name = 'contests/submit.html'
     form_class = SubmitForm
 
-    def get(self, request, *args, **kwargs):
-        contest_id = self.kwargs['contest_id']
+    def get(self, request, contest_id, *args, **kwargs):
         contest = Contest.objects.get(id=contest_id)
         form = self.form_class(contest_id)
         return render(request, self.template_name, {'form': form, 'contest': contest})
 
-    def post(self, request, *args, **kwargs):
-        contest_id = self.kwargs['contest_id']
+    def post(self, request, contest_id, *args, **kwargs):
         contest = Contest.objects.get(id=contest_id)
         form = self.form_class(contest_id, request.POST)
         if form.is_valid():
             Attempt.objects.create(
-                user_id=self.request.user.id,
-                problem_in_contest_id=form.cleaned_data['problem'],
-                compiler_id=form.cleaned_data['compiler'],
+                user=self.request.user,
+                problem_in_contest=form.cleaned_data['problem'],
+                compiler=form.cleaned_data['compiler'],
                 source=form.cleaned_data['source'],
             )
-            return redirect('contests:attempts', contest_id=contest_id)
+            return redirect('contests:attempts', contest=contest_id)
         return render(request, self.template_name, {'form': form, 'contest': contest})
 
 
@@ -138,12 +144,11 @@ class AttemptsView(TemplateView):
         contest = Contest.objects.get(id=contest_id)
         if self.request.user.is_authenticated():
             attempts = (
-                Attempt.objects
-                    .filter(problem_in_contest__contest=contest)
-                    .filter(user_id=self.request.user.id)
-                    .order_by('-time')
-                    .select_related('problem_in_contest')
-                    .select_related('compiler')
+                Attempt
+                .objects
+                .filter(problem_in_contest__contest=contest, user=self.request.user)
+                .order_by('-time')
+                .select_related('problem_in_contest', 'compiler')
             )
         else:
             attempts = None
@@ -160,7 +165,7 @@ class SourceView(TemplateView):
         if self.request.user.is_authenticated():
             attempt = Attempt.objects.get(id=attempt_id)
             if attempt is not None:
-                contest = Contest.objects.get(id=attempt.problem_in_contest.contest_id)
+                contest = Contest.objects.get(id=attempt.problem_in_contest.contest)
         else:
             attempt = None
         context.update(contest=contest, attempt=attempt)
@@ -176,7 +181,7 @@ class ErrorsView(TemplateView):
         if self.request.user.is_authenticated():
             attempt = Attempt.objects.get(id=attempt_id)
             if attempt is not None:
-                contest = Contest.objects.get(id=attempt.problem_in_contest.contest_id)
+                contest = Contest.objects.get(id=attempt.problem_in_contest.contest)
         else:
             attempt = None
         context.update(contest=contest, attempt=attempt)
