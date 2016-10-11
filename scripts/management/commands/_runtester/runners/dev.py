@@ -20,9 +20,9 @@ class DevRunner(BaseRunner):
         cmd = self.config.get_cmd(None)
 
         with ExitStack() as stack:
-            stdin = stack.enter_context(open(input_name, "rb")) if input_name else None
-            stdout = stack.enter_context(open(output_name, "wb")) if output_name else None
-            stderr = stack.enter_context(open(error_name, "wb")) if error_name else None
+            stdin = stack.enter_context(open(input_name, 'rb')) if input_name else None
+            stdout = stack.enter_context(open(output_name, 'wb')) if output_name else None
+            stderr = stack.enter_context(open(error_name, 'wb')) if error_name else None
 
             start_time = time.clock()
             with Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr) as proc:

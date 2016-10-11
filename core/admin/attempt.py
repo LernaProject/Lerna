@@ -10,8 +10,8 @@ from .. import models
 
 class TestInfoInline(admin.TabularInline):
     model = models.TestInfo
-    fields = ("test_number", "result", "used_time", "used_memory")
-    ordering = ["test_number"]
+    fields = ('test_number', 'result', 'used_time', 'used_memory')
+    ordering = ['test_number']
     extra = 0
 
 
@@ -19,8 +19,8 @@ class TestInfoInline(admin.TabularInline):
 class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
     form = make_ajax_form(
         models.Attempt, {
-            "user": "users",
-            "problem_in_contest": "problems_in_contests",
+            'user': 'users',
+            'problem_in_contest': 'problems_in_contests',
         }
     )
 
@@ -28,30 +28,30 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
         fieldsets = (
             (
                 None, {
-                    "fields": ("user", "problem_in_contest", "compiler", "source"),
+                    'fields': ('user', 'problem_in_contest', 'compiler', 'source'),
                 }
             ), (
-                _("Results"), {
-                    "fields": (("result", "score"), ("used_time", "used_memory"), "error_message"),
+                _('Results'), {
+                    'fields': (('result', 'score'), ('used_time', 'used_memory'), 'error_message'),
                 }
             ), (
-                _("Rails trash"), {
-                    "fields": ["lock_version"],
-                    "classes": ["collapse"],
+                _('Rails trash'), {
+                    'fields': ['lock_version'],
+                    'classes': ['collapse'],
                 }
             ),
         )
         if obj is not None:
             fieldsets += (
                 (
-                    _("Statistics"), {
-                        "fields": [self.readonly_fields],
+                    _('Statistics'), {
+                        'fields': [self.readonly_fields],
                     }
                 ),
             )
         return fieldsets
 
-    readonly_fields = ("time", "updated_at")
+    readonly_fields = ('time', 'updated_at')
 
     def get_inline_instances(self, request, obj=None):
         if obj is None or obj.score is not None:
@@ -60,15 +60,15 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
             return ()
 
     list_display = (
-        "id", "user", "problem", "compiler", "contest", "verdict", "time",
-        "used_time", "used_memory",
+        'id', 'user', 'problem', 'compiler', 'contest', 'verdict', 'time',
+        'used_time', 'used_memory',
     )
-    list_display_links = ("id", "user", "problem")
-    date_hierarchy = "time"
+    list_display_links = ('id', 'user', 'problem')
+    date_hierarchy = 'time'
 
     # actions = ()
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related(
-            "user", "problem_in_contest__problem", "problem_in_contest__contest",
+            'user', 'problem_in_contest__problem', 'problem_in_contest__contest',
         )

@@ -24,17 +24,17 @@ COMPILERS = {
     C.code_name: C() for C in (GCC, FPC, Java, FPCCompat, MonoCSharp, GNUFortran)
 }
 
-STDOUT = "stdout.txt"
-STDERR = "stderr.txt" # Just ignored.
+STDOUT = 'stdout.txt'
+STDERR = 'stderr.txt' # Just ignored.
 
 # TODO: Add the standard checkers to the DB.
-STANDARD_CHECKERS = "char token line int32 int64 float5".split()
+STANDARD_CHECKERS = 'char token line int32 int64 float5'.split()
 
 VERDICT_DESCRIPTIONS = {
-    Verdict.TL: "Time limit exceeded",
-    Verdict.ML: "Memory limit exceeded",
-    Verdict.RT: "Run-time error",
-    Verdict.SV: "Security violation",
+    Verdict.TL: 'Time limit exceeded',
+    Verdict.ML: 'Memory limit exceeded',
+    Verdict.RT: 'Run-time error',
+    Verdict.SV: 'Security violation',
 }
 
 
@@ -87,13 +87,13 @@ def file_pattern_iter(pattern, start=1):
 
 
 class Command(BaseCommand):
-    help = "Run a contest tester that processes unchecked attempts from the DB"
+    help = 'Run a contest tester that processes unchecked attempts from the DB'
 
     def add_arguments(self, parser):
-        parser.add_argument("workdir", type=pathlib.Path, help="""
+        parser.add_argument('workdir', type=pathlib.Path, help="""
             Tester working directory
         """)
-        parser.add_argument("-f", "--force", action="store_true", help="""
+        parser.add_argument('-f', '--force', action='store_true', help="""
             Do not prompt if the working directory is not empty
         """)
 
@@ -107,31 +107,31 @@ class Command(BaseCommand):
             workdir.mkdir()
         except FileExistsError:
             if not workdir.is_dir():
-                raise CommandError("`%s` is not a directory" % workdir)
+                raise CommandError('`%s` is not a directory' % workdir)
             if not force:
                 # Lazy iteration through the directory's contents.
-                for filename in workdir.glob("*"):
+                for filename in workdir.glob('*'):
                     answer = input(
-                        "Working directory is not empty. All files inside it will be deleted.\n"
-                        "Are you sure you want to proceed? (y/N) "
+                        'Working directory is not empty. All files inside it will be deleted.\n'
+                        'Are you sure you want to proceed? (y/N) '
                     )
-                    if answer.strip().lower() not in ('y', "yes", "yessir", "yeah"):
-                        sys.exit("Aborted")
+                    if answer.strip().lower() not in ('y', 'yes', 'yessir', 'yeah'):
+                        sys.exit('Aborted')
                     break
 
         os.chdir(str(workdir))
 
         config = settings.TESTER
-        self.problem_directory = os.path.expanduser(config.get("PROBLEM_DIRECTORY", ""))
-        self.checker_directory = os.path.expanduser(config.get("CHECKER_DIRECTORY", ""))
-        self.ejudge_execute = os.path.expanduser(config.get("EJUDGE_EXECUTE", ""))
+        self.problem_directory = os.path.expanduser(config.get('PROBLEM_DIRECTORY', ""))
+        self.checker_directory = os.path.expanduser(config.get('CHECKER_DIRECTORY', ""))
+        self.ejudge_execute = os.path.expanduser(config.get('EJUDGE_EXECUTE', ""))
 
         if not os.path.isdir(self.problem_directory):
-            raise CommandError("Invalid problem directory: `%s`" % self.problem_directory)
+            raise CommandError('Invalid problem directory: `%s`' % self.problem_directory)
         if not os.path.isdir(self.checker_directory):
-            raise CommandError("Invalid checker directory: `%s`" % self.checker_directory)
+            raise CommandError('Invalid checker directory: `%s`' % self.checker_directory)
 
-        print("Started in", workdir)
+        print('Started in', workdir)
         status = None
         try:
             # Get notified when someone is trying to kill us.
@@ -143,7 +143,7 @@ class Command(BaseCommand):
                 try:
                     with transaction.atomic():
                         attempt = Attempt.objects.filter(result=None).earliest()
-                        attempt.result = "Queued"
+                        attempt.result = 'Queued'
                         attempt.save()
                 except Attempt.DoesNotExist:
                     time.sleep(1)
@@ -152,8 +152,8 @@ class Command(BaseCommand):
                         try:
                             self.handle_attempt(attempt)
                         except:
-                            print("System error")
-                            attempt.result = "System error"
+                            print('System error')
+                            attempt.result = 'System error'
                             attempt.save()
                             raise
                     print()
@@ -163,7 +163,7 @@ class Command(BaseCommand):
         except SigTermException:
             sys.exit()
         finally:
-            print("Terminating")
+            print('Terminating')
             if status is not None:
                 status.delete()
 
@@ -184,24 +184,24 @@ class Command(BaseCommand):
         try:
             compiler = COMPILERS[attempt.compiler.code_name]
         except (IndexError, KeyError):
-            print("Unknown compiler (%s)" % attempt.compiler)
+            print('Unknown compiler (%s)' % attempt.compiler)
             raise RecoverableError
 
-        print("Compiling (%s)..." % attempt.compiler)
-        attempt.result = "Compiling..."
+        print('Compiling (%s)...' % attempt.compiler)
+        attempt.result = 'Compiling...'
         attempt.save()
         try:
             compiler.compile(attempt.source)
         except CompilationError as e:
-            print("Compilation error")
-            attempt.result = "Compilation error"
-            attempt.error_message = str(e).replace('\n', "<br />")
+            print('Compilation error')
+            attempt.result = 'Compilation error'
+            attempt.error_message = str(e).replace('\n', '<br />')
             attempt.save()
             return
 
         checker_params = shlex.split(problem.checker)
         if not checker_params:
-            print("Checker is empty")
+            print('Checker is empty')
             raise RecoverableError
 
         test_path = os.path.join(self.problem_directory, problem.path)
@@ -215,7 +215,7 @@ class Command(BaseCommand):
             checker_params[0] = os.path.join(checker_path, checker_params[0])
 
         if not os.path.isfile(checker_params[0]):
-            print("Checker is not found")
+            print('Checker is not found')
             raise RecoverableError
 
         # Prepare a runner.
@@ -232,7 +232,7 @@ class Command(BaseCommand):
         else:
             runner = DevRunner(config)
 
-        invoker = settings.TESTER.get("INVOKER")
+        invoker = settings.TESTER.get('INVOKER')
         if invoker:
             runner.add_config(SudoConfig, invoker)
 
@@ -240,13 +240,13 @@ class Command(BaseCommand):
         max_memory   = 125 # KB
         passed_tests = 0
 
-        msg = "Testing ({0.time_limit_in_secs}s/{0.memory_limit}MB, {0.checker})...".format(problem)
+        msg = 'Testing ({0.time_limit_in_secs}s/{0.memory_limit}MB, {0.checker})...'.format(problem)
         print(msg)
         print(test_path, os.sep, sep="")
         for test_number, test_file in file_pattern_iter(os.path.join(test_path, problem.mask_in)):
             print(problem.mask_in % test_number)
 
-            attempt.result = "Testing... %d" % test_number
+            attempt.result = 'Testing... %d' % test_number
             attempt.save()
 
             verdict, time_used, memory_used = runner.run(test_file)
@@ -267,7 +267,7 @@ class Command(BaseCommand):
                     )
                     continue
                 else:
-                    attempt.result = "%s on test %d" % (VERDICT_DESCRIPTIONS[verdict], test_number)
+                    attempt.result = '%s on test %d' % (VERDICT_DESCRIPTIONS[verdict], test_number)
                     attempt.used_time = max_time / 1000
                     attempt.used_memory = max_memory
                     attempt.save()
@@ -282,11 +282,11 @@ class Command(BaseCommand):
                 ]
             )
 
-            verdict = "OK"
+            verdict = 'OK'
             if result != 0:
-                verdict = { 1: "Wrong answer", 2: "Presentation error" }.get(result, "System error")
+                verdict = { 1: 'Wrong answer', 2: 'Presentation error' }.get(result, 'System error')
                 if not is_school:
-                    attempt.result = "%s on test %d" % (verdict, test_number)
+                    attempt.result = '%s on test %d' % (verdict, test_number)
                     attempt.used_time = max_time / 1000
                     attempt.used_memory = max_memory
                     attempt.save()
@@ -304,17 +304,17 @@ class Command(BaseCommand):
         else:
             # All the tests have been run.
             if is_school:
-                attempt.result = "Tested"
+                attempt.result = 'Tested'
                 attempt.score = passed_tests / test_number * 100
             else:
-                attempt.result = "Accepted"
+                attempt.result = 'Accepted'
             attempt.used_time = max_time / 1000
             attempt.used_memory = max_memory
             attempt.save()
 
         if is_school:
-            print("Score: %.2f%%" % attempt.score)
+            print('Score: %.2f%%' % attempt.score)
         else:
             print(attempt.result)
 
-        print("Completed in %.1f seconds." % ((timezone.now() - start_time).microseconds / 1e6))
+        print('Completed in %.1f seconds.' % ((timezone.now() - start_time).microseconds / 1e6))

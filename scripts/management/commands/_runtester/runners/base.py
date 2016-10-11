@@ -15,7 +15,7 @@ class Config:
         self.attrs = attrs
 
     def get_cmd(self, input_name):
-        return self.fallback.get_cmd(input_name) if self.fallback is not None else [ ]
+        return self.fallback.get_cmd(input_name) if self.fallback is not None else []
 
 
 def _get(method, self):
@@ -24,7 +24,7 @@ def _get(method, self):
     except KeyError:
         return getattr(self.fallback, method) if self.fallback is not None else None
 
-for method in ("stdout", "stderr", "time_limit", "memory_limit", "strict_sv"):
+for method in ('stdout', 'stderr', 'time_limit', 'memory_limit', 'strict_sv'):
     setattr(Config, method, property(partial(_get, method)))
 
 
@@ -35,14 +35,14 @@ class PlainRunConfig(Config):
 
     def __init__(self, binary_name, fallback=None, **attrs):
         super().__init__(fallback, **attrs)
-        self.cmd = [binary_name if sys.platform.startswith("win") else "./" + binary_name]
+        self.cmd = [binary_name if sys.platform.startswith('win') else './' + binary_name]
 
     def get_cmd(self, input_name):
         assert input_name is None
         return self.cmd
 
 
-Verdict = Enum("Verdict", "OK TL ML RT SV")
+Verdict = Enum('Verdict', 'OK TL ML RT SV')
 
 
 class BaseRunner(ABC):

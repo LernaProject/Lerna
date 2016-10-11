@@ -12,7 +12,7 @@ class ActiveAdminComments(models.Model):
     updated_at    = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "active_admin_comments"
+        db_table = 'active_admin_comments'
 
 
 class CkeditorAssets(models.Model):
@@ -28,14 +28,14 @@ class CkeditorAssets(models.Model):
     updated_at        = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "ckeditor_assets"
+        db_table = 'ckeditor_assets'
 
 
 class SchemaMigrations(models.Model):
     version = models.CharField(unique=True, max_length=255)
 
     class Meta:
-        db_table = "schema_migrations"
+        db_table = 'schema_migrations'
 
 
 class UserSessions(models.Model):
@@ -43,4 +43,4 @@ class UserSessions(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "user_sessions"
+        db_table = 'user_sessions'

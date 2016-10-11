@@ -18,14 +18,14 @@ class BaseCompiler(ABC):
     source_name = None
     binary_name = None
     cmd = None
-    error_stream = "stderr"
+    error_stream = 'stderr'
 
     def __init__(self):
         assert self.code_name
         assert self.source_name
         assert self.binary_name
         assert self.cmd
-        assert self.error_stream in ("stdout", "stderr")
+        assert self.error_stream in ('stdout', 'stderr')
 
     def compile(self, source):
         self._save_source(source)
@@ -34,7 +34,7 @@ class BaseCompiler(ABC):
         with Popen(self.cmd, **redirection) as proc:
             msg = proc.communicate() # (out, err)
             if proc.returncode != 0:
-                raise CompilationError(msg[self.error_stream == "stderr"].decode(errors="replace"))
+                raise CompilationError(msg[self.error_stream == 'stderr'].decode(errors='replace'))
 
     @classmethod
     def get_config(cls, **kwargs):
@@ -42,5 +42,5 @@ class BaseCompiler(ABC):
 
     @classmethod
     def _save_source(cls, source):
-        with open(cls.source_name, "w") as f:
+        with open(cls.source_name, 'w') as f:
             f.write(source)

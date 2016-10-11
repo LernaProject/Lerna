@@ -26,8 +26,8 @@ class Problem(models.Model):
     updated_at           = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table      = "problems"
-        get_latest_by = "created_at"
+        db_table      = 'problems'
+        get_latest_by = 'created_at'
 
     @property
     def time_limit_in_secs(self):
@@ -55,11 +55,11 @@ class Contest(models.Model):
     is_training   = models.BooleanField()
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
-    problems      = models.ManyToManyField(Problem, through="ProblemInContest")
+    problems      = models.ManyToManyField(Problem, through='ProblemInContest')
 
     class Meta:
-        db_table      = "contests"
-        get_latest_by = "created_at"
+        db_table      = 'contests'
+        get_latest_by = 'created_at'
 
     @property
     def problem_count(self):
@@ -78,13 +78,13 @@ class ProblemInContest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table             = "problem_in_contests"
-        default_related_name = "problem_in_contest_set"
-        verbose_name_plural  = "problems in contest"
-        get_latest_by        = "created_at"
+        db_table             = 'problem_in_contests'
+        default_related_name = 'problem_in_contest_set'
+        verbose_name_plural  = 'problems in contest'
+        get_latest_by        = 'created_at'
 
     def __str__(self):
-        return "{0.contest.id:03}#{0.number}: {0.problem}".format(self)
+        return '{0.contest.id:03}#{0.number}: {0.problem}'.format(self)
 
 
 class Clarification(models.Model):
@@ -97,15 +97,15 @@ class Clarification(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table      = "clarifications"
-        get_latest_by = "created_at"
+        db_table      = 'clarifications'
+        get_latest_by = 'created_at'
 
     def has_answer(self):
         return bool(self.answer)
     has_answer.boolean = True
 
     def __str__(self):
-        return self.question if len(self.question) <= 70 else self.question[:67] + "..."
+        return self.question if len(self.question) <= 70 else self.question[:67] + '...'
 
 
 class Notification(models.Model):
@@ -117,11 +117,11 @@ class Notification(models.Model):
     updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table      = "notifications"
-        get_latest_by = "created_at"
+        db_table      = 'notifications'
+        get_latest_by = 'created_at'
 
     def __str__(self):
-        return self.description if len(self.description) <= 70 else self.description[:67] + "..."
+        return self.description if len(self.description) <= 70 else self.description[:67] + '...'
 
 
 class Compiler(models.Model):
@@ -133,8 +133,8 @@ class Compiler(models.Model):
     updated_at     = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table      = "compilers"
-        get_latest_by = "created_at"
+        db_table      = 'compilers'
+        get_latest_by = 'created_at'
 
     def __str__(self):
         return self.name
@@ -169,14 +169,14 @@ class Attempt(models.Model):
 
     @property
     def verdict(self):
-        return self.result if self.score is None else "{0.score:.0f}%".format(self)
+        return self.result if self.score is None else '{0.score:.0f}%'.format(self)
 
     class Meta:
-        db_table      = "attempts"
-        get_latest_by = "time"
+        db_table      = 'attempts'
+        get_latest_by = 'time'
 
     def __str__(self):
-        return "[{0.id}] {0.problem_in_contest} by {0.user}".format(self)
+        return '[{0.id}] {0.problem_in_contest} by {0.user}'.format(self)
 
 
 class TestInfo(models.Model):
@@ -188,8 +188,8 @@ class TestInfo(models.Model):
     used_time   = models.FloatField(blank=True, null=True)
 
     class Meta:
-        db_table        = "test_infos"
-        # unique_together = ("attempt_id", "test_number")
+        db_table        = 'test_infos'
+        # unique_together = ('attempt_id', 'test_number')
 
     def __str__(self):
-        return "{0.attempt_id:05}:{0.test_number}".format(self)
+        return '{0.attempt_id:05}:{0.test_number}'.format(self)

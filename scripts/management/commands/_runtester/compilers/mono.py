@@ -5,12 +5,12 @@ from ..runners.base import Config
 
 
 class MonoCSharp(BaseCompiler):
-    code_name = "mono-csharp"
+    code_name = 'mono-csharp'
 
-    source_name = "main.cs"
-    binary_name = "main.exe"
+    source_name = 'main.cs'
+    binary_name = 'main.exe'
 
-    cmd = ["gmcs", "-o", "-out:" + shlex.quote(binary_name), "-d:ONLINE_JUDGE", source_name]
+    cmd = ['gmcs', '-o', '-out:' + shlex.quote(binary_name), '-d:ONLINE_JUDGE', source_name]
 
     @classmethod
     def get_config(cls, **kwargs):
@@ -18,7 +18,7 @@ class MonoCSharp(BaseCompiler):
 
 
 class MonoConfig(Config):
-    def __init__(self, binary_name, mono="mono", fallback=None, **kwargs):
+    def __init__(self, binary_name, mono='mono', fallback=None, **kwargs):
         super().__init__(fallback, **kwargs)
         self.cmd = [mono, binary_name]
 

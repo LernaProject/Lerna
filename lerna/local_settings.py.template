@@ -12,35 +12,35 @@ DEBUG = True
 
 
 # You may use http://miniwebtool.com/django-secret-key-generator/ to generate a unique secret key.
-# Alternatively, you can call `django-admin startproject` and take it from it's settings.py
+# Alternatively, you can call `django-admin startproject` and take it from its settings.py
 
 SECRET_KEY = ""
 
-INTERNAL_IPS = ["127.0.0.1"]
+INTERNAL_IPS = ['127.0.0.1']
 
 
 DATABASES = {
-    "default": {
-        "ENGINE":   "django.db.backends.postgresql_psycopg2",
-        "NAME":     "lerna",
-        "USER":     "hydra",
-        "PASSWORD": "hydra",
-        "HOST":     "localhost",
-        # "PORT":   5432,
+    'default': {
+        'ENGINE':   'django.db.backends.postgresql_psycopg2',
+        'NAME':     'lerna',
+        'USER':     'hydra',
+        'PASSWORD': 'hydra',
+        'HOST':     'localhost',
+        # 'PORT':   5432,
     }
 }
 
 
 PREPEND = {
-    "MIDDLEWARE_CLASSES": (
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'MIDDLEWARE_CLASSES': (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
     ),
 }
 
 
 APPEND = {
-    "INSTALLED_APPS": (
-        "debug_toolbar",
+    'INSTALLED_APPS': (
+        'debug_toolbar',
     ),
 }
 
@@ -63,17 +63,17 @@ DEBUG_TOOLBAR_PANELS = (
 )
 
 DEBUG_TOOLBAR_CONFIG = {
-    "JQUERY_URL": "/static/jquery.min.js",
+    'JQUERY_URL': '/static/jquery.min.js',
 }
 
 
 TESTER = {
     # User the solutions are invoked under. Leave blank to use current user. Linux only.
-    "INVOKER":           "",
+    'INVOKER':           "",
     # Path to `ejudge-execute`. Leave blank to avoid using it.
-    "EJUDGE_EXECUTE":    "",
+    'EJUDGE_EXECUTE':    "",
     # Location of the repo with tests and checkers.
-    "PROBLEM_DIRECTORY": "~/lerna.problems",
+    'PROBLEM_DIRECTORY': '~/lerna.problems',
     # Location of the standard checkers directory.
-    "CHECKER_DIRECTORY": "~/lerna.checkers/bin",
+    'CHECKER_DIRECTORY': '~/lerna.checkers/bin',
 }

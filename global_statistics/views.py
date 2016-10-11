@@ -30,8 +30,8 @@ class RatingIndexView(generic.ListView):
         )
         .exclude(rating=0)
     )
-    ordering = "-rating"
-    template_name = "global_statistics/rating.html"
+    ordering = '-rating'
+    template_name = 'global_statistics/rating.html'
     allow_empty = True
     paginate_by = 25
     paginate_orphans = 1

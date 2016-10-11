@@ -6,32 +6,32 @@ import sys
 import threading
 import urllib.request
 
-cmd_rx = re.compile(R"^#!\s*fetchstatic\s*\(\s*(.*?)\s*\)\s*$", re.I)
-url_rx = re.compile(R"\w{2,}://[\w.-]+\.\w{2,}(?::\d+)?/\S+")
+cmd_rx = re.compile(r'^#!\s*fetchstatic\s*\(\s*(.*?)\s*\)\s*$', re.I)
+url_rx = re.compile(r'\w{2,}://[\w.-]+\.\w{2,}(?::\d+)?/\S+')
 
 # Some websites require a `User-Agent` header to be sent. Any one will fit. :)
-USER_AGENT = "Python/{0.major}.{0.minor}.{0.micro}".format(sys.version_info)
+USER_AGENT = 'Python/{0.major}.{0.minor}.{0.micro}'.format(sys.version_info)
 
 
 class Command(BaseCommand):
-    help = "Download static files listed in .gitignore"
+    help = 'Download static files listed in .gitignore'
 
     def handle(self, **options):
-        threads = [ ]
+        threads = []
         level = 0
         url = None
-        file_path = os.path.join(settings.BASE_DIR, ".gitignore")
+        file_path = os.path.join(settings.BASE_DIR, '.gitignore')
         with open(file_path) as f:
             for i, line in enumerate(f, 1):
                 m = cmd_rx.match(line)
                 if m is not None:
                     action = m.group(1).lower()
-                    if action == "begin":
+                    if action == 'begin':
                         level += 1
-                    elif action == "end":
+                    elif action == 'end':
                         level -= 1
                     else:
-                        raise CommandError("%s:%d: Unknown action `%s`" % (file_path, i, action))
+                        raise CommandError('%s:%d: Unknown action `%s`' % (file_path, i, action))
                 elif level > 0:
                     if line.startswith('#'):
                         line = line.lstrip('#').strip()
@@ -52,15 +52,15 @@ class Command(BaseCommand):
             t.join()
 
     def download(self, url, path):
-        self.stdout.write("Fetching %s" % url)
+        self.stdout.write('Fetching %s' % url)
         os.makedirs(os.path.split(path)[0], exist_ok=True)
         request = urllib.request.Request(url)
-        request.add_header("User-Agent", USER_AGENT)
+        request.add_header('User-Agent', USER_AGENT)
         with urllib.request.urlopen(request) as u:
-            with open(path, "wb") as f:
+            with open(path, 'wb') as f:
                 while True:
                     data = u.read(4096)
                     if not data:
                         break
                     f.write(data)
-        self.stdout.write("Done: %s" % path)
+        self.stdout.write('Done: %s' % path)

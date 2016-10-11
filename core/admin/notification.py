@@ -11,21 +11,21 @@ from .. import models
 class NotificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
     form = make_ajax_form(
         models.Notification, {
-            "contest": "contests",
+            'contest': 'contests',
         }
     )
 
     def get_fields(self, request, obj=None):
-        fields = ("contest", "description", "visible")
+        fields = ('contest', 'description', 'visible')
         if obj is not None:
             fields += (
                 self.readonly_fields,
             )
         return fields
 
-    readonly_fields = ("created_at", "updated_at")
-    list_display = ("contest", "__str__", "visible")
-    list_display_links = ("contest", "__str__")
+    readonly_fields = ('created_at', 'updated_at')
+    list_display = ('contest', '__str__', 'visible')
+    list_display_links = ('contest', '__str__')
     list_per_page = 30
-    date_hierarchy = "created_at"
-    search_fields = ("contest__name", "description")
+    date_hierarchy = 'created_at'
+    search_fields = ('contest__name', 'description')

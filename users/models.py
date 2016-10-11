@@ -31,12 +31,12 @@ class User(auth.models.AbstractBaseUser):
     rights            = models.IntegerField(default=0x1)
 
     class Meta:
-        db_table      = "users"
-        get_latest_by = "created_at"
+        db_table      = 'users'
+        get_latest_by = 'created_at'
 
     # Auth.
-    USERNAME_FIELD  = "login"
-    REQUIRED_FIELDS = ["username"]
+    USERNAME_FIELD  = 'login'
+    REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
 
@@ -75,9 +75,9 @@ class Achievement(models.Model):
     updated_at         = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table        = "achievements"
-        unique_together = ("user", "achievement_number")
-        get_latest_by   = "created_at"
+        db_table        = 'achievements'
+        unique_together = ('user', 'achievement_number')
+        get_latest_by   = 'created_at'
 
     def __str__(self):
-        return "{0.user}#{0.achievement_number}".format(self)
+        return '{0.user}#{0.achievement_number}'.format(self)

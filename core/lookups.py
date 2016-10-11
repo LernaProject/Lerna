@@ -6,7 +6,7 @@ import re
 from . import models
 
 
-@register("problems")
+@register('problems')
 class ProblemLookup(LookupChannel):
     model = models.Problem
 
@@ -14,8 +14,8 @@ class ProblemLookup(LookupChannel):
         return (
             self.model.objects
             .filter(Q(name__icontains=q) | Q(path__icontains=q))
-            .order_by("name")
-            .only("id", "name")
+            .order_by('name')
+            .only('id', 'name')
         )[:50]
 
     def format_match(self, problem):
@@ -24,7 +24,7 @@ class ProblemLookup(LookupChannel):
     format_item_display = format_match
 
 
-@register("contests")
+@register('contests')
 class ContestLookup(LookupChannel):
     model = models.Contest
 
@@ -32,8 +32,8 @@ class ContestLookup(LookupChannel):
         return (
             self.model.objects
             .filter(name__icontains=q)
-            .order_by("-id")
-            .only("id", "name")
+            .order_by('-id')
+            .only('id', 'name')
         )[:50]
 
     def format_match(self, contest):
@@ -42,12 +42,12 @@ class ContestLookup(LookupChannel):
     format_item_display = format_match
 
 
-@register("problems_in_contests")
+@register('problems_in_contests')
 class ProblemInContestLookup(LookupChannel):
     model = models.ProblemInContest
     min_length = 5
 
-    regex = re.compile(R"^\s*(.*?)\s*(?:[#№]\s*(.*?)\s*)?$")
+    regex = re.compile(r'^\s*(.*?)\s*(?:[#№]\s*(.*?)\s*)?$')
 
     def get_query(self, q, request):
         contest, problem = self.regex.match(q).groups()
@@ -84,13 +84,13 @@ class ProblemInContestLookup(LookupChannel):
 
         return (
             self.model.objects
-            .select_related("problem", "contest")
+            .select_related('problem', 'contest')
             .filter(query)
-            .order_by("-contest__id", "number")
-            .only("id", "problem", "contest", "number")
+            .order_by('-contest__id', 'number')
+            .only('id', 'problem', 'contest', 'number')
         )[:100]
 
     def format_match(self, problem_in_contest):
-        return escape("{0.contest}: {0.number}. {0.problem}".format(problem_in_contest))
+        return escape('{0.contest}: {0.number}. {0.problem}'.format(problem_in_contest))
 
     format_item_display = format_match

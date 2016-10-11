@@ -6,11 +6,11 @@ from .views import (
 )
 
 urlpatterns = (
-    url(R"^$", ContestIndexView.as_view(), name="contests"),
-    url(R"^trainings$", TrainingIndexView.as_view(), name="trainings"),
-    url(R"^training/(?P<contest_id>\d+)$", TrainingView.as_view(), name="training"),
-    url(R"^submit/(?P<contest_id>\d+)$", SubmitView.as_view(), name="submit"),
-    url(R"^attempts/(?P<contest_id>\d+)$", AttemptsView.as_view(), name="attempts"),
-    url(R"^source/(?P<attempt_id>\d+)$", SourceView.as_view(), name="source"),
-    url(R"^errors/(?P<attempt_id>\d+)$", ErrorsView.as_view(), name="errors"),
+    url(r'^$', ContestIndexView.as_view(), name='contests'),
+    url(r'^trainings$', TrainingIndexView.as_view(), name='trainings'),
+    url(r'^training/(?P<contest_id>\d+)$', TrainingView.as_view(), name='training'),
+    url(r'^submit/(?P<contest_id>\d+)$', SubmitView.as_view(), name='submit'),
+    url(r'^attempts/(?P<contest_id>\d+)$', AttemptsView.as_view(), name='attempts'),
+    url(r'^source/(?P<attempt_id>\d+)$', SourceView.as_view(), name='source'),
+    url(r'^errors/(?P<attempt_id>\d+)$', ErrorsView.as_view(), name='errors'),
 )

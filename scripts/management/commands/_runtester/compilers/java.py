@@ -5,12 +5,12 @@ from ..runners.base import Config
 
 
 class Java(BaseCompiler):
-    code_name = "java"
+    code_name = 'java'
 
-    binary_name = "Main"
-    source_name = binary_name + ".java"
+    binary_name = 'Main'
+    source_name = binary_name + '.java'
 
-    cmd = ["javac", "-cp", '".;*"', source_name]
+    cmd = ['javac', '-cp', ''.;*'', source_name]
 
     @classmethod
     def get_config(cls, **kwargs):
@@ -20,9 +20,9 @@ class Java(BaseCompiler):
 class JavaConfig(Config):
     memory_limit = None
 
-    def __init__(self, binary_name, java="java", fallback=None, **kwargs):
+    def __init__(self, binary_name, java='java', fallback=None, **kwargs):
         super().__init__(fallback, **kwargs)
-        self.cmd = [java, "-Xmx%dM" % super().memory_limit, "-DONLINE_JUDGE=true", binary_name]
+        self.cmd = [java, '-Xmx%dM' % super().memory_limit, '-DONLINE_JUDGE=true', binary_name]
         if not super().memory_limit:
             self.cmd.pop(1)
 

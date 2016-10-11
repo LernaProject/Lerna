@@ -44,7 +44,7 @@ class TrainingIndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         trainings_raw = (
             Contest.objects.filter(is_training=True)
-            .order_by("name")
+            .order_by('name')
         )
 
         trainings = []
@@ -87,8 +87,8 @@ class TrainingView(TemplateView):
         pics = (
             ProblemInContest.objects
             .filter(contest=training)
-            .order_by("number")
-            .select_related("problem")
+            .order_by('number')
+            .select_related('problem')
         )
         context.update(contest=training, pics=pics)
         return context
@@ -106,8 +106,8 @@ class SubmitForm(forms.Form):
         pics = (
             ProblemInContest.objects
                 .filter(contest=contest)
-                .order_by("number")
-                .select_related("problem")
+                .order_by('number')
+                .select_related('problem')
         )
         self.fields['problem'] = forms.ChoiceField(
             choices=[(pic.id, '{0} {1}'.format(pic.number, pic.problem.name)) for pic in pics]
@@ -152,9 +152,9 @@ class AttemptsView(TemplateView):
                 Attempt.objects
                     .filter(problem_in_contest__contest=contest)
                     .filter(user_id=self.request.user.id)
-                    .order_by("-time")
-                    .select_related("problem_in_contest")
-                    .select_related("compiler")
+                    .order_by('-time')
+                    .select_related('problem_in_contest')
+                    .select_related('compiler')
             )
         else:
             attempts = None
