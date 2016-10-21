@@ -14,12 +14,16 @@
     {% block head %}{% endblock %}
   </head>
   <body>
-    <h1><a href="/">Lerna</a></h1>
+    <h1><a href="{% url 'index' %}">Lerna</a></h1>
     {% if user.is_authenticated %}
-      <p>Вы зашли как {{ user.username }} <a href="/logout">Выйти</a> </p>
+      <p>
+          Вы зашли как {{ user.username }}
+          <a href="{% url 'global_statistics:attempts' %}">Попытки</a>
+          <a href="{% url 'logout' %}">Выйти</a>
+      </p>
     {% else %}
       <p>
-        <a href="/login">Войдите</a> в систему или <a href="/registration">зарегистрируйтесь.</a>
+        <a href="{% url 'login' %}">Войдите</a> в систему или <a href="{% url 'registration' %}">зарегистрируйтесь.</a>
       </p>
     {% endif %}
     {% block local_title %}{% endblock local_title %}

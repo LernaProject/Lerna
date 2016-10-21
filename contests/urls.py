@@ -11,6 +11,7 @@ urlpatterns = (
     url(r'^training/(?P<contest_id>\d+)$', TrainingView.as_view(), name='training'),
     url(r'^submit/(?P<contest_id>\d+)$', SubmitView.as_view(), name='submit'),
     url(r'^attempts/(?P<contest_id>\d+)$', AttemptsView.as_view(), name='attempts'),
+    url(r'^attempts/(?P<contest_id>\d+)/(?P<page>\d+)$', AttemptsView.as_view(), name='attempts'),
     url(r'^source/(?P<attempt_id>\d+)$', SourceView.as_view(), name='source'),
     url(r'^errors/(?P<attempt_id>\d+)$', ErrorsView.as_view(), name='errors'),
 )

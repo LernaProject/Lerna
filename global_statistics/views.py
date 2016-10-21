@@ -1,11 +1,11 @@
-from django.shortcuts import get_object_or_404, render
-from django.views     import generic
-from django.db.models import IntegerField, Count, Case, When, Q, F
+from django.views.generic import ListView
+from django.db.models import Count, Case, When, Q, F
 
-from core.models  import Problem, Contest, ProblemInContest, Attempt
 from users.models import User
+from core.models import Attempt
 
-class RatingIndexView(generic.ListView):
+class RatingIndexView(ListView):
+    template_name = 'global_statistics/rating.html'
     context_object_name = 'user_list'
     queryset = (
         User
@@ -31,7 +31,26 @@ class RatingIndexView(generic.ListView):
         .exclude(rating=0)
     )
     ordering = '-rating'
-    template_name = 'global_statistics/rating.html'
     allow_empty = True
     paginate_by = 25
     paginate_orphans = 1
+
+
+class AttemptsView(ListView):
+    template_name = 'global_statistics/attempts.html'
+    context_object_name = 'attempts'
+    allow_empty = True
+    paginate_by = 25
+    paginate_orphans = 1
+
+    def get_queryset(self):
+        attempts = None
+        if self.request.user.is_authenticated():
+            attempts = (
+                Attempt
+                .objects
+                .filter(user=self.request.user)
+                .select_related('problem_in_contest', 'compiler')
+                .order_by('-created_at')
+            )
+        return attempts

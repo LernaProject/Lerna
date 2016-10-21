@@ -1,4 +1,4 @@
-{% extends 'contests/base.html' %}
+{% extends 'global.html' %}
 
 {% block body %}
   {% if user.is_authenticated %}
@@ -6,6 +6,7 @@
       <table style="width: 100%">
       <tr>
         <th>Время</th>
+        <th>Контест</th>
         <th>Задача</th>
         <th>Компилятор</th>
         <th>Вердикт</th>
@@ -16,6 +17,7 @@
       {% for attempt in attempts %}
         <tr>
           <td>{{ attempt.created_at }}</td>
+          <td>{{ attempt.problem_in_contest.contest.name }}</td>
           <td>
             {{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}
           </td>
@@ -52,9 +54,9 @@
       {{ i }}
     {% else %}
       {% if i == 1 %}
-        {% url 'contests:attempts' contest.id as u %}
+        {% url 'global_statistics:attempts' as u %}
       {% else %}
-        {% url 'contests:attempts' contest.id i as u %}
+        {% url 'global_statistics:attempts' i as u %}
       {% endif %}
       <a href="{{ u }}">{{ i }}</a>
     {% endif %}

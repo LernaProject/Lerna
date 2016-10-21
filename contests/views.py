@@ -1,5 +1,5 @@
 from django.shortcuts          import get_object_or_404, render, redirect
-from django.views.generic      import TemplateView
+from django.views.generic      import TemplateView, ListView
 from django.views.generic.edit import FormView
 from django                    import conf, forms
 
@@ -136,23 +136,30 @@ class SubmitView(FormView):
         return render(request, self.template_name, {'form': form, 'contest': contest})
 
 
-class AttemptsView(TemplateView):
+class AttemptsView(ListView):
     template_name = 'contests/attempts.html'
+    context_object_name = 'attempts'
+    allow_empty = True
+    paginate_by = 25
+    paginate_orphans = 1
 
-    def get_context_data(self, *, contest_id, **kwargs):
-        context = super().get_context_data(id=contest_id, **kwargs)
-        contest = Contest.objects.get(id=contest_id)
+    def get_queryset(self):
+        contest = Contest.objects.get(id=self.kwargs['contest_id'])
+        attempts = None
         if self.request.user.is_authenticated():
             attempts = (
                 Attempt
                 .objects
                 .filter(problem_in_contest__contest=contest, user=self.request.user)
-                .order_by('-time')
                 .select_related('problem_in_contest', 'compiler')
+                .order_by('-created_at')
             )
-        else:
-            attempts = None
-        context.update(contest=contest, attempts=attempts)
+        return attempts
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        contest = Contest.objects.get(id=self.kwargs['contest_id'])
+        context.update(contest=contest)
         return context
 
 
@@ -162,12 +169,11 @@ class SourceView(TemplateView):
     def get_context_data(self, *, attempt_id, **kwargs):
         context = super().get_context_data(id=attempt_id, **kwargs)
         contest = None
+        attempt = None
         if self.request.user.is_authenticated():
             attempt = Attempt.objects.get(id=attempt_id)
             if attempt is not None:
-                contest = Contest.objects.get(id=attempt.problem_in_contest.contest)
-        else:
-            attempt = None
+                contest = attempt.problem_in_contest.contest
         context.update(contest=contest, attempt=attempt)
         return context
 
@@ -178,11 +184,10 @@ class ErrorsView(TemplateView):
     def get_context_data(self, *, attempt_id, **kwargs):
         context = super().get_context_data(id=attempt_id, **kwargs)
         contest = None
+        attempt = None
         if self.request.user.is_authenticated():
             attempt = Attempt.objects.get(id=attempt_id)
             if attempt is not None:
-                contest = Contest.objects.get(id=attempt.problem_in_contest.contest)
-        else:
-            attempt = None
+                contest = attempt.problem_in_contest.contest
         context.update(contest=contest, attempt=attempt)
         return context
