@@ -90,6 +90,17 @@ class TrainingView(TemplateView):
         return context
 
 
+class ProblemView(TrainingView):
+    template_name = 'contests/problem.html'
+
+    def get_context_data(self, *, contest_id, **kwargs):
+        context = super().get_context_data(contest_id=contest_id, **kwargs)
+        problem_number = self.kwargs['problem_number']
+        problem = context['pics'].get(number=problem_number).problem
+        context.update(problem=problem, problem_number=problem_number)
+        return context
+
+
 class SubmitForm(forms.Form):
     def __init__(self, contest_id, *args, **kwargs):
         super().__init__(*args, **kwargs)

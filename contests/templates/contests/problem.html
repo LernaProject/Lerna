@@ -1,0 +1,53 @@
+{% extends 'contests/base.html' %}
+
+{% block body %}
+  {% if problem %}
+
+    <h2>{{ problem_number }}:{{ problem.name }}</h2>
+
+    <p>
+        Ограничение по времени: {{ problem.time_limit_in_secs }} сек<br/>
+        Ограничение по памяти: {{ problem.memory_limit }} МБ
+    </p>
+
+    <i>
+    {% if problem.author %}
+        Авктор задачи: {{ problem.author }}<br/>
+    {% endif %}
+    {% if problem.developer and problem.developer != problem.author %}
+        Разработчик задачи: {{ problem.developer }}<br/>
+    {% endif %}
+    {% if problem.origin %}
+        Источник: {{ problem.origin }}
+    {% endif %}
+    </i>
+
+    <p>{{ problem.description|safe }}</p>
+
+    {% if problem.input_specification %}
+        <b>Входные данные</b>
+        <p>{{ problem.input_specification|safe }}</p>
+    {% endif %}
+
+    {% if problem.output_specification %}
+        <b>Выходные данные</b>
+        <p>{{ problem.output_specification|safe }}</p>
+    {% endif %}
+
+    {% if problem.samples %}
+        <b>Примеры</b>
+        <p>{{ problem.samples|safe }}</p>
+    {% endif %}
+
+    {% if problem.explanations %}
+        <b>Пояснения к примерам</b>
+        <p>{{ problem.explanations|safe }}</p>
+    {% endif %}
+
+    {% if problem.notes %}
+        <b>Примечания</b>
+        <p>{{ problem.notes|safe }}</p>
+    {% endif %}
+
+  {% endif %}
+{% endblock body %}

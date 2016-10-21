@@ -4,7 +4,11 @@
   {% if pics %}
     <ul>
     {% for pic in pics %}
-      <li>{{ pic.number }} : {{ pic.problem.name }}</li>
+      <li>
+        <a href="{% url 'contests:problem' contest_id=contest.id problem_number=pic.number %}">
+          {{ pic.number }} : {{ pic.problem.name }}
+        </a>
+      </li>
     {% endfor %}
     </ul>
   {% else %}
