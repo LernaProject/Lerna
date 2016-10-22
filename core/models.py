@@ -67,6 +67,10 @@ class Contest(models.Model):
     def problem_count(self):
         return self.problem_in_contest_set.count()
 
+    @property
+    def duration_str(self):
+        return '{0}:{1}'.format(self.duration // 60, self.duration % 60)
+
     def __str__(self):
         return self.name
 

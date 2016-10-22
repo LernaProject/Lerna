@@ -19,8 +19,9 @@ class ContestIndexView(TemplateView):
             Contest
             .objects
             .filter(is_training=False)
+            .order_by('-start_time')
         )
-        now = datetime.datetime.now(pytz.timezone(conf.settings.TIME_ZONE))
+        now = datetime.datetime.now()
         actual, awaiting, past = Contest.three_way_split(contests, now)
         context.update(
             actual_contest_list=actual,
