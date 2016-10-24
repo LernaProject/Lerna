@@ -2,38 +2,42 @@ from django.views.generic import ListView
 from django.db.models import Count, Case, When, Q, F
 
 from users.models import User
-from core.models import Attempt
+from core.models import Attempt, Problem
 
 class RatingIndexView(ListView):
     template_name = 'global_statistics/rating.html'
     context_object_name = 'user_list'
-    queryset = (
-        User
-        .objects
-        .all()
-        .annotate(
-            rating=Count(
-                Case(
-                    When(attempt__problem_in_contest__contest__is_admin=True, then=None),
-                    When(
-                        attempt__result='Accepted',
-                        then=F('attempt__problem_in_contest__problem_id')
-                    ),
-                    When(
-                        Q(attempt__result='Tested', attempt__score='100'),
-                        then=F('attempt__problem_in_contest__problem_id')
-                    ),
-                    default=None,
-                ),
-                distinct=True,
-            )
-        )
-        .exclude(rating=0)
-    )
-    ordering = '-rating'
     allow_empty = True
     paginate_by = 25
     paginate_orphans = 1
+
+    def get_queryset(self):
+        users = (
+            User
+            .objects
+            .filter(
+                Q(attempt__problem_in_contest__contest__is_admin=False),
+                Q(attempt__result='Accepted') | Q(attempt__result='Tested', attempt__score__gt=99.99),
+            )
+            .annotate(problems_solved=Count('attempt__problem_in_contest__problem', distinct=True))
+            .order_by('-problems_solved')
+        )
+
+        if len(users) > 0:
+            rank = 1
+            users[0].rank = rank
+            for i in range(1, len(users)):
+                if users[i].problems_solved != users[i-1].problems_solved:
+                    rank += 1
+                users[i].rank = rank
+
+        return users
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        problems_total_amount = Problem.objects.all().count
+        context.update(problems_total_amount=problems_total_amount)
+        return context
 
 
 class AttemptsView(ListView):
