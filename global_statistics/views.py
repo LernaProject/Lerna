@@ -24,12 +24,17 @@ class RatingIndexView(ListView):
         )
 
         if len(users) > 0:
-            rank = 1
-            users[0].rank = rank
-            for i in range(1, len(users)):
-                if users[i].problems_solved != users[i-1].problems_solved:
-                    rank += 1
-                users[i].rank = rank
+            rank_top = 0
+            rank_bottom = 0
+            for i in range(1, len(users) + 1):
+                rank_bottom += 1
+                if i == len(users) or users[i].problems_solved != users[i-1].problems_solved:
+                    if rank_top == rank_bottom - 1:
+                        users[rank_top].rank = '{0}'.format(rank_top + 1)
+                    else:
+                        for rank in range(rank_top, rank_bottom):
+                            users[rank].rank = '{0}-{1}'.format(rank_top + 1, rank_bottom)
+                    rank_top = rank_bottom
 
         return users
 
