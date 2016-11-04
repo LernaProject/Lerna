@@ -1,81 +1,9 @@
-# `./manage.py fetchstatic` can be used to download all these files at once.
-
-#! fetchstatic(begin)
-
-# https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js
-/static/jquery.min.js
-
-# https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js
-/static/jquery-ui.min.js
-
-# https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/themes/smoothness/jquery-ui.min.css
-/static/jquery-ui.min.css
-
-# https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/themes/smoothness/images/ui-icons_222222_256x240.png
-/static/images/ui-icons_222222_256x240.png
-
-# https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/themes/smoothness/images/ui-bg_flat_75_ffffff_40x100.png
-/static/images/ui-bg_flat_75_ffffff_40x100.png
-
-#! fetchstatic(end)
-
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-/env/
-/build/
-/develop-eggs/
-/dist/
-/downloads/
-/eggs/
-/lib/
-/lib64/
-/parts/
-/sdist/
-/var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.cache
-nosetests.xml
-coverage.xml
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
+# Temporary stuff:
 *.log
-
-# Sphinx documentation
-/docs/_build/
-
-# PyBuilder
-/target/
-
-# Temporary files
 tmp/
 *~
 *.swp
@@ -87,6 +15,3 @@ tmp/
 .idea/
 *.sublime-project
 *.sublime-workspace
-
-# Screen logs
-screenlog.0
