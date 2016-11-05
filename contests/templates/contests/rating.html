@@ -9,12 +9,18 @@
   <tr>
     <th>Ранг</th>
     <th>Имя</th>
-    <th>Задач (из {{ problems_total_amount }})</th>
+    {% for problem in problems %}
+        <th><span title="{{ problem.problem.name }}">{{ problem.number }}</span></th>
+    {% endfor %}
+    <th>Задач<br/>(из {{ contest.problem_count }})</th>
   </tr>
   {% for user in user_list %}
     <tr>
        <td>{{ user.rank }}</td>
        <td>{{ user.username }}</td>
+        {% for status in user.problems_status %}
+            <td>{{ status }}</td>
+        {% endfor %}
        <td>{{ user.problems_solved }}</td>
     </tr>
   {% endfor %}
@@ -33,9 +39,9 @@
       {{ i }}
     {% else %}
       {% if i == 1 %}
-        {% url 'contests:rating' as u %}
+        {% url 'contests:rating' contest.id as u %}
       {% else %}
-        {% url 'contests:rating' i as u %}
+        {% url 'contests:rating' contest.id i as u %}
       {% endif %}
       <a href="{{ u }}">{{ i }}</a>
     {% endif %}

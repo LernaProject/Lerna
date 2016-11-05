@@ -239,18 +239,52 @@ class RatingView(ListView):
                             users[rank].rank = '{0}-{1}'.format(rank_top + 1, rank_bottom)
                     rank_top = rank_bottom
 
-        return users
-
-    def get_context_data(self, **kwargs):
-        contest = Contest.objects.get(id=self.kwargs['contest_id'])
-        context = super().get_context_data(**kwargs)
-        problems_total_amount = (
+        problems = (
             ProblemInContest
             .objects
             .filter(
                 Q(contest_id=contest.id)
             )
-            .count
         )
-        context.update(contest=contest, problems_total_amount=problems_total_amount)
+        for user in users:
+            solved = (
+                ProblemInContest
+                .objects
+                .filter(
+                    Q(attempt__problem_in_contest__contest_id=contest.id),
+                    Q(attempt__result='Accepted') | Q(attempt__result='Tested', attempt__score__gt=99.99),
+                    Q(attempt__user=user)
+                )
+            )
+            tryed = (
+                ProblemInContest
+                    .objects
+                    .filter(
+                    Q(attempt__problem_in_contest__contest_id=contest.id),
+                    Q(attempt__user=user)
+                )
+            )
+            problems_status = ['.'] * len(problems)
+            for problem in problems:
+                if problem in solved:
+                    problems_status[problem.number - 1] = '+'
+                elif problem in tryed:
+                    problems_status[problem.number - 1] = '-'
+            user.problems_status = problems_status
+
+
+        return users
+
+    def get_context_data(self, **kwargs):
+        contest = Contest.objects.get(id=self.kwargs['contest_id'])
+        problems = (
+            ProblemInContest
+            .objects
+            .filter(
+                Q(contest_id=contest.id)
+            )
+            .order_by('number')
+        )
+        context = super().get_context_data(**kwargs)
+        context.update(contest=contest, problems=problems)
         return context
