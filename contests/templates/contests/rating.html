@@ -1,8 +1,8 @@
-{% extends 'global.html' %}
+{% extends 'contests/base.html' %}
 
 {% block body %}
 
-<h2>Глобальный рейтинг</h2>
+<h2>Рейтинг</h2>
 
 {% if user_list %}
   <table>
@@ -33,9 +33,9 @@
       {{ i }}
     {% else %}
       {% if i == 1 %}
-        {% url 'global_statistics:rating' as u %}
+        {% url 'contests:rating' as u %}
       {% else %}
-        {% url 'global_statistics:rating' i as u %}
+        {% url 'contests:rating' i as u %}
       {% endif %}
       <a href="{{ u }}">{{ i }}</a>
     {% endif %}

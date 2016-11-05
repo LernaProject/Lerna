@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from .views import (
     ContestIndexView, TrainingIndexView, TrainingView, ProblemView, AttemptsView, SourceView, ErrorsView,
-    SubmitView,
+    SubmitView, RatingView
 )
 
 urlpatterns = (
@@ -15,4 +15,6 @@ urlpatterns = (
     url(r'^attempts/(?P<contest_id>\d+)/(?P<page>\d+)$', AttemptsView.as_view(), name='attempts'),
     url(r'^source/(?P<attempt_id>\d+)$', SourceView.as_view(), name='source'),
     url(r'^errors/(?P<attempt_id>\d+)$', ErrorsView.as_view(), name='errors'),
+    url(r'^rating/(?P<contest_id>\d+)$', RatingView.as_view(), name='rating'),
+    url(r'^rating/(?P<contest_id>\d+)/(?P<page>\d+)$', RatingView.as_view(), name='rating'),
 )

@@ -11,7 +11,7 @@
     <a href="{% url 'contests:training' contest_id=contest.id %}">Задания</a>
     <a href="{% url 'contests:submit' contest_id=contest.id %}">Послать</a>
     <a href="{% url 'contests:attempts' contest_id=contest.id %}">Очередь</a>
-    <a href="">Рейтинг</a>
+    <a href="{% url 'contests:rating' contest_id=contest.id %}">Рейтинг</a>
     <a href="">Вопросы</a>
   </p>
 {% endblock links %}

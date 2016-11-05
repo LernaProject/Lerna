@@ -1,5 +1,5 @@
 from django.views.generic import ListView
-from django.db.models import Count, Case, When, Q, F
+from django.db.models import Count, Q
 
 from users.models import User
 from core.models import Attempt, Problem

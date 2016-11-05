@@ -1,13 +1,14 @@
-from django.shortcuts          import get_object_or_404, render, redirect
+from django.shortcuts          import render, redirect
 from django.views.generic      import TemplateView, ListView
 from django.views.generic.edit import FormView
-from django                    import conf, forms
+from django                    import forms
+from django.db.models import Count, Q
 
 import datetime
 import os
-import pytz
 
 from core.models import Contest, ProblemInContest, Attempt, Compiler
+from users.models import User
 
 
 class ContestIndexView(TemplateView):
@@ -202,4 +203,54 @@ class ErrorsView(TemplateView):
             if attempt is not None:
                 contest = attempt.problem_in_contest.contest
         context.update(contest=contest, attempt=attempt)
+        return context
+
+
+class RatingView(ListView):
+    template_name = 'contests/rating.html'
+    context_object_name = 'user_list'
+    allow_empty = True
+    paginate_by = 25
+    paginate_orphans = 1
+
+    def get_queryset(self):
+        contest = Contest.objects.get(id=self.kwargs['contest_id'])
+        users = (
+            User
+            .objects
+            .filter(
+                Q(attempt__problem_in_contest__contest_id=contest.id),
+                Q(attempt__result='Accepted') | Q(attempt__result='Tested', attempt__score__gt=99.99),
+            )
+            .annotate(problems_solved=Count('attempt__problem_in_contest__problem', distinct=True))
+            .order_by('-problems_solved')
+        )
+
+        if len(users) > 0:  # todo: такой же код, как и в глобальном рейтинге, нужно вынести это как функцию
+            rank_top = 0
+            rank_bottom = 0
+            for i in range(1, len(users) + 1):
+                rank_bottom += 1
+                if i == len(users) or users[i].problems_solved != users[i-1].problems_solved:
+                    if rank_top == rank_bottom - 1:
+                        users[rank_top].rank = '{0}'.format(rank_top + 1)
+                    else:
+                        for rank in range(rank_top, rank_bottom):
+                            users[rank].rank = '{0}-{1}'.format(rank_top + 1, rank_bottom)
+                    rank_top = rank_bottom
+
+        return users
+
+    def get_context_data(self, **kwargs):
+        contest = Contest.objects.get(id=self.kwargs['contest_id'])
+        context = super().get_context_data(**kwargs)
+        problems_total_amount = (
+            ProblemInContest
+            .objects
+            .filter(
+                Q(contest_id=contest.id)
+            )
+            .count
+        )
+        context.update(contest=contest, problems_total_amount=problems_total_amount)
         return context
