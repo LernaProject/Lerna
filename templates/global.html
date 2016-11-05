@@ -1,24 +1,22 @@
 {% extends 'base.html' %}
 
-{% load staticfiles %}
+{% load pipeline %}
 
 {% block stylesheet_links %}
-  <link rel="stylesheet" href="{% static 'jquery/jquery-ui.min.css' %}">
-  <link rel="stylesheet" href="{% static 'foundation/foundation.css' %}">
+  {% stylesheet 'jquery' %}
+  {% stylesheet 'foundation' %}
 {% endblock stylesheet_links %}
 
 {% block javascript_links %}
-  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-  <script>
-    if (!window.jQuery) {
-      document.write('<script src="{% static 'jquery/jquery.min.js' %}"><\/script>');
-      document.write('<script src="{% static 'jquery/jquery-ui.min.js' %}"><\/script>');
-    }
-  </script>
-  <script src="{% static 'foundation/foundation.js' %}"></script>
-  <script src="{% static 'foundation/what-input.js' %}"></script>
+  {% if debug %}
+    {% javascript 'jquery' %}
+  {% else %}
+    {# This scripts hardcoded for fast user-side load in case they're already in cache #}
+    {# TODO(viers): Find a way for falling back to a local copies in case google loading failed #}
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+  {% endif %}
 {% endblock javascript_links %}
 
 {% block links %}

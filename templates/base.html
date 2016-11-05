@@ -2,12 +2,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 {% endblock %}
 
-<style>
-  table {
-    width: 100%
-  }
-</style>
-
 {% load staticfiles %}
 
 <html>
@@ -19,6 +13,13 @@
     {% block favicon %}
       <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}" />
     {% endblock %}
+
+    <!-- <# TODO(viers): Remove this during redesign #} -->
+    <style>
+      table {
+        width: 100%
+      }
+    </style>
 
     {% block stylesheet_links %}{% endblock %}
 

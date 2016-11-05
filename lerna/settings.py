@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ajax_select',
+    'pipeline',
     'scripts',
     'core',
     'users',
@@ -93,16 +94,60 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
+# TODO(viers): Think about moving this in another file - this section could grow quite large
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/piped')
+
 STATIC_URL = '/static/'
 
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'pipeline.finders.PipelineFinder',
+)
+
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'static/src'),
 )
 
 AJAX_SELECT_BOOTSTRAP = False
 
 DEBUG_TOOLBAR_CONFIG = {
     'JQUERY_URL': '/static/jquery/jquery.min.js',
+}
+
+PIPELINE = {
+    'JAVASCRIPT': {
+        'jquery': {
+            'source_filenames': (
+              'jquery/jquery.min.js',
+              'jquery/jquery-ui.min.js',
+            ),
+            'output_filename': 'jquery.piped.min.js',
+        },
+        'foundation': {
+            'source_filenames': (
+                'foundation/foundation.js',
+                'foundation/what-input.js',
+            ),
+            'output_filename': 'foundation.piped.min.js',
+        }
+    },
+    'STYLESHEETS': {
+        'jquery': {
+            'source_filenames': (
+              'jquery-ui.min.css',
+            ),
+            'output_filename': 'jquery.piped.min.css',
+        },
+        'foundation': {
+            'source_filenames': (
+                'foundation/foundation.css',
+            ),
+            'output_filename': 'foundation.piped.min.css',
+        }
+    },
 }
 
 # Authorizing
@@ -129,3 +174,8 @@ with contextlib.suppress(NameError):
 with contextlib.suppress(NameError):
     for key, value in APPEND.items():
         globals()[key] += value
+
+
+# Minification settings should be defined after DEBUG received it's final value
+
+PIPELINE['PIPELINE_ENABLED'] = not DEBUG
