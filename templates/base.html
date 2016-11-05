@@ -20,6 +20,8 @@
       <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}" />
     {% endblock %}
 
+    {% block stylesheet_links %}{% endblock %}
+
     {% block head %}{% endblock %}
   </head>
   <body>
@@ -42,5 +44,7 @@
     {% block links %}{% endblock links %}
 
     {% block body %}{% endblock body %}
+
+    {% block javascript_links %}{% endblock %}
   </body>
 </html>

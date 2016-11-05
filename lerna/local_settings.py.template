@@ -62,11 +62,6 @@ DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.redirects.RedirectsPanel',
 )
 
-DEBUG_TOOLBAR_CONFIG = {
-    'JQUERY_URL': '/static/jquery.min.js',
-}
-
-
 TESTER = {
     # User the solutions are invoked under. Leave blank to use current user. Linux only.
     'INVOKER':           "",

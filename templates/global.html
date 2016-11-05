@@ -1,5 +1,26 @@
 {% extends 'base.html' %}
 
+{% load staticfiles %}
+
+{% block stylesheet_links %}
+  <link rel="stylesheet" href="{% static 'jquery/jquery-ui.min.css' %}">
+  <link rel="stylesheet" href="{% static 'foundation/foundation.css' %}">
+{% endblock stylesheet_links %}
+
+{% block javascript_links %}
+  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+  <script>
+    if (!window.jQuery) {
+      document.write('<script src="{% static 'jquery/jquery.min.js' %}"><\/script>');
+      document.write('<script src="{% static 'jquery/jquery-ui.min.js' %}"><\/script>');
+    }
+  </script>
+  <script src="{% static 'foundation/foundation.js' %}"></script>
+  <script src="{% static 'foundation/what-input.js' %}"></script>
+{% endblock javascript_links %}
+
 {% block links %}
   <p>
     <a href="{% url 'news:index' %}">Новости</a>
