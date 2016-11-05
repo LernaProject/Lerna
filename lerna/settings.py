@@ -97,6 +97,10 @@ USE_TZ = True
 # TODO(viers): Think about moving this in another file - this section could grow quite large
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/piped')
 
+# FORCE_MINIFICATION could be overwritten in local settings
+
+FORCE_MINIFICATION = False
+
 STATIC_URL = '/static/'
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
@@ -178,4 +182,4 @@ with contextlib.suppress(NameError):
 
 # Minification settings should be defined after DEBUG received it's final value
 
-PIPELINE['PIPELINE_ENABLED'] = not DEBUG
+PIPELINE['PIPELINE_ENABLED'] = not DEBUG or FORCE_MINIFICATION
