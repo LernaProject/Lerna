@@ -1,26 +1,33 @@
-{# Uncomment in production: #}{# {% spaceless %} #}
-{% block doctype %}
+{% block base_doctype %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 {% endblock %}
-
-<style>
-  table {
-    width: 100%
-  }
-</style>
 
 {% load staticfiles %}
 
 <html>
   <head>
-    <title>{% block title %}Lerna{% endblock %}</title>
+    <title>
+      {% block base_title %}Lerna {% endblock %}
+      {% block title %}{% endblock %}
+    </title>
     {% block favicon %}
       <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}" />
     {% endblock %}
+
+    <!-- <# TODO(viers): Remove this during redesign #} -->
+    <style>
+      table {
+        width: 100%
+      }
+    </style>
+
+    {% block stylesheet_links %}{% endblock %}
+
     {% block head %}{% endblock %}
   </head>
   <body>
     <h1><a href="{% url 'index' %}">Lerna</a></h1>
+
     {% if user.is_authenticated %}
       <p>
           Вы зашли как {{ user.username }}
@@ -32,9 +39,13 @@
         <a href="{% url 'login' %}">Войдите</a> в систему или <a href="{% url 'registration' %}">зарегистрируйтесь.</a>
       </p>
     {% endif %}
+
     {% block local_title %}{% endblock local_title %}
+
     {% block links %}{% endblock links %}
+
     {% block body %}{% endblock body %}
+
+    {% block javascript_links %}{% endblock %}
   </body>
 </html>
-{# {% endspaceless %} #}

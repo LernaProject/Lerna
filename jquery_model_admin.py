@@ -1,6 +1,6 @@
 class JQueryModelAdmin:
     class Media:
-        js = ('jquery.min.js', 'jquery-ui.min.js')
+        js = ('jquery/jquery.min.js', 'jquery/jquery-ui.min.js')
         css = {
-            'all': ['jquery-ui.min.css'],
+            'all': ['jquery/jquery-ui.min.css'],
         }
