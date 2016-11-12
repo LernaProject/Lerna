@@ -1,25 +1,23 @@
-{% extends 'contests/base.html' %}
+{% extends 'global.html' %}
 
 {% block body %}
+
+<h2>Рейтинг используемого времени для решений задачи «{{ problem.name }}»</h2>
 
 {% if user_list %}
   <table>
   <tr>
     <th>Ранг</th>
     <th>Имя</th>
-    {% for problem in problems %}
-        <th><span title="{{ problem.problem.name }}">{{ problem.number }}</span></th>
-    {% endfor %}
-    <th>Задач<br/>(из {{ contest.problem_count }})</th>
+    <th>Время</th>
+    <th>Компилятор</th>
   </tr>
   {% for user in user_list %}
     <tr>
        <td>{{ user.rank }}</td>
        <td>{{ user.username }}</td>
-        {% for status in user.problems_status %}
-            <td>{{ status }}</td>
-        {% endfor %}
-       <td>{{ user.problems_solved }}</td>
+       <td>{{ user.best_time }}</td>
+       <td>{{ user.compiler }}</td>
     </tr>
   {% endfor %}
   </table>
@@ -37,9 +35,9 @@
       {{ i }}
     {% else %}
       {% if i == 1 %}
-        {% url 'contests:rating' contest.id as u %}
+        {% url 'global_statistics:best_time' problem.id as u %}
       {% else %}
-        {% url 'contests:rating' contest.id i as u %}
+        {% url 'global_statistics:best_time' problem.id i as u %}
       {% endif %}
       <a href="{{ u }}">{{ i }}</a>
     {% endif %}

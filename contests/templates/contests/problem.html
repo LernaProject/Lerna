@@ -5,6 +5,8 @@
 
     <h2>{{ problem_number }}:{{ problem.name }}</h2>
 
+    <a href="{% url 'global_statistics:best_time' problem_id=problem.id %}">Статистика</a>
+
     <p>
         Ограничение по времени: {{ problem.time_limit_in_secs }} сек<br/>
         Ограничение по памяти: {{ problem.memory_limit }} МБ
