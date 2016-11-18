@@ -27,14 +27,21 @@ class Command(BaseCommand):
             pip.main(["install", "--upgrade", "-r", "requirements.txt"])
             print('Pip install done.')
 
-        if not options['without_migrate']:
-            print('DB scheme migration started...')
-            os.system(os.sys.executable + " manage.py migrate")
-            print('DB scheme migration done.')
-
         if not options['without_static']:
             print('Static collecting and minification started...')
-            os.system(os.sys.executable + " manage.py collectstatic --noinput --clear")
+            result = os.system(os.sys.executable +
+                               " manage.py collectstatic --noinput --clear > static/piped.log")
+            if result:
+                print('Ended with error! Aborting...')
+                exit(1)
             print('Static collecting and minification done.')
+
+        if not options['without_migrate']:
+            print('DB scheme migration started...')
+            result = os.system(os.sys.executable + " manage.py migrate")
+            if result:
+                print('Ended with error! Aborting...')
+                exit(1)
+            print('DB scheme migration done.')
 
         print('Sync finished.')
