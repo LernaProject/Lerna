@@ -1,12 +1,14 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-piped/
 *.py[cod]
 
+# Directory for local run/deployment files
+build/
+
 # Temporary stuff:
-*.log
 tmp/
 *~
+*.log
 *.swp
 
 # SQLite databases

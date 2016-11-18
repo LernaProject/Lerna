@@ -29,8 +29,10 @@ class Command(BaseCommand):
 
         if not options['without_static']:
             print('Static collecting and minification started...')
+            print('Logs are in build/logs/piped_static.log')
+            os.system("mkdir -p build/logs")
             result = os.system(os.sys.executable +
-                               " manage.py collectstatic --noinput --clear > static/piped.log")
+                               " manage.py collectstatic --noinput --clear > build/logs/piped_static.log")
             if result:
                 print('Ended with error! Aborting...')
                 exit(1)

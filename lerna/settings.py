@@ -8,7 +8,9 @@ import contextlib
 from .base_settings import *
 
 
+##########################################################
 # Local settings, must be overridden in local_settings.py
+##########################################################
 
 SECRET_KEY = ""
 
@@ -25,10 +27,11 @@ DATABASES = {
     }
 }
 
-# Non-local settings
+##########################################################
+# Global settings
+##########################################################
 
 # Application definition
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -80,7 +83,6 @@ TEMPLATES = (
 WSGI_APPLICATION = 'lerna.wsgi.application'
 
 # Internationalization
-
 LANGUAGE_CODE = 'ru-RU'
 
 # TODO(viers): Do something with TZ, at least it must be moved to local settings
@@ -94,13 +96,8 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-
 # TODO(viers): Think about moving this in another file - this section could grow quite large
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/piped')
-
-# FORCE_MINIFICATION could be overwritten in local settings
-
-FORCE_MINIFICATION = False
+STATIC_ROOT = os.path.join(BASE_DIR, 'build/static')
 
 STATIC_URL = '/static/'
 
@@ -159,7 +156,6 @@ PIPELINE = {
 
 
 # Authorizing
-
 AUTH_USER_MODEL = 'users.User'
 
 TESTER = {
@@ -170,9 +166,9 @@ TESTER = {
     'CHECKER_DIRECTORY': "",
 }
 
-
+##########################################################
 # Applying local settings
-
+##########################################################
 from .local_settings import *
 
 with contextlib.suppress(NameError):
@@ -184,6 +180,5 @@ with contextlib.suppress(NameError):
         globals()[key] += value
 
 
-# Minification settings should be defined after DEBUG received it's final value
-
-PIPELINE['PIPELINE_ENABLED'] = not DEBUG or FORCE_MINIFICATION
+# Compress static only in release mode. Should be defined after DEBUG received it's final value.
+PIPELINE['PIPELINE_ENABLED'] = not DEBUG
