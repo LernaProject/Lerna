@@ -1,0 +1,33 @@
+# This file overrides project settings from settings.py for production
+# Copy this file, rename it to local_settings.py and edit.
+from .base_settings import *
+
+DEBUG = False
+
+# You may use http://miniwebtool.com/django-secret-key-generator/ to generate a unique secret key.
+SECRET_KEY = ""
+
+# A list of host/domain names that Django site can serve.
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '.example.com']
+
+DATABASES = {
+    'default': {
+        'ENGINE':   'django.db.backends.postgresql_psycopg2',
+        'NAME':     'lerna',
+        'USER':     '',
+        'PASSWORD': '',
+        'HOST':     '',
+        # 'PORT':   5432,
+    }
+}
+
+TESTER = {
+    # User the solutions are invoked under. Leave blank to use current user. Linux only.
+    'INVOKER':           "",
+    # Path to `ejudge-execute`. Leave blank to avoid using it.
+    'EJUDGE_EXECUTE':    "",
+    # Location of the repo with tests and checkers.
+    'PROBLEM_DIRECTORY': '~/lerna.problems',
+    # Location of the standard checkers directory.
+    'CHECKER_DIRECTORY': '~/lerna.checkers/bin',
+}
