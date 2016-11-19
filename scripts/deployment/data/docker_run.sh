@@ -16,5 +16,5 @@ echo "launching nginx..."
 nginx -t
 nginx &
 
-echo "launching gunicorn..."
-gunicorn lerna.wsgi:application --workers 3 --bind unix:/lerna/build/gunicorn.sock
+echo "launching supervisor with gunicorn..."
+/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
