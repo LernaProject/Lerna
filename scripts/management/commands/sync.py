@@ -22,6 +22,14 @@ class Command(BaseCommand):
 
         os.chdir(base_dir)
         print('Sync started...')
+
+        print('Build directory cleanup started...')
+        result = os.system("rm -rf build/*")
+        if result:
+            print('Build directory cleanup failed, aborting...')
+            exit(1)
+        print('Build directory cleanup done.')
+
         if not options['without_pip']:
             print('Pip install...')
             pip.main(["install", "--upgrade", "-r", "requirements.txt"])

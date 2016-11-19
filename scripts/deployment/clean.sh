@@ -11,5 +11,3 @@ docker ps -a | grep 'Exited' | awk '{print $1}' | xargs --no-run-if-empty docker
 docker images | grep "<none>" | awk '{print $3}' | xargs --no-run-if-empty docker rmi
 # Remove previous lerna/web images
 docker images | grep "${DOCKER_IMAGE_ID}" | awk '{print $3}' | xargs --no-run-if-empty docker rmi
-# Clean build files
-rm -rf ${PROJECT_DIR}/build/*

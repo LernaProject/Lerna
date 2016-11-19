@@ -15,11 +15,14 @@ if [ `docker inspect -f {{.State.Running}} ${DOCKER_CONTAINER_ID}` ]; then
 fi
 
 # run docker container from image ${DOCKER_IMAGE_ID}
+# --sig-proxy=false         - do not proxy console commands (Ctrl+C) inside
+# -d                        - detach right after container was started
+# --publish <host>:<docker> - publish exposed <docker> port at <host> one
 # --name <name>             - docker container uid
-# --net="host"              - allow docker image use local resources
 # --volume <local>:<docker> - mount <local> directory into containers <docker> directory
 docker run \
+       --sig-proxy=false \
+       --publish 80:3000 \
        --name ${DOCKER_CONTAINER_ID} \
-       --net="host" \
        --volume ${PROJECT_DIR}:/lerna \
        ${DOCKER_IMAGE_ID}
