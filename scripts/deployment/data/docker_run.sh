@@ -8,7 +8,6 @@ pip install -r requirements.txt --upgrade
 python manage.py sync -p
 
 echo "creating log files..."
-# nginx launch
 mkdir -p /lerna/build/logs
 touch /lerna/build/logs/nginx-errors.log
 touch /lerna/build/logs/nginx-access.log
@@ -18,4 +17,4 @@ nginx -t
 nginx &
 
 echo "launching gunicorn..."
-python manage.py runserver 0.0.0.0:3020
+gunicorn lerna.wsgi:application --workers 3 --bind unix:/lerna/build/gunicorn.sock

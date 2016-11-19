@@ -20,4 +20,7 @@ RUN apt-get update && apt-get install -y nginx
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/*
 RUN rm /etc/nginx/sites-available/*
-COPY nginx.conf /etc/nginx/sites-enabled
+COPY lerna.nginx /etc/nginx/sites-enabled
+
+# Settings up gUnicorn
+RUN pip install gunicorn
