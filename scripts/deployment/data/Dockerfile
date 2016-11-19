@@ -5,9 +5,6 @@ MAINTAINER Chernousov Ivan <krusnik.viers@gmail.com>
 COPY docker_run.sh /
 ENTRYPOINT ./docker_run.sh
 
-# Opening port for server
-EXPOSE 3000
-
 # Preparing directory for lerna sources
 RUN mkdir /lerna
 
