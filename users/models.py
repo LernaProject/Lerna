@@ -67,6 +67,20 @@ class User(auth.models.AbstractBaseUser):
         return self.username
 
 
+def rank_users(users, field_name):
+    rank_top = 0
+    rank_bottom = 0
+    for i in range(1, len(users) + 1):
+        rank_bottom += 1
+        if i == len(users) or getattr(users[i], field_name) != getattr(users[i - 1], field_name):
+            if rank_top == rank_bottom - 1:
+                users[rank_top].rank = '{0}'.format(rank_top + 1)
+            else:
+                for rank in range(rank_top, rank_bottom):
+                    users[rank].rank = '{0}-{1}'.format(rank_top + 1, rank_bottom)
+            rank_top = rank_bottom
+
+
 class Achievement(models.Model):
     # TODO: Add the DB index.
     user               = models.ForeignKey(User, db_index=False)

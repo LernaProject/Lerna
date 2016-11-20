@@ -1,7 +1,7 @@
 from django.views.generic import ListView
 from django.db.models import Count, Q, Min
 
-from users.models import User
+from users.models import User, rank_users
 from core.models import Attempt, Problem
 
 
@@ -23,20 +23,7 @@ class RatingIndexView(ListView):
             .annotate(problems_solved=Count('attempt__problem_in_contest__problem', distinct=True))
             .order_by('-problems_solved')
         )
-
-        if len(users) > 0:
-            rank_top = 0
-            rank_bottom = 0
-            for i in range(1, len(users) + 1):
-                rank_bottom += 1
-                if i == len(users) or users[i].problems_solved != users[i-1].problems_solved:
-                    if rank_top == rank_bottom - 1:
-                        users[rank_top].rank = '{0}'.format(rank_top + 1)
-                    else:
-                        for rank in range(rank_top, rank_bottom):
-                            users[rank].rank = '{0}-{1}'.format(rank_top + 1, rank_bottom)
-                    rank_top = rank_bottom
-
+        rank_users(users, 'problems_solved')
         return users
 
     def get_context_data(self, **kwargs):
@@ -87,20 +74,7 @@ class BestTimeView(ListView):
             .annotate(compiler=Min('attempt__compiler__name'))
             .order_by('best_time')
         )
-
-        if len(users) > 0:
-            rank_top = 0
-            rank_bottom = 0
-            for i in range(1, len(users) + 1):
-                rank_bottom += 1
-                if i == len(users) or users[i].best_time != users[i - 1].best_time:
-                    if rank_top == rank_bottom - 1:
-                        users[rank_top].rank = '{0}'.format(rank_top + 1)
-                    else:
-                        for rank in range(rank_top, rank_bottom):
-                            users[rank].rank = '{0}-{1}'.format(rank_top + 1, rank_bottom)
-                    rank_top = rank_bottom
-
+        rank_users(users, 'best_time')
         return users
 
     def get_context_data(self, **kwargs):
