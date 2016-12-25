@@ -40,15 +40,16 @@ class AttemptsView(ListView):
     paginate_orphans = 1
 
     def get_queryset(self):
-        attempts = None
+        user = None
         if self.request.user.is_authenticated():
-            attempts = (
-                Attempt
-                .objects
-                .filter(user=self.request.user)
-                .select_related('problem_in_contest', 'compiler')
-                .order_by('-created_at')
-            )
+            user = self.request.user
+        attempts = (
+            Attempt
+            .objects
+            .filter(user=user)
+            .select_related('problem_in_contest', 'compiler')
+            .order_by('-created_at')
+        )
         return attempts
 
 

@@ -37,6 +37,29 @@
         </tr>
       {% endfor %}
       </table>
+
+      {% if page_obj %}
+        <div class="pagination">
+          <span class="step-links">
+
+          {% for i in paginator.page_range %}
+            [
+            {% if i == page_obj.number %}
+              {{ i }}
+            {% else %}
+              {% if i == 1 %}
+                {% url 'global_statistics:attempts' as u %}
+              {% else %}
+                {% url 'global_statistics:attempts' i as u %}
+              {% endif %}
+              <a href="{{ u }}">{{ i }}</a>
+            {% endif %}
+            ]
+          {% endfor %}
+
+          </span>
+        </div>
+      {% endif %}
     {% else %}
       <p>На этой странице будет отображаться очередь ваших посылок</p>
     {% endif %}
@@ -45,28 +68,4 @@
       Войдите в систему, используя аккаунт пользователя, чтобы просматривать очередь своих попыток.
     </p>
   {% endif %}
-
-{% if page_obj %}
-<div class="pagination">
-  <span class="step-links">
-
-  {% for i in paginator.page_range %}
-    [
-    {% if i == page_obj.number %}
-      {{ i }}
-    {% else %}
-      {% if i == 1 %}
-        {% url 'global_statistics:attempts' as u %}
-      {% else %}
-        {% url 'global_statistics:attempts' i as u %}
-      {% endif %}
-      <a href="{{ u }}">{{ i }}</a>
-    {% endif %}
-    ]
-  {% endfor %}
-
-  </span>
-</div>
-{% endif %}
-
 {% endblock body %}

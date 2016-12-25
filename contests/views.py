@@ -158,15 +158,16 @@ class AttemptsView(ListView):
 
     def get_queryset(self):
         contest = Contest.objects.get(id=self.kwargs['contest_id'])
-        attempts = None
+        user = None
         if self.request.user.is_authenticated():
-            attempts = (
-                Attempt
-                .objects
-                .filter(problem_in_contest__contest=contest, user=self.request.user)
-                .select_related('problem_in_contest', 'compiler')
-                .order_by('-created_at')
-            )
+            user = self.request.user
+        attempts = (
+            Attempt
+            .objects
+            .filter(problem_in_contest__contest=contest, user=user)
+            .select_related('problem_in_contest', 'compiler')
+            .order_by('-created_at')
+        )
         return attempts
 
     def get_context_data(self, **kwargs):
