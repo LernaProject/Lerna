@@ -32,11 +32,17 @@
       <p>
           Вы зашли как {{ user.username }}
           <a href="{% url 'global_statistics:attempts' %}">Попытки</a>
-          <a href="{% url 'logout' %}">Выйти</a>
+          <a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a>
       </p>
     {% else %}
       <p>
-        <a href="{% url 'login' %}">Войдите</a> в систему или <a href="{% url 'registration' %}">зарегистрируйтесь.</a>
+        <a href="{% url 'login' %}?back={{ request.path }}">
+            Войдите
+        </a>
+        в систему или
+        <a href="{% url 'registration' %}?back={{ request.path }}">
+            зарегистрируйтесь
+        </a>
       </p>
     {% endif %}
 

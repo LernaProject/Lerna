@@ -8,20 +8,18 @@
 
 <form method="post" action="{% url 'registration' %}">
 {% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.login.label_tag }}</td>
-    <td>{{ form.login }}</td>
-</tr>
-<tr>
-    <td>{{ form.email.label_tag }}</td>
-    <td>{{ form.email }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+
+<div>{{ form.login.label_tag }}</div>
+<div>{{ form.login }}</div>
+
+<div>{{ form.username.label_tag }}</div>
+<div>{{ form.username }}</div>
+
+<div>{{ form.email.label_tag }}</div>
+<div>{{ form.email }}</div>
+
+<div>{{ form.password.label_tag }}</div>
+<div>{{ form.password }}</div>
 
 <input type="submit" value="Зарегистрироваться" />
 <input type="hidden" name="next" value="{{ next }}" />

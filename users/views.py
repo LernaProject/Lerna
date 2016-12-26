@@ -1,4 +1,4 @@
-from django.shortcuts     import render
+from django.shortcuts     import render, redirect
 from django.views.generic import TemplateView
 from django               import forms
 from users.models         import User
@@ -6,9 +6,10 @@ from django.contrib.auth  import authenticate, login
 
 
 class RegistrationForm(forms.Form):
-    login    = forms.CharField(label='login', max_length=255)
-    email    = forms.EmailField(label='email', max_length=255)
-    password = forms.CharField(label='password', max_length=255, widget=forms.PasswordInput)
+    login    = forms.CharField(label='Логин', max_length=255)
+    username = forms.CharField(label='Отображаемое имя', max_length=255)
+    email    = forms.EmailField(label='E-mail', max_length=255)
+    password = forms.CharField(label='Пароль', max_length=255, widget=forms.PasswordInput)
 
 
 class Registration(TemplateView):
@@ -16,18 +17,22 @@ class Registration(TemplateView):
     template_name = 'users/registration.html'
 
     def get(self, request, *args, **kwargs):
+        request.session['back'] = request.GET.get('back', '/')
         return render(request, self.template_name, {'form': self.form_class()})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+        back = request.session['back']
         if form.is_valid():
             user_login = form.cleaned_data['login']
+            username = form.cleaned_data['username']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            User.objects.create_user(user_login, email, password)
+            User.objects.create_user(user_login, username, password, email)
             user = authenticate(username=user_login, password=password)
             if user is not None and user.is_active:
                 login(request, user)
+                return redirect(back)
 
         return render(request, self.template_name, {'form': form})
