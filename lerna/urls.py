@@ -19,11 +19,9 @@ from ajax_select         import urls as ajax_select_urls
 from django.conf         import settings
 from django.conf.urls    import include, url
 from django.contrib      import admin
-from django.contrib      import auth
-from django.contrib.auth import views as auth_views
 
 from news.views  import IndexView
-from users.views import Registration
+from users.views import Registration, Login, Logout
 
 urlpatterns = (
     url(r'^$', IndexView.as_view(), name='index'),
@@ -33,9 +31,8 @@ urlpatterns = (
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ajax_select/', include(ajax_select_urls)),
 
-    # url('^', include('django.contrib.auth.urls')),
-    url(r'^login/$', auth_views.login, {'template_name': 'users/login.html'}, name='login'),
-    url(r'^logout/$', auth_views.logout, name='logout'),
+    url(r'^login/$', Login.as_view(), name='login'),
+    url(r'^logout/$', Logout.as_view(), name='logout'),
     url(r'^registration/$', Registration.as_view(), name='registration'),
 )
 

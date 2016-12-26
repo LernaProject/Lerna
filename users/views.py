@@ -1,8 +1,8 @@
 from django.shortcuts     import render, redirect
-from django.views.generic import TemplateView
+from django.views.generic import View, TemplateView
 from django               import forms
 from users.models         import User
-from django.contrib.auth  import authenticate, login
+from django.contrib.auth  import authenticate, login, logout
 
 
 class RegistrationForm(forms.Form):
@@ -36,3 +36,37 @@ class Registration(TemplateView):
                 return redirect(back)
 
         return render(request, self.template_name, {'form': form})
+
+
+class LoginForm(forms.Form):
+    login    = forms.CharField(label='Логин', max_length=255)
+    password = forms.CharField(label='Пароль', max_length=255, widget=forms.PasswordInput)
+
+
+class Login(TemplateView):
+    form_class = LoginForm
+    template_name = 'users/login.html'
+
+    def get(self, request, *args, **kwargs):
+        request.session['back'] = request.GET.get('back', '/')
+        return render(request, self.template_name, {'form': self.form_class()})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        back = request.session['back']
+        if form.is_valid():
+            user_login = form.cleaned_data['login']
+            password = form.cleaned_data['password']
+            user = authenticate(username=user_login, password=password)
+            if user is not None and user.is_active:
+                login(request, user)
+                return redirect(back)
+
+        return render(request, self.template_name, {'form': form})
+
+
+class Logout(View):
+    def get(self, request, *args, **kwargs):
+        back = request.GET.get('back', '/')
+        logout(request)
+        return redirect(back)
