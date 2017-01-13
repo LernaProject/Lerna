@@ -3,9 +3,14 @@
 {% endblock %}
 
 {% load staticfiles %}
+{% load pipeline %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
 
 <html>
   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>
       {% block base_title %}Lerna {% endblock %}
       {% block title %}{% endblock %}
@@ -21,12 +26,41 @@
       }
     </style>
 
-    {% block stylesheet_links %}{% endblock %}
+    {% block stylesheet_links %}
+        {% stylesheet 'jquery' %}
+        {% stylesheet 'foundation' %}
+    {% endblock stylesheet_links %}
 
     {% block head %}{% endblock %}
   </head>
   <body>
-    <h1><a href="{% url 'index' %}">Lerna</a></h1>
+    <a href="{% url 'index' %}" class="header">
+      <img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna
+    </a>
+
+    <button class="button" type="button" data-toggle="example-dropdown">Toggle Dropdown</button>
+<div class="dropdown-pane" id="example-dropdown" data-dropdown data-auto-focus="true">
+  Example form in a dropdown.
+  <form>
+    <div class="row">
+      <div class="medium-6 columns">
+        <label>Name
+          <input type="text" placeholder="Kirk, James T.">
+        </label>
+      </div>
+      <div class="medium-6 columns">
+        <label>Rank
+          <input type="text" placeholder="Captain">
+        </label>
+      </div>
+    </div>
+  </form>
+</div>
+
+<button class="button" type="button" data-toggle="example-dropdown-1">Hoverable Dropdown</button>
+<div class="dropdown-pane" id="example-dropdown-1" data-dropdown data-hover="true" data-hover-pane="true">
+  Just some junk that needs to be said. Or not. Your choice.
+</div>
 
     {% if user.is_authenticated %}
       <p>
@@ -52,6 +86,18 @@
 
     {% block body %}{% endblock body %}
 
-    {% block javascript_links %}{% endblock %}
+    {% block javascript_links %}
+      {% javascript 'foundation' %}
+
+      {% if debug %}
+        {% javascript 'jquery' %}
+      {% else %}
+        {# This scripts hardcoded for fast user-side load in case they're already in cache #}
+        {# TODO(viers): Find a way for falling back to a local copies in case google loading failed #}
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+      {% endif %}
+    {% endblock javascript_links %}
   </body>
 </html>
