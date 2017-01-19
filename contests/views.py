@@ -141,8 +141,9 @@ class SubmitView(FormView):
         if form.is_valid():
             Attempt.objects.create(
                 user=self.request.user,
-                problem_in_contest=form.cleaned_data['problem'],
-                compiler=form.cleaned_data['compiler'],
+                # TODO: Move object fetching to the form (if possible).
+                problem_in_contest=ProblemInContest.objects.get(id=form.cleaned_data['problem']),
+                compiler=Compiler.objects.get(id=form.cleaned_data['compiler']),
                 source=form.cleaned_data['source'],
             )
             return redirect('contests:attempts', contest_id=contest_id)

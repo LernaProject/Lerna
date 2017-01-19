@@ -26,7 +26,7 @@
             {% if attempt.result == "Compilation error" %}
               <a href="{% url 'contests:errors' attempt_id=attempt.id %}">{{ attempt.result }}</a>
             {% else %}
-              {{ attempt.result|default_if_none:'' }}
+              {{ attempt.verdict|default_if_none:'' }}
             {% endif %}
           </td>
           <td>{{ attempt.used_time|default_if_none:'' }}</td>
