@@ -72,7 +72,7 @@ class Contest(models.Model):
         return '{0}:{1}'.format(self.duration // 60, self.duration % 60)
 
     def __str__(self):
-        return self.name
+        return self.name if len(self.name) <= 70 else self.name[:67] + '...'
 
     @classmethod
     def three_way_split(cls, contests, threshold_time):
@@ -109,7 +109,7 @@ class ProblemInContest(models.Model):
         get_latest_by        = 'created_at'
 
     def __str__(self):
-        return '{0.contest.id:03}#{0.number}: {0.problem}'.format(self)
+        return '{0.contest.id:03}#{0.number}: "{0.problem}"'.format(self)
 
 
 class Clarification(models.Model):
@@ -194,14 +194,14 @@ class Attempt(models.Model):
 
     @property
     def verdict(self):
-        return self.result if self.score is None else '{0.score:.0f}%'.format(self)
+        return self.result if self.score is None else '{0.score:.1f}%'.format(self)
 
     class Meta:
         db_table      = 'attempts'
         get_latest_by = 'time'
 
     def __str__(self):
-        return '[{0.id}] {0.problem_in_contest} by {0.user}'.format(self)
+        return '[{0.id:05}/{0.problem.id:03}] {0.problem_in_contest} by {0.user}'.format(self)
 
 
 class TestInfo(models.Model):

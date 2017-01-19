@@ -1,8 +1,6 @@
-# This file overrides project settings from settings.py for production
+# This file overrides project settings from settings.py for production.
 # Copy this file, rename it to local_settings.py and edit.
 from .base_settings import *
-
-DEBUG = False
 
 # You may use http://miniwebtool.com/django-secret-key-generator/ to generate a unique secret key.
 SECRET_KEY = ""
@@ -22,12 +20,10 @@ DATABASES = {
 }
 
 TESTER = {
-    # User the solutions are invoked under. Leave blank to use current user. Linux only.
-    'INVOKER':           "",
-    # Path to `ejudge-execute`. Leave blank to avoid using it.
-    'EJUDGE_EXECUTE':    "",
-    # Location of the repo with tests and checkers.
-    'PROBLEM_DIRECTORY': '~/lerna.problems',
-    # Location of the standard checkers directory.
-    'CHECKER_DIRECTORY': '~/lerna.checkers/bin',
+    # Repo with tests and checkers.
+    'PROBLEMS_DIRECTORY': '~/lerna.problems',
+    # Standard checkers directory.
+    'CHECKERS_DIRECTORY': '~/lerna.checkers/bin',
+    # Compilation and run scripts directory.
+    'LANGS_DIRECTORY':    '~/lerna.langs',
 }

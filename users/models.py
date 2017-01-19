@@ -67,7 +67,8 @@ class User(auth.models.AbstractBaseUser):
         return bool(self.rights & 0x4)
 
     def __str__(self):
-        return self.username
+        return '{0.username} ({0.login})'.format(self)
+
 
 def rank_users(users, field_name, start=1):
     for k, g in itertools.groupby(users, key=operator.attrgetter(field_name)):
