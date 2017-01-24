@@ -19,11 +19,13 @@ from ...models   import TesterStatus
 from core.models import Attempt, TestInfo
 
 
-LOG    = 'compiler.log'
-INPUT  = 'stdin.txt'
-OUTPUT = 'stdout.txt'
-ERRLOG = 'stderr.txt' # Just ignored.
-EJLOG  = 'ejudge.log'
+# These three files are a part of public interface: the participant can safely freopen them.
+INPUT  = 'input.txt'
+OUTPUT = 'output.txt'
+ERRLOG = 'error.txt' # Just ignored.
+
+LOG   = 'compiler.log'
+EJLOG = 'ejudge.log'
 
 EJUDGE_VERDICTS = {
     b'OK': 'OK',
