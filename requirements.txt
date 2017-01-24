@@ -4,15 +4,11 @@ django-ajax-selects==1.5.2
 django-debug-toolbar==1.6
 django-pipeline==1.6.9
 
-# PostgreSQL connector and interface
+# PostgreSQL connector
 psycopg2==2.6.2
-pgcli==1.2.0
 
 # Common Python requirements
 Pygments
 PyYAML
 pytz
 pip
-
-# Better interpreter interface
-bpython>=0.16
