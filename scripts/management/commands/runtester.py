@@ -70,9 +70,24 @@ def redirect_stdout_to_self(method):
     return handle
 
 
-def collect_executables(path):
+def read_settings():
     """
-    Searches the given path for executable files. Returns a str -> str dict.
+    Validates and yields problems, compilers, runners, and checkers directories.
+    """
+
+    for prefix in ('problems', 'compilers', 'runners', 'checkers'):
+        path = settings.TESTER.get('%s_DIRECTORY' % prefix.upper())
+        if not path:
+            raise CommandError('Missing %s directory from TESTER settings' % prefix)
+        path = pathlib.Path(path).expanduser()
+        if not path.is_dir():
+            raise CommandError("Invalid %s directory: '%s'" % (prefix, path))
+        yield path.resolve()
+
+
+def collect_executables(path) -> { str: str }:
+    """
+    Searches the given path for executable files.
     Raises CommandError if there are more than one file with the same name.
     """
 
@@ -152,36 +167,19 @@ class Tester:
 
         os.chdir(str(self.workdir))
 
-        self.problems_directory = settings.TESTER.get('PROBLEMS_DIRECTORY')
-        checkers_directory      = settings.TESTER.get('CHECKERS_DIRECTORY')
-        langs_directory         = settings.TESTER.get('LANGS_DIRECTORY')
-        if not self.problems_directory or not checkers_directory or not langs_directory:
-            raise CommandError('Invalid TESTER settings')
+        self.problems_directory, compilers_path, runners_path, checkers_path = read_settings()
+        self.compilation_scripts = collect_executables(compilers_path)
+        self.run_scripts         = collect_executables(runners_path)
+        self.standard_checkers   = collect_executables(checkers_path)
 
-        self.problems_directory = pathlib.Path(self.problems_directory).expanduser().resolve()
-        checkers_directory      = pathlib.Path(checkers_directory).expanduser()
-        langs_directory         = pathlib.Path(langs_directory).expanduser()
-
-        if not self.problems_directory.is_dir():
-            raise CommandError("Invalid problem directory: '%s'" % self.problems_directory)
-        if not checkers_directory.is_dir():
-            raise CommandError("Invalid checker directory: '%s'" % checkers_directory)
-        if not langs_directory.is_dir():
-            raise CommandError("Invalid langs directory: '%s'" % langs_directory)
-
-        self.compilation_scripts = collect_executables(langs_directory)
-        self.run_scripts         = collect_executables(langs_directory / 'run')
-        self.standard_checkers   = collect_executables(checkers_directory)
-
-    def compile(self, source, compiler_code_name):
+    def compile(self, source, compiler_codename):
         proc = subprocess.run(
-            [self.compilation_scripts[compiler_code_name]],
+            [self.compilation_scripts[compiler_codename]],
             input=source.encode(),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        binary = proc.stdout.splitlines()[0].decode() if proc.returncode == 0 else None
-        return binary, proc.stderr.decode(errors='replace')
+        return proc.stdout if proc.returncode == 0 else None, proc.stderr.decode(errors='replace')
 
     def locate_checker(self, checker_cmd, probable_path):
         args = shlex.split(checker_cmd)
@@ -198,8 +196,8 @@ class Tester:
 
         return args
 
-    def execute(self, args):
-        proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    def execute(self, args, data):
+        proc = subprocess.run(args, input=data, stdout=subprocess.PIPE)
         with open(EJLOG, 'wb') as f:
             f.write(proc.stdout)
         verdict, time_used, memory_used = parse_ejudge_protocol(proc.stdout)
@@ -214,9 +212,14 @@ class Tester:
         result = subprocess.call(args + [input_file, output_file, answer_file], cwd=cwd)
         return { 0: 'OK', 1: 'Wrong answer', 2: 'Presentation error' }.get(result, 'System error')
 
-    def run_tests(self, attempt, tests_path, args, checker_args):
+    def run_tests(self, attempt, data):
         problem = attempt.problem
         is_school = attempt.contest.is_school
+
+        script = self.run_scripts[attempt.compiler.runner_codename]
+        args = [script, INPUT, OUTPUT, ERRLOG, str(problem.time_limit), str(problem.memory_limit)]
+        tests_path = self.problems_directory / problem.path
+        checker_args = self.locate_checker(problem.checker, tests_path)
 
         max_time     = 1 # ms
         max_memory   = 125 # KB
@@ -232,7 +235,7 @@ class Tester:
             attempt.save()
 
             shutil.copyfile(test_file, INPUT)
-            verdict, time_used, memory_used = self.execute(args)
+            verdict, time_used, memory_used = self.execute(args, data)
             max_time   = max(max_time, time_used)
             max_memory = max(max_memory, memory_used)
             if verdict == 'OK':
@@ -295,23 +298,18 @@ class Tester:
         print('Compiling...')
         attempt.result = 'Compiling...'
         attempt.save()
-        binary, errors = self.compile(attempt.source, attempt.compiler.code_name)
+        data, errors = self.compile(attempt.source, attempt.compiler.codename)
         if errors:
             with open(LOG, 'wb') as f:
                 f.write(errors)
-        if not binary:
+        if data is None:
             print('Compilation error')
             attempt.result = 'Compilation error'
             attempt.error_message = errors
             attempt.save()
             return
 
-        # TODO: Add run_name to Compiler.
-        run_script = self.run_scripts[attempt.compiler.run_name if False else "dumb"]
-        args = [run_script, binary, INPUT, OUTPUT, ERRLOG, str(time_limit), str(memory_limit)]
-        tests_path = self.problems_directory / problem.path
-        checker_args = self.locate_checker(problem.checker, tests_path)
-        self.run_tests(attempt, tests_path, args, checker_args)
+        self.run_tests(attempt, data)
 
         print('Completed in %.1f seconds.' % ((timezone.now() - start_time).microseconds / 1e6))
 
@@ -329,9 +327,10 @@ class Tester:
                 try:
                     with transaction.atomic():
                         attempt = Attempt.objects.filter(
+                            # TODO: SET NOT NULL.
                             result=None,
-                            compiler__code_name__in=self.compilation_scripts,
-                            # compiler__run_name__in=self.run_scripts,
+                            compiler__codename__in=self.compilation_scripts,
+                            compiler__runner_codename__in=self.run_scripts,
                         ).earliest()
                         attempt.result = 'Queued'
                         attempt.save()
@@ -349,9 +348,7 @@ class Tester:
                         finally:
                             print()
 
-        except KeyboardInterrupt:
-            print()
-        except SigTermException:
+        except (KeyboardInterrupt, SigTermException):
             sys.exit()
         finally:
             print('Terminating')

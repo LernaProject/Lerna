@@ -127,6 +127,7 @@ class Clarification(models.Model):
 
     def has_answer(self):
         return bool(self.answer)
+
     has_answer.boolean = True
 
     def __str__(self):
@@ -150,12 +151,14 @@ class Notification(models.Model):
 
 
 class Compiler(models.Model):
-    code_name      = models.CharField(max_length=32)
-    name           = models.CharField(max_length=255)
-    extension      = models.CharField(max_length=255)
-    compile_string = models.CharField(max_length=255)
-    created_at     = models.DateTimeField(auto_now_add=True)
-    updated_at     = models.DateTimeField(auto_now=True)
+    name            = models.CharField(max_length=255)
+    codename        = models.CharField(max_length=32)
+    runner_codename = models.CharField(max_length=32)
+    obsolete        = models.BooleanField(default=False)
+    # TODO: Remove this field when old tester support is dropped.
+    extension       = models.CharField(max_length=255)
+    created_at      = models.DateTimeField(auto_now_add=True)
+    updated_at      = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table      = 'compilers'

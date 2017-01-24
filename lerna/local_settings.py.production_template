@@ -21,9 +21,11 @@ DATABASES = {
 
 TESTER = {
     # Repo with tests and checkers.
-    'PROBLEMS_DIRECTORY': '~/lerna.problems',
+    'PROBLEMS_DIRECTORY':  '~/lerna.problems',
     # Standard checkers directory.
-    'CHECKERS_DIRECTORY': '~/lerna.checkers/bin',
-    # Compilation and run scripts directory.
-    'LANGS_DIRECTORY':    '~/lerna.langs',
+    'CHECKERS_DIRECTORY':  '~/lerna.checkers/bin',
+    # Compilation scripts directory.
+    'COMPILERS_DIRECTORY': '~/lerna.langs/compile',
+    # Run scripts directory.
+    'RUNNERS_DIRECTORY':   '~/lerna.langs/run',
 }
