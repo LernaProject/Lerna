@@ -138,7 +138,8 @@ def parse_ejudge_protocol(binary_str):
     Returns verdict, time used and memory (heap) used.
     """
 
-    verdict = time_used = memory_used = None
+    verdict = None
+    time_used = memory_used = 0
     for line in binary_str.splitlines():
         key, _, value = line.partition(b': ')
         if key == b'Status':
@@ -203,7 +204,7 @@ class Tester:
         with open(EJLOG, 'wb') as f:
             f.write(proc.stdout)
         verdict, time_used, memory_used = parse_ejudge_protocol(proc.stdout)
-        if verdict is None or time_used is None or memory_used is None:
+        if verdict is None:
             print('ejudge-execute protocol is violated')
             raise RecoverableError
         return verdict, max(time_used, 1), max(memory_used >> 10, 125)
