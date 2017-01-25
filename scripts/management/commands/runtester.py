@@ -409,7 +409,7 @@ class Command(BaseCommand):
         """)
 
     @redirect_stdout_to_self
-    def handle(self, *, workdir, force, **options):
+    def handle(self, workdir, *, force=False, **options):
         """
         Command entry point.
         """

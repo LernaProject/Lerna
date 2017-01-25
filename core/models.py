@@ -69,7 +69,7 @@ class Contest(models.Model):
 
     @property
     def duration_str(self):
-        return '{0}:{1}'.format(self.duration // 60, self.duration % 60)
+        return '%d:%d' % divmod(self.duration, 60)
 
     def __str__(self):
         return self.name if len(self.name) <= 70 else self.name[:67] + '...'

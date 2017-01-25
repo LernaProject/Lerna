@@ -4,8 +4,9 @@ echo "docker_run.sh started"
 
 echo "syncing all dependencies..."
 cd /lerna
-pip install -r requirements.txt --upgrade
-python manage.py sync -p
+pip3 install --upgrade pip
+pip3 install --upgrade -r requirements.txt
+python3 manage.py sync --without-pip
 
 echo "creating log files..."
 mkdir -p /lerna/build/logs
