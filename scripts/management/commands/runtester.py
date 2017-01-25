@@ -5,6 +5,7 @@ from django.utils                import timezone
 
 import collections
 import contextlib
+import enum
 import functools
 import itertools
 import os
@@ -35,13 +36,27 @@ ERRLOG = 'error.txt' # Just ignored.
 LOG   = 'compiler.log'
 EJLOG = 'ejudge.log'
 
-EJUDGE_VERDICTS = {
-    b'OK': 'OK',
-    b'TL': 'Time limit exceeded',
-    b'ML': 'Memory limit exceeded',
-    b'RT': 'Run-time error',
-    b'SV': 'Security violation',
-}
+
+class Verdict(enum.Enum):
+    OK = 'OK'
+    TL = 'Time limit exceeded'
+    IL = 'Idleness limit exceeded'
+    ML = 'Memory limit exceeded'
+    RT = 'Run-time error'
+    SV = 'Security violation'
+    WA = 'Wrong answer'
+    PE = 'Presentation error'
+    SE = 'System error'
+
+    @classmethod
+    def from_ejudge_status(cls, status):
+        if status not in { 'OK', 'TL', 'ML', 'RT', 'SV' }:
+            raise KeyError(status)
+        return cls[status]
+
+    @classmethod
+    def from_testlib_returncode(cls, code):
+        return { 0: cls.OK, 1: cls.WA, 2: cls.PE }.get(code, cls.SE)
 
 
 class RecoverableError(Exception):
@@ -146,21 +161,31 @@ def file_pattern_iter(pattern, start=1):
 def parse_ejudge_protocol(binary_str):
     """
     Extracts run statistics from ejudge-execute output.
-    Returns verdict, time used and memory (heap) used.
+    Returns verdict, CPU time used, real time used, and memory (heap) used.
     """
 
     verdict = None
-    time_used = memory_used = 0
+    attrs = { b'CPUTime': 0, b'RealTime': 0, b'VMSize': 0 }
     for line in binary_str.splitlines():
         key, _, value = line.partition(b': ')
         if key == b'Status':
-            verdict = EJUDGE_VERDICTS[value]
-        elif key == b'CPUTime':
-            time_used = int(value)
-        elif key == b'VMSize':
-            memory_used = int(value)
+            try:
+                verdict = Verdict.from_ejudge_status(value.decode())
+            except UnicodeDecodeError:
+                raise RecoverableError('ejudge-execute returned malformed Status:', value)
+            except KeyError:
+                raise RecoverableError('ejudge-execute returned unknown Status:', value)
+        elif key in attrs:
+            try:
+                attrs[key] = int(value)
+            except ValueError:
+                raise RecoverableError(
+                    'ejudge-execute returned malformed %s:' % key.decode(), value)
 
-    return verdict, time_used, memory_used
+    if verdict is None:
+        raise RecoverableError('ejudge-execute returned no Status')
+
+    return verdict, attrs[b'CPUTime'], attrs[b'RealTime'], attrs[b'VMSize']
 
 
 class Tester:
@@ -198,15 +223,13 @@ class Tester:
     def locate_checker(self, checker_cmd, probable_path) -> [str]:
         args = shlex.split(checker_cmd)
         if not args:
-            print('Checker is empty')
-            raise RecoverableError
+            raise RecoverableError('Checker is empty')
 
         if not os.path.isabs(args[0]):
             args[0] = self.standard_checkers.get(args[0], str(probable_path / args[0]))
 
         if not os.path.isfile(args[0]):
-            print('Checker is not found')
-            raise RecoverableError
+            raise RecoverableError('Checker is not found')
 
         return args
 
@@ -214,24 +237,21 @@ class Tester:
         proc = subprocess.run(args, input=data, stdout=subprocess.PIPE)
         with open(EJLOG, 'wb') as f:
             f.write(proc.stdout)
-        verdict, time_used, memory_used = parse_ejudge_protocol(proc.stdout)
-        if verdict is None:
-            print('ejudge-execute protocol is violated')
-            raise RecoverableError
-        return verdict, max(time_used, 1), max(memory_used >> 10, 125)
+        verdict, time_used, real_time_used, memory_used = parse_ejudge_protocol(proc.stdout)
+        return verdict, max(time_used, 1), max(real_time_used, 1), max(memory_used >> 10, 125)
 
     def check(self, args, input_file, output_file, answer_file, cwd):
-        # Assume the checker is testlib-compatible.
         # Command line may look like "/usr/bin/java check", so we need to chdir.
         result = subprocess.call(args + [input_file, output_file, answer_file], cwd=cwd)
-        return { 0: 'OK', 1: 'Wrong answer', 2: 'Presentation error' }.get(result, 'System error')
+        return Verdict.from_testlib_returncode(result)
 
     def run_tests(self, attempt, data):
         problem = attempt.problem
+        time_limit = problem.time_limit
         is_school = attempt.contest.is_school
 
         script = self.run_scripts[attempt.compiler.runner_codename]
-        args = [script, INPUT, OUTPUT, ERRLOG, str(problem.time_limit), str(problem.memory_limit)]
+        args = [script, INPUT, OUTPUT, ERRLOG, str(time_limit), str(problem.memory_limit)]
         tests_path = self.settings.problems_directory / problem.path
         checker_args = self.locate_checker(problem.checker, tests_path)
 
@@ -249,10 +269,13 @@ class Tester:
             attempt.save()
 
             shutil.copyfile(test_file, INPUT)
-            verdict, time_used, memory_used = self.execute(args, data)
+            verdict, time_used, real_time_used, memory_used = self.execute(args, data)
             max_time   = max(max_time, time_used)
             max_memory = max(max_memory, memory_used)
-            if verdict == 'OK':
+            if verdict is Verdict.TL and time_used < time_limit and real_time_used >= time_limit:
+                # ejudge-execute cannot tell TL and IL apart.
+                verdict = Verdict.IL
+            elif verdict is Verdict.OK:
                 verdict = self.check(checker_args,
                     test_file,
                     output_file,
@@ -264,16 +287,17 @@ class Tester:
                 TestInfo.objects.create(
                     attempt=attempt,
                     test_number=test_number,
-                    result=verdict,
+                    result=verdict.value,
                     used_time=(time_used / 1000),
                     used_memory=memory_used,
                 )
-                if verdict == 'OK':
+                if verdict is Verdict.OK:
                     passed_tests += 1
-                elif verdict == 'System error':
+                elif verdict is Verdict.SE:
+                    # The checker has probably already reported the problem, so we silently fail.
                     raise RecoverableError
-            elif verdict != 'OK':
-                attempt.result = '%s on test %d' % (verdict, test_number)
+            elif verdict is not Verdict.OK:
+                attempt.result = '%s on test %d' % (verdict.value, test_number)
                 attempt.used_time = max_time / 1000
                 attempt.used_memory = max_memory
                 attempt.save()
@@ -351,7 +375,7 @@ class Tester:
                 except Attempt.DoesNotExist:
                     time.sleep(1)
                 else:
-                    with contextlib.suppress(RecoverableError):
+                    try:
                         try:
                             self.process(attempt)
                         except:
@@ -359,8 +383,11 @@ class Tester:
                             attempt.result = 'System error'
                             attempt.save()
                             raise
-                        finally:
-                            print()
+                    except RecoverableError as e:
+                        if e.args:
+                            print(*e.args)
+                    finally:
+                        print()
 
         except (KeyboardInterrupt, SigTermException):
             sys.exit()
