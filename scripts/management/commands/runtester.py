@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db                   import transaction
 from django.utils                import timezone
 
+import collections
 import contextlib
 import functools
 import itertools
@@ -15,9 +16,16 @@ import subprocess
 import sys
 import time
 
-from ...models   import TesterStatus
-from core.models import Attempt, TestInfo
+from core.models    import Attempt, TestInfo
+from scripts.models import TesterStatus
 
+
+Settings = collections.namedtuple("Settings", (
+    "problems_directory",
+    "compilers_directory",
+    "runners_directory",
+    "checkers_directory",
+))
 
 # These three files are a part of public interface: the participant can safely freopen them.
 INPUT  = 'input.txt'
@@ -74,17 +82,20 @@ def redirect_stdout_to_self(method):
 
 def read_settings():
     """
-    Validates and yields problems, compilers, runners, and checkers directories.
+    Validates and returns TESTER settings.
     """
 
-    for prefix in ('problems', 'compilers', 'runners', 'checkers'):
-        path = settings.TESTER.get('%s_DIRECTORY' % prefix.upper())
-        if not path:
-            raise CommandError('Missing %s directory from TESTER settings' % prefix)
-        path = pathlib.Path(path).expanduser()
-        if not path.is_dir():
-            raise CommandError("Invalid %s directory: '%s'" % (prefix, path))
-        yield path.resolve()
+    def do_read():
+        for prefix in ('problems', 'compilers', 'runners', 'checkers'):
+            path = settings.TESTER.get('%s_DIRECTORY' % prefix.upper())
+            if not path:
+                raise CommandError('Missing %s directory from TESTER settings' % prefix)
+            path = pathlib.Path(path).expanduser()
+            if not path.is_dir():
+                raise CommandError("Invalid %s directory: '%s'" % (prefix, path))
+            yield path.resolve()
+
+    return Settings(*do_read())
 
 
 def collect_executables(path) -> { str: str }:
@@ -161,21 +172,21 @@ class Tester:
             if not self.workdir.is_dir():
                 raise CommandError("'%s' is not a directory" % self.workdir)
             if not force and next(self.workdir.iterdir(), None) is not None:
-                answer = input(
-                    'Working directory is not empty. All files inside it will be deleted.\n'
-                    'Are you sure you want to proceed? [y/N] '
-                )
+                print('Working directory is not empty. All files inside it will be deleted.')
+                answer = input('Are you sure you want to proceed? [y/N] ')
                 if answer.strip().lower() not in ('y', 'yes', 'yessir', 'yeah'):
                     sys.exit('Aborted')
 
         os.chdir(str(self.workdir))
 
-        self.problems_directory, compilers_path, runners_path, checkers_path = read_settings()
-        self.compilation_scripts = collect_executables(compilers_path)
-        self.run_scripts         = collect_executables(runners_path)
-        self.standard_checkers   = collect_executables(checkers_path)
+        # Only self.settings.problems_directory is used later.
+        self.settings = read_settings()
 
-    def compile(self, source, compiler_codename):
+        self.compilation_scripts = collect_executables(self.settings.compilers_directory)
+        self.run_scripts         = collect_executables(self.settings.runners_directory)
+        self.standard_checkers   = collect_executables(self.settings.checkers_directory)
+
+    def compile(self, source, compiler_codename) -> (bytes, str):
         proc = subprocess.run(
             [self.compilation_scripts[compiler_codename]],
             input=source.encode(),
@@ -184,7 +195,7 @@ class Tester:
         )
         return proc.stdout if proc.returncode == 0 else None, proc.stderr.decode(errors='replace')
 
-    def locate_checker(self, checker_cmd, probable_path):
+    def locate_checker(self, checker_cmd, probable_path) -> [str]:
         args = shlex.split(checker_cmd)
         if not args:
             print('Checker is empty')
@@ -221,7 +232,7 @@ class Tester:
 
         script = self.run_scripts[attempt.compiler.runner_codename]
         args = [script, INPUT, OUTPUT, ERRLOG, str(problem.time_limit), str(problem.memory_limit)]
-        tests_path = self.problems_directory / problem.path
+        tests_path = self.settings.problems_directory / problem.path
         checker_args = self.locate_checker(problem.checker, tests_path)
 
         max_time     = 1 # ms
