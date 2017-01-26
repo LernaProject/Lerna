@@ -1,0 +1,40 @@
+# This file overrides project settings from settings.yml for production.
+# Copy this file, rename it to local_settings.yml and edit.
+
+# You may use http://miniwebtool.com/django-secret-key-generator/ to generate a unique secret key.
+SECRET_KEY:
+
+# A list of host/domain names that Django site can serve.
+ALLOWED_HOSTS:
+- localhost
+- 127.0.0.1
+- '[::1]'
+- .example.com
+
+DATABASES:
+  default:
+    ENGINE:   django.db.backends.postgresql_psycopg2
+    NAME:     lerna
+    USER:     ~
+    PASSWORD: ~
+    HOST:     localhost
+    # PORT:   5432
+
+# LOGGING:
+#   version: 1
+#   disable_existing_loggers: false
+#   filters:
+#   formatters:
+#   handlers:
+#   loggers:
+#     django:
+
+TESTER:
+  # Repo with tests and checkers.
+  PROBLEMS_DIRECTORY:  ~/lerna.problems
+  # Standard checkers directory.
+  CHECKERS_DIRECTORY:  ~/lerna.checkers/bin
+  # Compilation scripts directory.
+  COMPILERS_DIRECTORY: ~/lerna.langs/compile
+  # Run scripts directory.
+  RUNNERS_DIRECTORY:   ~/lerna.langs/run
