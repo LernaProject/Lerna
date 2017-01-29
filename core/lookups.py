@@ -11,11 +11,16 @@ class ProblemLookup(LookupChannel):
     model = models.Problem
 
     def get_query(self, q, request):
+        query = Q(name__icontains=q) | Q(path__icontains=q)
+        try:
+            query |= Q(id=int(q))
+        except ValueError:
+            pass
         return (
             self.model
             .objects
-            .filter(Q(name__icontains=q) | Q(path__icontains=q))
-            .order_by('name')
+            .filter(query)
+            .order_by('-id')
             .only('id', 'name')
         )[:50]
 
@@ -30,10 +35,15 @@ class ContestLookup(LookupChannel):
     model = models.Contest
 
     def get_query(self, q, request):
+        query = Q(name__icontains=q)
+        try:
+            query |= Q(id=int(q))
+        except ValueError:
+            pass
         return (
             self.model
             .objects
-            .filter(name__icontains=q)
+            .filter(query)
             .order_by('-id')
             .only('id', 'name')
         )[:50]
