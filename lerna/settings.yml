@@ -28,12 +28,6 @@ LOGGING:
   # loggers:
   #   django:
 
-TESTER:
-  PROBLEMS_DIRECTORY:
-  CHECKERS_DIRECTORY:
-  COMPILERS_DIRECTORY:
-  RUNNERS_DIRECTORY:
-
 ###########################################################
 # Global settings
 ###########################################################
