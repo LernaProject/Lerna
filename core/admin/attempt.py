@@ -1,5 +1,5 @@
 from ajax_select              import make_ajax_form
-from django                   import forms
+from django                   import db, forms
 from django.contrib           import admin
 from django.utils.translation import ugettext as _
 
@@ -10,8 +10,11 @@ from .. import models
 
 class TestInfoInline(admin.TabularInline):
     model = models.TestInfo
-    fields = ('test_number', 'result', 'used_time', 'used_memory')
+    fields = ('test_number', 'result', 'used_time', 'used_memory', 'checker_comment')
     ordering = ['test_number']
+    formfield_overrides = {
+        db.models.TextField: { 'widget': forms.TextInput },
+    }
     extra = 0
 
 
@@ -32,7 +35,13 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
                 }
             ), (
                 _('Results'), {
-                    'fields': (('result', 'score'), ('used_time', 'used_memory'), 'error_message'),
+                    'fields': (
+                        'tester_name',
+                        ('result', 'score'),
+                        ('used_time', 'used_memory'),
+                        'error_message',
+                        'checker_comment',
+                    ),
                 }
             ), (
                 _('Rails trash'), {

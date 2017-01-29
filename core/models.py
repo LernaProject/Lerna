@@ -5,7 +5,7 @@ import datetime
 
 
 class Problem(models.Model):
-    name                 = models.CharField(max_length=255)
+    name                 = models.CharField(max_length=80)
     path                 = models.CharField(max_length=255)
     author               = models.CharField(max_length=64, blank=True, db_index=True)
     developer            = models.CharField(max_length=64, blank=True, db_index=True)
@@ -16,13 +16,14 @@ class Problem(models.Model):
     samples              = models.TextField(blank=True)
     explanations         = models.TextField(blank=True)
     notes                = models.TextField(blank=True)
+    # TODO: Current tester does not support interaction with files. Maybe remove these fields?
     input_file           = models.CharField(max_length=16, blank=True)
     output_file          = models.CharField(max_length=16, blank=True)
     time_limit           = models.PositiveIntegerField()
     memory_limit         = models.PositiveIntegerField()
-    checker              = models.CharField(max_length=255)
-    mask_in              = models.CharField(max_length=255)
-    mask_out             = models.CharField(max_length=255, blank=True)
+    checker              = models.CharField(max_length=100)
+    mask_in              = models.CharField(max_length=32)
+    mask_out             = models.CharField(max_length=32, blank=True)
     analysis             = models.TextField(blank=True)
     created_at           = models.DateTimeField(auto_now_add=True)
     updated_at           = models.DateTimeField(auto_now=True)
@@ -99,6 +100,7 @@ class ProblemInContest(models.Model):
     contest    = models.ForeignKey(Contest)
     number     = models.PositiveIntegerField()
     score      = models.IntegerField(blank=True, null=True)
+    # TODO: Remove this field.
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -135,8 +137,7 @@ class Clarification(models.Model):
 
 
 class Notification(models.Model):
-    # TODO: Add the DB index.
-    contest     = models.ForeignKey(Contest, db_index=False)
+    contest     = models.ForeignKey(Contest)
     description = models.TextField()
     visible     = models.BooleanField(default=True)
     created_at  = models.DateTimeField(auto_now_add=True)
@@ -151,7 +152,7 @@ class Notification(models.Model):
 
 
 class Compiler(models.Model):
-    name            = models.CharField(max_length=255)
+    name            = models.CharField(max_length=64)
     codename        = models.CharField(max_length=32)
     runner_codename = models.CharField(max_length=32)
     obsolete        = models.BooleanField(default=False)
@@ -170,19 +171,20 @@ class Compiler(models.Model):
 
 class Attempt(models.Model):
     problem_in_contest = models.ForeignKey(ProblemInContest)
-    # TODO: Add the DB index.
-    user               = models.ForeignKey(User, db_index=False)
+    user               = models.ForeignKey(User)
     source             = models.TextField()
     compiler           = models.ForeignKey(Compiler)
     time               = models.DateTimeField(auto_now_add=True)
-    # TODO: SET NOT NULL DEFAULT = ""
-    result             = models.CharField(max_length=255, blank=True, null=True, db_index=True)
-    # TODO: SET NOT NULL DEFAULT = ""
-    error_message      = models.TextField(blank=True, null=True)
-    used_memory        = models.PositiveIntegerField(blank=True, null=True)
+    tester_name        = models.CharField(max_length=48, blank=True, default='')
+    # TODO: SET NOT NULL.
+    result             = models.CharField(max_length=36, blank=True, null=True, db_index=True)
+    error_message      = models.TextField(blank=True, null=True) # NULL for optimization reason.
+    # TODO: Make this field an integer (properly converting old attempts).
     used_time          = models.FloatField(blank=True, null=True)
+    used_memory        = models.PositiveIntegerField(blank=True, null=True)
+    checker_comment    = models.TextField(blank=True, default='')
     score              = models.FloatField(blank=True, null=True)
-    # TODO: Remove these three fields.
+    # TODO: Remove these two fields.
     lock_version       = models.IntegerField(blank=True, null=True)
     created_at         = models.DateTimeField(auto_now_add=True)
     updated_at         = models.DateTimeField(auto_now=True)
@@ -208,12 +210,13 @@ class Attempt(models.Model):
 
 
 class TestInfo(models.Model):
-    # TODO: Add the DB index.
-    attempt     = models.ForeignKey(Attempt, db_index=False)
-    test_number = models.PositiveIntegerField()
-    result      = models.CharField(max_length=255, blank=True, null=True)
-    used_memory = models.PositiveIntegerField(blank=True, null=True)
-    used_time   = models.FloatField(blank=True, null=True)
+    attempt         = models.ForeignKey(Attempt)
+    test_number     = models.PositiveIntegerField()
+    result          = models.CharField(max_length=23, blank=True, default='')
+    # TODO: Maybe make these fields non-nullable? TestInfos are immutable anyway.
+    used_memory     = models.PositiveIntegerField(blank=True, null=True)
+    used_time       = models.FloatField(blank=True, null=True)
+    checker_comment = models.TextField(blank=True, default='')
 
     class Meta:
         db_table        = 'test_infos'

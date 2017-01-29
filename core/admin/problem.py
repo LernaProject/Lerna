@@ -11,9 +11,9 @@ class ProblemAdmin(admin.ModelAdmin):
             (
                 None, {
                     'fields': (
-                        'name', 'author', 'developer', 'origin',
-                        ('time_limit', 'memory_limit'),
-                        'input_file', 'output_file',
+                        'name', ('author', 'developer'), 'origin', ('time_limit', 'memory_limit'),
+                        # Current tester implementation doesn't support file I/O for solutions.
+                        # ('input_file', 'output_file'),
                     ),
                 }
             ), (
