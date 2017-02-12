@@ -13,14 +13,14 @@ class Command(management.base.BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('-P', '--without-pip',
-            action='store_true',
-            help='Do not sync with pip requirements')
+                            action='store_true',
+                            help='Do not sync with pip requirements')
         parser.add_argument('-M', '--without-migrate',
-            action='store_true',
-            help='Do not migrate DB scheme')
+                            action='store_true',
+                            help='Do not migrate DB scheme')
         parser.add_argument('-S', '--without-static',
-            action='store_true',
-            help='Do not collect static files')
+                            action='store_true',
+                            help='Do not collect static files')
 
     def handle(self, *, without_pip=False, without_migrate=False, without_static=False, **options):
         print = self.stdout.write

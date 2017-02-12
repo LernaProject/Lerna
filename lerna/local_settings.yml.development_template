@@ -1,16 +1,10 @@
-# This file overrides project settings from settings.yml
-
-# Copy this file, rename it to local_settings.yml and edit it.
+# This file overrides project settings from settings.yml for development.
+# Copy this file, rename it to local_settings.yml and edit.
 # It will not be checked into the version control system.
-
-# Explanation of the necessity of local configs: http://habrahabr.ru/post/104686
 
 DEBUG: true
 
-# You may use http://miniwebtool.com/django-secret-key-generator/ to generate a unique secret key.
-# Alternatively, you can call `django-admin startproject` and take it from its settings.py
-
-SECRET_KEY:
+SECRET_KEY: 'development_secret_key'
 
 INTERNAL_IPS: [127.0.0.1]
 
@@ -18,8 +12,8 @@ DATABASES:
   default:
     ENGINE:   django.db.backends.postgresql_psycopg2
     NAME:     lerna
-    USER:     hydra
-    PASSWORD: hydra
+    USER:     lerna_db_user
+    PASSWORD: lerna_db_password
     HOST:     localhost
     # PORT:   5432
 
