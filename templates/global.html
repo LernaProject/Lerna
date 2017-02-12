@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{% block links %}
-    <p>
-        <a href="{% url 'news:index' %}">Новости</a>
-        <a href="{% url 'contests:contests' %}">Олимпиады</a>
-        <a href="{% url 'contests:trainings' %}">Тренировки</a>
-        <a href="{% url 'global_statistics:rating' %}">Глобальный рейтинг</a>
-    </p>
-{% endblock links %}
+{% block top_nav_links %}
+
+  <li><a href="{% url 'news:index' %}">Новости</a></li>
+  <li class="active"><a href="{% url 'contests:contests' %}">Соревнования</a></li>
+  <li><a href="{% url 'contests:trainings' %}">Тренировки</a></li>
+  <li><a href="{% url 'global_statistics:rating' %}">Рейтинг</a></li>
+
+{% endblock top_nav_links %}

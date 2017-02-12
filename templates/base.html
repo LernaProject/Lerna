@@ -5,32 +5,42 @@
 {% load pipeline %}
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}"/>
 
-    <title>
-        {% block title %}Lerna{% endblock %}
-    </title>
+  <title>
+    {% block title %}Lerna{% endblock %}
+  </title>
 
-    {% block stylesheet_links %}
-    {% stylesheet 'jquery' %}
-    {% stylesheet 'foundation' %}
-    {% stylesheet 'lerna' %}
-    {% endblock stylesheet_links %}
+  {% block stylesheet_links %}
+  {% stylesheet 'jquery' %}
+  {% stylesheet 'foundation' %}
+  {% stylesheet 'lerna' %}
+  {% endblock stylesheet_links %}
 </head>
 
 <body>
 
-<nav class="top-bar" data-topbar role="navigation">
-    <ul class="title-area">
-        <li class="name"><h1><a href="index.php">Lerna</a></h1></li>
-        <li class="toggle-topbar menu-icon"><a href="#"><span>Меню</span></a></li>
+<div class="title-bar" data-responsive-toggle="lerna-top-nav-menu" data-hide-for="medium">
+  <button class="menu-icon" type="button" data-toggle="lerna-top-nav-menu"></button>
+  <div class="title-bar-title">Lerna</div>
+</div>
+
+<div class="top-bar" id="lerna-top-nav-menu">
+  <div class="row small-12 columns">
+  <div class="top-bar-left">
+    <ul class="vertical medium-horizontal menu">
+      <li class="menu-text"><a href="#"><img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna</a></li>
+      {% block top_nav_links %}
+      {% endblock top_nav_links %}
     </ul>
-</nav>
+  </div>
+    </div>
+</div>
 
 {% block javascript_links %}
-{% javascript 'foundation' %}
 {% javascript 'jquery' %}
+{% javascript 'foundation' %}
 {% endblock javascript_links %}
 
 </body>
