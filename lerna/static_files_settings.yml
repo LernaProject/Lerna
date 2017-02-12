@@ -28,8 +28,9 @@ PIPELINE:
       output_filename: jquery.piped.min.js
     foundation:
       source_filenames:
-      - foundation/foundation.js
       - foundation/what-input.js
+      - foundation/foundation.js
+      - foundation/foundation-launch.js
       output_filename: foundation.piped.min.js
 
   STYLESHEETS:
