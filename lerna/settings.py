@@ -22,23 +22,23 @@ def _init_settings():
     def adjust_path(loader, node): return os.path.join(BASE_DIR, loader.construct_scalar(node))
     yaml.add_constructor('!path', adjust_path)
 
-    configuration_files = ('settings.yml', 'local_settings.yml', 'static_files_settings.yml')
+    configuration_files = ('settings.yml', 'static_files_settings.yml', 'local_settings.yml')
     for filename in configuration_files:
         with open(os.path.join(BASE_DIR, 'lerna', filename)) as f:
-            for key, value in yaml.load(f).items():
-                if key == 'PREPEND':
-                    for key, value in value.items():
+            for yml_key, yml_data in yaml.load(f).items():
+                if yml_key == 'PREPEND':
+                    for key, value in yml_data.items():
                         globals()[key] = value + globals()[key]
-                elif key == 'APPEND':
-                    for key, value in value.items():
+                elif yml_key == 'APPEND':
+                    for key, value in yml_data.items():
                         globals()[key] += value
-                elif key == 'OVERRIDE':
-                    for cnf, sub in value.items():
-                        cnf = globals()[cnf]
-                        for key, value in sub.items():
+                elif yml_key == 'OVERRIDE':
+                    for cnf_name, sub_data in yml_data.items():
+                        cnf = globals()[cnf_name]
+                        for key, value in sub_data.items():
                             cnf[key] = value
                 else:
-                    globals()[key] = value
+                    globals()[yml_key] = yml_data
 
 
 _init_settings()

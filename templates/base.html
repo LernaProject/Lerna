@@ -1,103 +1,38 @@
-{% block base_doctype %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-{% endblock %}
+<html>
 
 {% load staticfiles %}
 {% load pipeline %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
-
-<html>
-  <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}" />
 
     <title>
-      {% block base_title %}Lerna {% endblock %}
-      {% block title %}{% endblock %}
+        {% block title %}Lerna{% endblock %}
     </title>
-    {% block favicon %}
-      <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}" />
-    {% endblock %}
-
-    <!-- <# TODO(viers): Remove this during redesign #} -->
-    <style>
-      table {
-        width: 100%
-      }
-    </style>
 
     {% block stylesheet_links %}
-        {% stylesheet 'jquery' %}
-        {% stylesheet 'foundation' %}
+    {% stylesheet 'jquery' %}
+    {% stylesheet 'foundation' %}
+    {% stylesheet 'lerna' %}
     {% endblock stylesheet_links %}
+</head>
 
-    {% block head %}{% endblock %}
-  </head>
-  <body>
-    <a href="{% url 'index' %}" class="header">
-      <img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna
-    </a>
+<body>
 
-    <button class="button" type="button" data-toggle="example-dropdown">Toggle Dropdown</button>
-<div class="dropdown-pane" id="example-dropdown" data-dropdown data-auto-focus="true">
-  Example form in a dropdown.
-  <form>
-    <div class="row">
-      <div class="medium-6 columns">
-        <label>Name
-          <input type="text" placeholder="Kirk, James T.">
-        </label>
-      </div>
-      <div class="medium-6 columns">
-        <label>Rank
-          <input type="text" placeholder="Captain">
-        </label>
-      </div>
-    </div>
-  </form>
-</div>
+<nav class="top-bar" data-topbar role="navigation">
+    <ul class="title-area">
+        <li class="name"><h1><a href="index.php">Lerna</a></h1></li>
+        <li class="toggle-topbar menu-icon"><a href="#"><span>Меню</span></a></li>
+    </ul>
+</nav>
 
-<button class="button" type="button" data-toggle="example-dropdown-1">Hoverable Dropdown</button>
-<div class="dropdown-pane" id="example-dropdown-1" data-dropdown data-hover="true" data-hover-pane="true">
-  Just some junk that needs to be said. Or not. Your choice.
-</div>
+{% block javascript_links %}
+{% javascript 'foundation' %}
+{% javascript 'jquery' %}
+{% endblock javascript_links %}
 
-    {% if user.is_authenticated %}
-      <p>
-          Вы зашли как {{ user.username }}
-          <a href="{% url 'global_statistics:attempts' %}">Попытки</a>
-          <a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a>
-      </p>
-    {% else %}
-      <p>
-        <a href="{% url 'login' %}?next={{ request.path }}">
-            Войдите
-        </a>
-        в систему или
-        <a href="{% url 'registration' %}?back={{ request.path }}">
-            зарегистрируйтесь
-        </a>
-      </p>
-    {% endif %}
+</body>
 
-    {% block local_title %}{% endblock local_title %}
-
-    {% block links %}{% endblock links %}
-
-    {% block body %}{% endblock body %}
-
-    {% block javascript_links %}
-      {% javascript 'foundation' %}
-
-      {% if debug %}
-        {% javascript 'jquery' %}
-      {% else %}
-        {# This scripts hardcoded for fast user-side load in case they're already in cache #}
-        {# TODO(viers): Find a way for falling back to a local copies in case google loading failed #}
-        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-      {% endif %}
-    {% endblock javascript_links %}
-  </body>
 </html>
