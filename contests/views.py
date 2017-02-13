@@ -108,7 +108,7 @@ class SubmitForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields['compiler'] = forms.ChoiceField(
-            choices=[(compiler.id, compiler.name) for compiler in Compiler.objects.all()]
+            choices=[(compiler.id, compiler.name) for compiler in Compiler.objects.all().exclude(obsolete=True)]
         )
 
         contest = Contest.objects.get(id=contest_id)
