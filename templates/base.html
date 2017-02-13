@@ -28,15 +28,39 @@
 
 <div class="top-bar" id="lerna-top-nav-menu">
   <div class="row small-12 columns">
-  <div class="top-bar-left">
-    <ul class="vertical medium-horizontal menu">
-      <li class="menu-text"><a href="#"><img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna</a></li>
-      {% block top_nav_links %}
-      {% endblock top_nav_links %}
-    </ul>
-  </div>
+    <div class="top-bar-left">
+      <ul class="vertical medium-horizontal menu">
+        <li class="menu-text"><a href="#"><img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna</a></li>
+        {% block top_nav_links %}
+        {% endblock top_nav_links %}
+      </ul>
     </div>
+  </div>
 </div>
+
+{% if user.is_authenticated %}
+<p>
+  Вы зашли как {{ user.username }}
+  <a href="{% url 'global_statistics:attempts' %}">Попытки</a>
+  <a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a>
+</p>
+{% else %}
+<p>
+  <a href="{% url 'login' %}?back={{ request.path }}">
+    Войдите
+  </a>
+  в систему или
+  <a href="{% url 'registration' %}?back={{ request.path }}">
+    зарегистрируйтесь
+  </a>
+</p>
+{% endif %}
+
+{% block local_title %}{% endblock local_title %}
+
+{% block links %}{% endblock links %}
+
+{% block body %}{% endblock body %}
 
 {% block javascript_links %}
 {% javascript 'jquery' %}
