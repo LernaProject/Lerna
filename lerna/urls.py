@@ -31,9 +31,9 @@ urlpatterns = (
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ajax_select/', include(ajax_select_urls)),
 
-    url(r'^login/$', Login.as_view(), name='login'),
-    url(r'^logout/$', Logout.as_view(), name='logout'),
-    url(r'^registration/$', Registration.as_view(), name='registration'),
+    url(r'^login/?$', Login.as_view(), name='login'),
+    url(r'^logout/?$', Logout.as_view(), name='logout'),
+    url(r'^registration/?$', Registration.as_view(), name='registration'),
 )
 
 if settings.DEBUG:
