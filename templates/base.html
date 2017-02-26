@@ -21,46 +21,42 @@
 
 <body>
 
-<div class="title-bar" data-responsive-toggle="lerna-top-nav-menu" data-hide-for="medium">
-  <button class="menu-icon" type="button" data-toggle="lerna-top-nav-menu"></button>
-  <div class="title-bar-title">Lerna</div>
-</div>
-
-<div class="top-bar" id="lerna-top-nav-menu">
+<div class="top-bar">
   <div class="row small-12 columns">
+
     <div class="top-bar-left">
-      <ul class="vertical medium-horizontal menu">
-        <li class="menu-text"><a href="#"><img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna</a></li>
+      <ul class="horizontal menu">
+        <li class="menu-text"><a href="{% url 'index' %}"><img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna</a></li>
         {% block top_nav_links %}
         {% endblock top_nav_links %}
       </ul>
     </div>
+
+    <div class="top-bar-right">
+      <ul class="horizontal dropdown menu" data-dropdown-menu>
+        {% if user.is_authenticated %}
+        <li>
+          <a href="{% url 'global_statistics:attempts' %}">{{ user.username }}</a>
+          <ul class="menu vertical">
+            <li><a href="{% url 'global_statistics:attempts' %}">Попытки</a></li>
+            <li><a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li><a href="{% url 'registration' %}?back={{ request.path }}">Регистрация</a></li>
+        <li><a href="{% url 'login' %}?back={{ request.path }}">Вход</a></li>
+        {% endif %}
+      </ul>
+    </div>
+
   </div>
 </div>
 
-{% if user.is_authenticated %}
-<p>
-  Вы зашли как {{ user.username }}
-  <a href="{% url 'global_statistics:attempts' %}">Попытки</a>
-  <a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a>
-</p>
-{% else %}
-<p>
-  <a href="{% url 'login' %}?back={{ request.path }}">
-    Войдите
-  </a>
-  в систему или
-  <a href="{% url 'registration' %}?back={{ request.path }}">
-    зарегистрируйтесь
-  </a>
-</p>
-{% endif %}
-
-{% block local_title %}{% endblock local_title %}
-
-{% block links %}{% endblock links %}
-
-{% block body %}{% endblock body %}
+<div class="row small-12 columns">
+  {% block local_title %}{% endblock local_title %}
+  {% block links %}{% endblock links %}
+  {% block body %}{% endblock body %}
+</div>
 
 {% block javascript_links %}
 {% javascript 'jquery' %}
