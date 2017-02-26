@@ -1,8 +1,11 @@
-from django.shortcuts          import render, redirect
-from django.views.generic      import TemplateView, ListView
-from django.views.generic.edit import FormView
-from django                    import forms
-from django.db.models import Count, Q
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts           import render, redirect
+from django.core.exceptions     import PermissionDenied
+from django.http                import Http404
+from django.views.generic       import TemplateView, ListView
+from django.views.generic.edit  import FormView
+from django                     import forms
+from django.db.models           import Count, Q
 
 import datetime
 import os
@@ -22,6 +25,10 @@ class ContestIndexView(TemplateView):
             .filter(is_training=False)
             .order_by('-start_time')
         )
+
+        if not self.request.user.is_staff:
+            contests = contests.filter(is_admin=False)
+
         now = datetime.datetime.now()
         actual, awaiting, past = Contest.three_way_split(contests, now)
         context.update(
@@ -43,6 +50,9 @@ class TrainingIndexView(TemplateView):
             .filter(is_training=True)
             .order_by('name')
         )
+
+        if not self.request.user.is_staff:
+            trainings_raw = trainings_raw.filter(is_admin=False)
 
         trainings = []
         cur_prefixes = []
@@ -80,7 +90,18 @@ class TrainingView(TemplateView):
 
     def get_context_data(self, *, contest_id, **kwargs):
         context = super().get_context_data(id=contest_id, **kwargs)
+
+        if not Contest.objects.filter(id=contest_id).exists():
+            raise Http404("Не существует тренировки с запрошенным id.")
+
         training = Contest.objects.get(id=contest_id)
+        if not training.is_training:
+            raise Http404("Не существует тренировки с запрошенным id.")
+
+        user = self.request.user
+        if training.is_admin and not user.is_staff:
+            raise Http404("Не существует тренировки с запрошенным id.")
+
         pics = (
             ProblemInContest
             .objects
@@ -126,7 +147,7 @@ class SubmitForm(forms.Form):
         self.fields['source'] = forms.CharField(widget=forms.Textarea)
 
 
-class SubmitView(FormView):
+class SubmitView(LoginRequiredMixin, FormView):
     template_name = 'contests/submit.html'
     form_class = SubmitForm
 
@@ -150,7 +171,7 @@ class SubmitView(FormView):
         return render(request, self.template_name, {'form': form, 'contest': contest})
 
 
-class AttemptsView(ListView):
+class AttemptsView(LoginRequiredMixin, ListView):
     template_name = 'contests/attempts.html'
     context_object_name = 'attempts'
     allow_empty = True
@@ -159,9 +180,7 @@ class AttemptsView(ListView):
 
     def get_queryset(self):
         contest = Contest.objects.get(id=self.kwargs['contest_id'])
-        user = None
-        if self.request.user.is_authenticated():
-            user = self.request.user
+        user = self.request.user
         attempts = (
             Attempt
             .objects
@@ -173,39 +192,45 @@ class AttemptsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        contest = Contest.objects.get(id=self.kwargs['contest_id'])
+        contest_id = self.kwargs['contest_id']
+
+        if not Contest.objects.filter(id=contest_id).exists():
+            raise Http404("Не существует тренировки с запрошенным id.")
+
+        contest = Contest.objects.get(id=contest_id)
+
+        user = self.request.user
+        if contest.is_admin and not user.is_staff:
+            raise Http404("Не существует тренировки с запрошенным id.")
+
         context.update(contest=contest)
         return context
 
 
-class SourceView(TemplateView):
+class AttemptDetailsView(LoginRequiredMixin, TemplateView):
+    def get_context_data(self, *, attempt_id, **kwargs):
+        context = super().get_context_data(id=attempt_id, **kwargs)
+
+        if not Attempt.objects.filter(id=attempt_id).exists():
+            raise Http404("Не существует попытки с запрошенным id.")
+
+        attempt = Attempt.objects.get(id=attempt_id)
+        contest = attempt.problem_in_contest.contest
+
+        user = self.request.user
+        if user.id != attempt.user_id and not user.is_staff:
+            raise PermissionDenied('Вы не можете просматривать исходный код чужих посылок.')
+
+        context.update(contest=contest, attempt=attempt)
+        return context
+
+
+class SourceView(AttemptDetailsView):
     template_name = 'contests/source.html'
 
-    def get_context_data(self, *, attempt_id, **kwargs):
-        context = super().get_context_data(id=attempt_id, **kwargs)
-        contest = None
-        attempt = None
-        if self.request.user.is_authenticated():
-            attempt = Attempt.objects.get(id=attempt_id)
-            if attempt is not None:
-                contest = attempt.problem_in_contest.contest
-        context.update(contest=contest, attempt=attempt)
-        return context
 
-
-class ErrorsView(TemplateView):
+class ErrorsView(AttemptDetailsView):
     template_name = 'contests/errors.html'
-
-    def get_context_data(self, *, attempt_id, **kwargs):
-        context = super().get_context_data(id=attempt_id, **kwargs)
-        contest = None
-        attempt = None
-        if self.request.user.is_authenticated():
-            attempt = Attempt.objects.get(id=attempt_id)
-            if attempt is not None:
-                contest = attempt.problem_in_contest.contest
-        context.update(contest=contest, attempt=attempt)
-        return context
 
 
 class RatingView(ListView):
@@ -246,10 +271,10 @@ class RatingView(ListView):
                     Q(attempt__user=user)
                 )
             )
-            tryed = (
+            tried = (
                 ProblemInContest
-                    .objects
-                    .filter(
+                .objects
+                .filter(
                     Q(attempt__problem_in_contest__contest_id=contest.id),
                     Q(attempt__user=user)
                 )
@@ -258,23 +283,33 @@ class RatingView(ListView):
             for problem in problems:
                 if problem in solved:
                     problems_status[problem.number - 1] = '+'
-                elif problem in tryed:
+                elif problem in tried:
                     problems_status[problem.number - 1] = '-'
             user.problems_status = problems_status
-
 
         return users
 
     def get_context_data(self, **kwargs):
-        contest = Contest.objects.get(id=self.kwargs['contest_id'])
+        contest_id = self.kwargs['contest_id']
+        if not Contest.objects.filter(id=contest_id).exists():
+            raise Http404("Не существует тренировки с запрошенным id.")
+
+        training = Contest.objects.get(id=contest_id)
+        if not training.is_training:
+            raise Http404("Не существует тренировки с запрошенным id.")
+
+        user = self.request.user
+        if training.is_admin and not user.is_staff:
+            raise Http404("Не существует тренировки с запрошенным id.")
+
         problems = (
             ProblemInContest
             .objects
             .filter(
-                Q(contest_id=contest.id)
+                Q(contest_id=contest_id)
             )
             .order_by('number')
         )
         context = super().get_context_data(**kwargs)
-        context.update(contest=contest, problems=problems)
+        context.update(contest=training, problems=problems)
         return context

@@ -1,18 +1,9 @@
 {% extends 'contests/base.html' %}
 
 {% block body %}
-  {% if user.is_authenticated %}
-    {% if attempt.user_id == user.id %}
-      {% autoescape off %}
-        {{ attempt.error_message|default_if_none:'Компиляция прошла без ошибок' }}
-      {% endautoescape %}
-    {% else %}
-      <p>Вы не можете просматривать ошибки компиляции чужих посылок</p>
-    {% endif %}
+  {% if attempt.error_message %}
+    <pre>{{ attempt.error_message }}</pre>
   {% else %}
-    <p>
-      Войдите в систему, используя аккаунт пользователя, чтобы просматривать
-      ошибки компиляции для своих посылок.
-    </p>
+    Нет ошибок компиляции.
   {% endif %}
 {% endblock body %}

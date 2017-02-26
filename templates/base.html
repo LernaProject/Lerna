@@ -36,7 +36,7 @@
       </p>
     {% else %}
       <p>
-        <a href="{% url 'login' %}?back={{ request.path }}">
+        <a href="{% url 'login' %}?next={{ request.path }}">
             Войдите
         </a>
         в систему или

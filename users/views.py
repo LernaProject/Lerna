@@ -48,19 +48,19 @@ class Login(TemplateView):
     template_name = 'users/login.html'
 
     def get(self, request, *args, **kwargs):
-        request.session['back'] = request.GET.get('back', '/')
+        request.session['next'] = request.GET.get('next', '/')
         return render(request, self.template_name, {'form': self.form_class()})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        back = request.session['back']
+        next = request.session['next']
         if form.is_valid():
             user_login = form.cleaned_data['login']
             password = form.cleaned_data['password']
             user = authenticate(username=user_login, password=password)
             if user is not None and user.is_active:
                 login(request, user)
-                return redirect(back)
+                return redirect(next)
 
         return render(request, self.template_name, {'form': form})
 

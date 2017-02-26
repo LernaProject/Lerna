@@ -1,31 +1,27 @@
 {% extends 'contests/base.html' %}
 
 {% block body %}
-  {% if user.is_authenticated %}
-    {% if form.errors %}
-      <p>Some errors occured. Please try again.</p>
-    {% endif %}
+  {% if form.errors %}
+    <p>Форма заполнена с допущением ошибок. Попробуйте снова.</p>
+  {% endif %}
 
-    <form method="post" action="">
+  <form method="post" action="">
     {% csrf_token %}
     <table>
-    <tr>
+      <tr>
         <td>компилятор</td>
         <td>{{ form.compiler }}</td>
-    </tr>
-    <tr>
+      </tr>
+      <tr>
         <td>задача</td>
         <td>{{ form.problem }}</td>
-    </tr>
-    <tr>
+      </tr>
+      <tr>
         <td>код</td>
         <td>{{ form.source }}</td>
-    </tr>
+      </tr>
     </table>
 
     <input type="submit" value="Отправить" />
-    </form>
-  {% else %}
-    <p>Войдите в систему, используя аккаунт пользователя, чтобы посылать решения на задачи.</p>
-  {% endif %}
+  </form>
 {% endblock body %}
