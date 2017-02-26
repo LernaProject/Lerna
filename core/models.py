@@ -16,7 +16,6 @@ class Problem(models.Model):
     samples              = models.TextField(blank=True)
     explanations         = models.TextField(blank=True)
     notes                = models.TextField(blank=True)
-    # TODO: Current tester does not support interaction with files. Maybe remove these fields?
     input_file           = models.CharField(max_length=16, blank=True)
     output_file          = models.CharField(max_length=16, blank=True)
     time_limit           = models.PositiveIntegerField()
@@ -47,6 +46,11 @@ class Problem(models.Model):
         return self.name
 
 
+class ContestManager(models.Manager):
+    def privileged(self, allow_hidden):
+        return self.get_queryset() if allow_hidden else self.filter(is_admin=False)
+
+
 class Contest(models.Model):
     name          = models.CharField(max_length=255)
     description   = models.TextField(blank=True)
@@ -60,6 +64,8 @@ class Contest(models.Model):
     updated_at    = models.DateTimeField(auto_now=True)
     problems      = models.ManyToManyField(Problem, through='ProblemInContest')
 
+    objects = ContestManager()
+
     class Meta:
         db_table      = 'contests'
         get_latest_by = 'created_at'
@@ -70,7 +76,7 @@ class Contest(models.Model):
 
     @property
     def duration_str(self):
-        return '%d:%d' % divmod(self.duration, 60)
+        return '%d:%02d' % divmod(self.duration, 60)
 
     def __str__(self):
         return self.name if len(self.name) <= 70 else self.name[:67] + '...'
