@@ -1,11 +1,11 @@
+from django                     import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts           import render, redirect
 from django.core.exceptions     import PermissionDenied
+from django.db.models           import Count, Max, Q, Case, When, BooleanField
 from django.http                import Http404
+from django.shortcuts           import render, redirect
 from django.views.generic       import TemplateView, ListView
 from django.views.generic.edit  import FormView
-from django                     import forms
-from django.db.models           import Count, Q
 
 import datetime
 import os
@@ -229,7 +229,7 @@ class AttemptsView(LoginRequiredMixin, ListView):
 class AttemptDetailsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         attempt_id = self.kwargs['attempt_id']
-        context = super().get_context_data(attempt_id=attempt_id, **kwargs)
+        context = super().get_context_data(**kwargs)
 
         try:
             # A user can view their attempts from hidden contests,
@@ -263,9 +263,7 @@ class RatingView(ListView):
     paginate_orphans = 1
 
     def get_queryset(self):
-        # FIXME(nickolas): A contest is fetched twice.
-        contest = Contest.objects.get(id=self.kwargs['contest_id'])
-        # TODO(nickolas): Optimize the queries.
+        contest_id = self.kwargs['contest_id']
         users = (
             User
             .objects
@@ -274,46 +272,44 @@ class RatingView(ListView):
                     attempt__result='Tested',
                     attempt__score__gt=99.99,
                 ),
-                attempt__problem_in_contest__contest_id=contest.id,
+                attempt__problem_in_contest__contest=contest_id,
             )
-            .annotate(problems_solved=Count('attempt__problem_in_contest__problem', distinct=True))
-            .order_by('-problems_solved')
+            .annotate(
+                problems_solved=Count('attempt__problem_in_contest', distinct=True),
+                last_success_id=Max('attempt'),
+            )
+            .only('username')
+            .order_by('-problems_solved', 'last_success_id')
         )
         rank_users(users, 'problems_solved')
-
-        problems = (
-            ProblemInContest
-            .objects
-            .filter(contest_id=contest.id)
-        )
+        pattern = ['.'] * ProblemInContest.objects.filter(contest=contest_id).count()
+        statuses = { }
         for user in users:
-            solved = (
-                ProblemInContest
-                .objects
-                .filter(
-                    Q(attempt__result='Accepted') | Q(
-                        attempt__result='Tested',
-                        attempt__score__gt=99.99,
-                    ),
-                    attempt__problem_in_contest__contest_id=contest.id,
-                    attempt__user=user,
-                )
-            )
-            tried = (
-                ProblemInContest
-                .objects
-                .filter(
-                    attempt__problem_in_contest__contest_id=contest.id,
-                    attempt__user=user,
-                )
-            )
-            problems_status = ['.'] * len(problems)
-            for problem in problems:
-                if problem in solved:
-                    problems_status[problem.number - 1] = '+'
-                elif problem in tried:
-                    problems_status[problem.number - 1] = '-'
-            user.problems_status = problems_status
+            statuses[user.id] = user.problems_status = pattern[:]
+
+        tried = (
+            Attempt
+            .objects
+            .filter(problem_in_contest__contest=contest_id)
+            # Django has no way to `SELECT result = 'Accepted' FROM attempts`.
+            .annotate(succeeded=Case(
+                When(Q(result='Accepted') | Q(result='Tested', score__gt=99.99), then=True),
+                default=False,
+                output_field=BooleanField(),
+            ))
+            .distinct()
+            .values_list('user', 'problem_in_contest__number', 'succeeded')
+        )
+        for user_id, number, succeeded in tried:
+            try:
+                status = statuses[user_id]
+            except KeyError:
+                pass # Skip users that don't have at least 1 accepted problem.
+            else:
+                if succeeded:
+                    status[number - 1] = '+'
+                elif status[number - 1] != '+':
+                    status[number - 1] = '-'
 
         return users
 
@@ -323,6 +319,7 @@ class RatingView(ListView):
                 Contest
                 .objects
                 .privileged(self.request.user.is_staff)
+                .only('id', 'name')
                 .get(id=self.kwargs['contest_id'], is_training=True)
             )
         except Contest.DoesNotExist:
@@ -332,6 +329,8 @@ class RatingView(ListView):
             ProblemInContest
             .objects
             .filter(contest=training)
+            .select_related('problem')
+            .only('number', 'problem__name')
             .order_by('number')
         )
 
