@@ -1,57 +1,68 @@
-{% block base_doctype %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-{% endblock %}
+<html>
 
 {% load staticfiles %}
+{% load pipeline %}
 
-<html>
-  <head>
-    <title>
-      {% block base_title %}Lerna {% endblock %}
-      {% block title %}{% endblock %}
-    </title>
-    {% block favicon %}
-      <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}" />
-    {% endblock %}
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}"/>
 
-    <!-- <# TODO(viers): Remove this during redesign #} -->
-    <style>
-      table {
-        width: 100%
-      }
-    </style>
+  <title>
+    {% block title %}Lerna{% endblock %}
+  </title>
 
-    {% block stylesheet_links %}{% endblock %}
+  {% block stylesheet_links %}
+  {% stylesheet 'jquery' %}
+  {% stylesheet 'foundation' %}
+  {% stylesheet 'lerna' %}
+  {% endblock stylesheet_links %}
+</head>
 
-    {% block head %}{% endblock %}
-  </head>
-  <body>
-    <h1><a href="{% url 'index' %}">Lerna</a></h1>
+<body>
 
-    {% if user.is_authenticated %}
-      <p>
-          Вы зашли как {{ user.username }}
-          <a href="{% url 'global_statistics:attempts' %}">Попытки</a>
-          <a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a>
-      </p>
-    {% else %}
-      <p>
-        <a href="{% url 'login' %}?next={{ request.path }}">
-            Войдите
-        </a>
-        в систему или
-        <a href="{% url 'registration' %}?back={{ request.path }}">
-            зарегистрируйтесь
-        </a>
-      </p>
-    {% endif %}
+<div class="top-bar">
+  <div class="row small-12 columns">
 
-    {% block local_title %}{% endblock local_title %}
+    <div class="top-bar-left">
+      <ul class="horizontal menu">
+        <li class="menu-text"><a href="{% url 'index' %}"><img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna</a></li>
+        {% block top_nav_links %}
+        {% endblock top_nav_links %}
+      </ul>
+    </div>
 
-    {% block links %}{% endblock links %}
+    <div class="top-bar-right">
+      <ul class="horizontal dropdown menu" data-dropdown-menu>
+        {% if user.is_authenticated %}
+        <li>
+          <a href="{% url 'global_statistics:attempts' %}">{{ user.username }}</a>
+          <ul class="menu vertical">
+            <li><a href="{% url 'global_statistics:attempts' %}">Попытки</a></li>
+            <li><a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li><a href="{% url 'registration' %}?back={{ request.path }}">Регистрация</a></li>
+        <li><a href="{% url 'login' %}?back={{ request.path }}">Вход</a></li>
+        {% endif %}
+      </ul>
+    </div>
 
-    {% block body %}{% endblock body %}
+  </div>
+</div>
 
-    {% block javascript_links %}{% endblock %}
-  </body>
+<div class="row small-12 columns">
+  {% block local_title %}{% endblock local_title %}
+  {% block links %}{% endblock links %}
+  {% block body %}{% endblock body %}
+</div>
+
+{% block javascript_links %}
+{% javascript 'jquery' %}
+{% javascript 'foundation' %}
+{% endblock javascript_links %}
+
+</body>
+
 </html>

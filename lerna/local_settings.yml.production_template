@@ -1,7 +1,7 @@
 # This file overrides project settings from settings.yml for production.
 # Copy this file, rename it to local_settings.yml and edit.
+# It will not be checked into the version control system.
 
-# You may use http://miniwebtool.com/django-secret-key-generator/ to generate a unique secret key.
 SECRET_KEY:
 
 # A list of host/domain names that Django site can serve.

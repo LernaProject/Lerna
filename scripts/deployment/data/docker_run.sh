@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 echo "docker_run.sh started"
+cd /lerna
 
 echo "syncing all dependencies..."
-cd /lerna
 pip3 install --upgrade pip
 pip3 install --upgrade -r requirements.txt
 python3 manage.py sync --without-pip
