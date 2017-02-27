@@ -1,29 +1,10 @@
 {% extends 'base.html' %}
 
-{% load pipeline %}
+{% block top_nav_links %}
 
-{% block stylesheet_links %}
-  {% stylesheet 'jquery' %}
-  {% stylesheet 'foundation' %}
-{% endblock stylesheet_links %}
+  <li><a href="{% url 'news:index' %}">Новости</a></li>
+  <li><a href="{% url 'contests:contests' %}">Соревнования</a></li>
+  <li><a href="{% url 'contests:trainings' %}">Тренировки</a></li>
+  <li><a href="{% url 'global_statistics:rating' %}">Рейтинг</a></li>
 
-{% block javascript_links %}
-  {% if debug %}
-    {% javascript 'jquery' %}
-  {% else %}
-    {# This scripts hardcoded for fast user-side load in case they're already in cache #}
-    {# TODO(viers): Find a way for falling back to a local copies in case google loading failed #}
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-  {% endif %}
-{% endblock javascript_links %}
-
-{% block links %}
-  <p>
-    <a href="{% url 'news:index' %}">Новости</a>
-    <a href="{% url 'contests:contests' %}">Олимпиады</a>
-    <a href="{% url 'contests:trainings' %}">Тренировки</a>
-    <a href="{% url 'global_statistics:rating' %}">Глобальный рейтинг</a>
-  </p>
-{% endblock links %}
+{% endblock top_nav_links %}

@@ -1,0 +1,52 @@
+STATIC_ROOT: !path build/static
+
+STATIC_URL: /static/
+
+STATICFILES_STORAGE: pipeline.storage.PipelineCachedStorage
+
+STATICFILES_FINDERS:
+- django.contrib.staticfiles.finders.FileSystemFinder
+- django.contrib.staticfiles.finders.AppDirectoriesFinder
+- pipeline.finders.PipelineFinder
+
+STATICFILES_DIRS:
+- !path static/src
+
+AJAX_SELECT_BOOTSTRAP: false
+
+DEBUG_TOOLBAR_CONFIG:
+  JQUERY_URL: /static/jquery/jquery.min.js
+
+PIPELINE:
+  PIPELINE_ENABLED: true
+
+  JAVASCRIPT:
+    jquery:
+      source_filenames:
+      - jquery/jquery.min.js
+      - jquery/jquery-ui.min.js
+      output_filename: jquery.piped.min.js
+    foundation:
+      source_filenames:
+      - foundation/what-input.js
+      - foundation/foundation.js
+      - foundation/foundation-launch.js
+      output_filename: foundation.piped.min.js
+
+  STYLESHEETS:
+    jquery:
+      source_filenames:
+      - jquery/jquery-ui.min.css
+      output_filename: jquery.piped.min.css
+    foundation:
+      source_filenames:
+      - foundation/foundation.css
+      - foundation/foundation-overrides.css
+      output_filename: foundation.piped.min.css
+    lerna:
+      source_filenames:
+      - lerna/global.css
+      output_filename: lerna.piped.min.css
+
+  JS_COMPRESSOR: pipeline.compressors.NoopCompressor
+  CSS_COMPRESSOR: pipeline.compressors.NoopCompressor

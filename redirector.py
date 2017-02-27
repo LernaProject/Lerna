@@ -1,5 +1,6 @@
 from django import shortcuts
 
+
 def redirect_to(view_name, permanent=True, **defaults):
     """
     Constructs a view redirecting to the specified address.
