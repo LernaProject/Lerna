@@ -1,0 +1,35 @@
+{% extends 'contests/base.html' %}
+
+{% block body %}
+
+{% if standings %}
+  <table>
+  <tr>
+    <th>Ранг</th>
+    <th>Имя</th>
+    {% for problem in problems %}
+        <th><span title="{{ problem.problem.name }}">{{ problem.number_char }}</span></th>
+    {% endfor %}
+    <th>Задач<br/>(из {{ contest.problem_count }})</th>
+    <th>Штрафное<br/>время</th>
+  </tr>
+  {% for user_info in standings %}
+    <tr>
+       <td>{{ user_info.rank }}</td>
+       <td>{{ user_info.user.username }}</td>
+       {% for result in user_info.results %}
+         <td>{{ result.status }}
+         {% if result.time %}
+           <br/>{{ result.time }}</td>
+         {% endif %}
+       {% endfor %}
+       <td>{{ user_info.sum }}</td>
+       <td>{{ user_info.fine_time }}</td>
+    </tr>
+  {% endfor %}
+  </table>
+{% else %}
+  <p>Нет доступных для отображения в рейтинге пользователей</p>
+{% endif %}
+
+{% endblock body %}

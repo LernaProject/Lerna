@@ -13,6 +13,7 @@ import os
 from core.models import Contest, ProblemInContest, Attempt, Compiler
 from users.models import User, rank_users
 
+from operator import itemgetter
 
 class ContestIndexView(TemplateView):
     template_name = 'contests/contests.html'
@@ -258,9 +259,10 @@ class RatingView(ListView):
             ProblemInContest
             .objects
             .filter(
-                Q(contest_id=contest.id)
+                contest_id=contest.id
             )
         )
+        # TODO: выбирать все поптыки одним запросом, как для standings
         for user in users:
             solved = (
                 ProblemInContest
@@ -271,12 +273,13 @@ class RatingView(ListView):
                     Q(attempt__user=user)
                 )
             )
+            # TODO: не учитывать попытки со статусами SE, Ignored, Testing ..., ''
             tried = (
                 ProblemInContest
                 .objects
                 .filter(
-                    Q(attempt__problem_in_contest__contest_id=contest.id),
-                    Q(attempt__user=user)
+                    attempt__problem_in_contest__contest_id=contest.id,
+                    attempt__user=user
                 )
             )
             problems_status = ['.'] * len(problems)
@@ -306,10 +309,136 @@ class RatingView(ListView):
             ProblemInContest
             .objects
             .filter(
-                Q(contest_id=contest_id)
+                contest_id=contest_id
             )
             .order_by('number')
         )
         context = super().get_context_data(**kwargs)
         context.update(contest=training, problems=problems)
+        return context
+
+
+class StandingsView(TemplateView):
+    template_name = 'contests/standings.html'
+
+    def get_context_data(self, **kwargs):
+        contest_id = self.kwargs['contest_id']
+        if not Contest.objects.filter(id=contest_id).exists():
+            raise Http404("Не существует контеста с запрошенным id.")
+
+        contest = Contest.objects.get(id=contest_id)
+        if contest.is_training:
+            raise Http404("Не существует контеста с запрошенным id.")
+
+        user = self.request.user
+        if contest.is_admin and not user.is_staff:
+            raise Http404("Не существует контеста с запрошенным id.")
+
+        now = datetime.datetime.now()
+        inner_time = now - contest.start_time
+        time_before_end = 60 * contest.duration - inner_time.seconds
+        finished = time_before_end < 0
+
+        # TODO: add calculation for time_before_end_str
+
+        # время, вплоть до которого мы просматриваем попытки (до заморозки или до конца контеста, если таковой нет)
+        if finished or contest.freezing_time is None:
+            inner_up_time = contest.duration
+        else:
+            inner_up_time = contest.freezing_time
+        up_time = contest.start_time + datetime.timedelta(minutes=inner_up_time)
+        if now < up_time:
+            up_time = now
+
+        # TODO: add calculation for freezing_time_str
+
+        problems = (
+            ProblemInContest
+            .objects
+            .filter(
+                contest_id=contest.id
+            )
+        )
+        for problem in problems:
+            problem.number_char = chr(ord('A') + problem.number - 1)
+
+        attempts = (
+            Attempt
+            .objects
+            .filter(
+                Q(problem_in_contest__contest_id=contest.id),
+                Q(time__gte=contest.start_time)
+            )
+            .exclude(
+                Q(result__in=('Compilation error', 'Ignored', '')) or
+                Q(result__startswith='Testing') or
+                Q(result__startswith='System error') or
+                Q(time__gt=up_time)
+            )
+            .order_by('time')
+        )
+
+        prepared_attempts = {}
+        for attempt in attempts:
+            if attempt.user_id not in prepared_attempts:
+                prepared_attempts[attempt.user_id] = {}
+            if attempt.problem_in_contest.number not in prepared_attempts[attempt.user_id]:
+                prepared_attempts[attempt.user_id][attempt.problem_in_contest.number] = []
+            prepared_attempts[attempt.user_id][attempt.problem_in_contest.number].append(attempt)
+        users = (
+            User
+            .objects
+            .filter(
+                Q(id__in=prepared_attempts.keys())
+            )
+        )
+
+        standings = []
+        for user in users:
+            user_info = {'user': user,
+                         'sum': 0,
+                         'fine_time': 0,
+                         'results': [{'status': '.', 'time': None}] * len(problems)}
+            for problem_number, problem_attempts in prepared_attempts[user.id].items():
+                fail_attempts_count = 0
+                accepted_time = None
+                for attempt in problem_attempts:
+                    if attempt.result == 'Accepted':
+                        accepted_time = attempt.time
+                        break
+                    else:
+                        fail_attempts_count += 1
+
+                number = int(problem_number) - 1
+                if accepted_time:
+                    user_info['sum'] += 1
+
+                    status = "+{0}".format(fail_attempts_count) if fail_attempts_count else '+'
+                    accepted_time = (accepted_time - contest.start_time).seconds // 60
+                    time = "{0}:{1:02}".format(accepted_time // 60, accepted_time % 60)
+
+                    user_info['results'][number] = {'status': status, 'time': time}
+                    user_info['fine_time'] += accepted_time + 20 * fail_attempts_count
+                elif fail_attempts_count:
+                    user_info['results'][number] = {'status': -fail_attempts_count, 'time': None}
+
+            standings.append(user_info)
+
+            standings.sort(key=itemgetter('fine_time'))
+            standings.sort(key=itemgetter('sum'), reverse=True)
+
+            rank = 0
+            for user_info in standings:
+                rank += 1
+                user_info['rank'] = rank
+
+        context = super().get_context_data(**kwargs)
+        context.update(contest=contest, problems=problems, standings=standings,
+                       now=now,
+                       inner_time=inner_time,
+                       inner_up_time=inner_up_time,
+                       up_time=up_time,
+                       prepared_attempts=prepared_attempts,
+                       users=users
+                       )
         return context

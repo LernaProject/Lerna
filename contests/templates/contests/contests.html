@@ -40,27 +40,4 @@
   <p>Пока нет прошедших олимпиад</p>
 {% endif %}
 
-{% if page_obj %}
-<div class="pagination">
-  <span class="step-links">
-
-  {% for i in paginator.page_range %}
-    [
-    {% if i == page_obj.number %}
-      {{ i }}
-    {% else %}
-      {% if i == 1 %}
-        {% url 'index' as u %}
-      {% else %}
-        {% url 'news:index' i as u %}
-      {% endif %}
-      <a href="{{ u }}">{{ i }}</a>
-    {% endif %}
-    ]
-  {% endfor %}
-
-  </span>
-</div>
-{% endif %}
-
 {% endblock %}
