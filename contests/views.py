@@ -367,7 +367,7 @@ class StandingsView(TemplateView):
 
         now = timezone.now()
         internal_time = now - contest.start_time
-        remaining_time_secs = max(60 * contest.duration - internal_time.seconds, 0)
+        remaining_time_secs = max(60 * contest.duration - internal_time.total_seconds(), 0)
         finished = remaining_time_secs <= 0
 
         # TODO: add calculation for remaining_time_str
@@ -387,7 +387,7 @@ class StandingsView(TemplateView):
             .filter(contest=contest)
             # ord('A') - 1 == 64
             .annotate(number_char=Func(F('number') + 64, function='chr', output_field=CharField()))
-            .order_by('number') # ?
+            .order_by('number')
             .values('number_char', 'problem__name')
         )
 
@@ -431,7 +431,7 @@ class StandingsView(TemplateView):
             for user_id, problem_number, attempt_count, succeeded_at in cursor:
                 user_info = standings[user_id]
                 if succeeded_at is not None:
-                    accepted_time = (succeeded_at - contest.start_time).seconds // 60
+                    accepted_time = int((succeeded_at - contest.start_time).total_seconds() / 60)
                     time_str = '%d:%02d' % divmod(accepted_time, 60)
                     status = '+' if attempt_count == 1 else '+%d' % (attempt_count - 1)
                     user_info['score'] += 1
