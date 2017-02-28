@@ -128,10 +128,13 @@ class SubmitForm(forms.Form):
     def __init__(self, contest_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        compilers = Compiler.objects.filter(obsolete=False)
+        compilers = Compiler.objects.filter(obsolete=False).order_by('name')
         self.fields['compiler'] = forms.ChoiceField(
             choices=[(compiler.id, compiler.name) for compiler in compilers]
         )
+        for compiler in compilers:
+            if 'C++' in compiler.name:
+                self.initial['compiler'] = compiler.id
 
         # FIXME(nickolas): A contest is fetched twice.
         contest = Contest.objects.get(id=contest_id)
