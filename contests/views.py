@@ -10,8 +10,8 @@ from django.views.generic       import TemplateView, ListView
 from django.views.generic.edit  import FormView
 
 import collections
-from   operator import itemgetter
 import os
+import datetime
 
 from core.models  import Contest, ProblemInContest, Attempt, Compiler
 from users.models import User, rank_users
@@ -402,13 +402,25 @@ class StandingsView(TemplateView):
             .values('number_char', 'problem__name')
         )
 
-        Result = collections.namedtuple("Result", "status time")
+        Result = collections.namedtuple('Result', 'status time')
         standings = collections.defaultdict(lambda: {
             # 'username': None,
             'score': 0,
             'penalty': 0,
             'results': [Result('.', None)] * len(problems),
         })
+
+        statistics = []
+        for problem in problems:
+            statistics.append({
+                'total_runs': 0,
+                'accepted': 0,
+                'rejected': 0,
+                'first_accept': None,
+                'first_accept_str': '',
+                'last_accept': None,
+                'last_accept_str': '',
+            })
 
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -441,6 +453,9 @@ class StandingsView(TemplateView):
 
             for user_id, problem_number, attempt_count, succeeded_at in cursor:
                 user_info = standings[user_id]
+                statistic = statistics[problem_number]
+                statistic['total_runs'] += attempt_count
+                statistic['rejected'] += attempt_count
                 if succeeded_at is not None:
                     accepted_time = int((succeeded_at - contest.start_time).total_seconds() / 60)
                     time_str = '%d:%02d' % divmod(accepted_time, 60)
@@ -448,6 +463,14 @@ class StandingsView(TemplateView):
                     user_info['score'] += 1
                     user_info['penalty'] += accepted_time + (attempt_count - 1) * 20
                     user_info['results'][problem_number] = Result(status, time_str)
+                    statistic['total_runs'] += 1
+                    statistic['accepted'] += 1
+                    if statistic['first_accept'] is None or statistic['first_accept'] > accepted_time:
+                        statistic['first_accept'] = accepted_time
+                        statistic['first_accept_str'] = time_str
+                    if statistic['last_accept'] is None or statistic['last_accept'] < accepted_time:
+                        statistic['last_accept'] = accepted_time
+                        statistic['last_accept_str'] = time_str
                 else:
                     user_info['results'][problem_number] = Result('-%d' % attempt_count, None)
 
@@ -470,8 +493,6 @@ class StandingsView(TemplateView):
             contest=contest,
             problems=problems,
             standings=standings,
-            internal_time=internal_time,
-            internal_due_time=internal_due_time,
-            due_time=due_time,
+            statistics=statistics
         )
         return context
