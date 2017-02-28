@@ -435,7 +435,7 @@ class StandingsView(TemplateView):
                     time_str = '%d:%02d' % divmod(accepted_time, 60)
                     status = '+' if attempt_count == 1 else '+%d' % (attempt_count - 1)
                     user_info['score'] += 1
-                    user_info['penalty'] += accepted_time + attempt_count * 20
+                    user_info['penalty'] += accepted_time + (attempt_count - 1) * 20
                     user_info['results'][problem_number] = Result(status, time_str)
                 else:
                     user_info['results'][problem_number] = Result('-%d' % attempt_count, None)
