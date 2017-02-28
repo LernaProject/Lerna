@@ -1,6 +1,6 @@
 {% extends 'contests/base.html' %}
 
-{% block body %}
+{% block body %}{% spaceless %}
 
 {% if standings %}
   <table>
@@ -8,23 +8,20 @@
     <th>Ранг</th>
     <th>Имя</th>
     {% for problem in problems %}
-        <th><span title="{{ problem.problem.name }}">{{ problem.number_char }}</span></th>
+        <th><span title="{{ problem.problem__name }}">{{ problem.number_char }}</span></th>
     {% endfor %}
-    <th>Задач<br/>(из {{ contest.problem_count }})</th>
+    <th>Задач<br/>(из {{ problems|length }})</th>
     <th>Штрафное<br/>время</th>
   </tr>
   {% for user_info in standings %}
     <tr>
        <td>{{ user_info.rank }}</td>
-       <td>{{ user_info.user.username }}</td>
+       <td>{{ user_info.username }}</td>
        {% for result in user_info.results %}
-         <td>{{ result.status }}
-         {% if result.time %}
-           <br/>{{ result.time }}</td>
-         {% endif %}
+         <td>{{ result.status }}{% if result.time %}<br/>{{ result.time }}{% endif %}</td>
        {% endfor %}
-       <td>{{ user_info.sum }}</td>
-       <td>{{ user_info.fine_time }}</td>
+       <td>{{ user_info.score }}</td>
+       <td>{{ user_info.penalty }}</td>
     </tr>
   {% endfor %}
   </table>
@@ -32,4 +29,4 @@
   <p>Нет доступных для отображения в рейтинге пользователей</p>
 {% endif %}
 
-{% endblock body %}
+{% endspaceless %}{% endblock body %}

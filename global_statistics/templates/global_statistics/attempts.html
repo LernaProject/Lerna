@@ -1,71 +1,65 @@
 {% extends 'global.html' %}
 
 {% block body %}
-  {% if user.is_authenticated %}
-    {% if attempts %}
-      <table style="width: 100%">
+  {% if attempts %}
+    <table style="width: 100%">
+    <tr>
+      <th>Время</th>
+      <th>Контест</th>
+      <th>Задача</th>
+      <th>Компилятор</th>
+      <th>Вердикт</th>
+      <th>Используемое<br/>время, сек</th>
+      <th>Используемая<br/>память, КБ</th>
+      <th>Исходный<br/>код</th>
+    </tr>
+    {% for attempt in attempts %}
       <tr>
-        <th>Время</th>
-        <th>Контест</th>
-        <th>Задача</th>
-        <th>Компилятор</th>
-        <th>Вердикт</th>
-        <th>Используемое<br/>время, сек</th>
-        <th>Используемая<br/>память, КБ</th>
-        <th>Исходный<br/>код</th>
+        <td>{{ attempt.created_at }}</td>
+        <td>{{ attempt.problem_in_contest.contest.name }}</td>
+        <td>
+          <a href="{% url 'contests:problem' contest_id=attempt.problem_in_contest.contest_id problem_number=attempt.problem_in_contest.number %}">
+            {{ attempt.problem_in_contest.number }}. {{ attempt.problem_in_contest.problem.name }}
+          </a>
+        </td>
+        <td>{{ attempt.compiler.name }}</td>
+        <td>
+          {% if attempt.result == "Compilation error" %}
+            <a href="{% url 'contests:errors' attempt_id=attempt.id %}">{{ attempt.result }}</a>
+          {% else %}
+            {{ attempt.result|default:'Waiting' }}
+          {% endif %}
+        </td>
+        <td>{{ attempt.used_time|default_if_none:'' }}</td>
+        <td>{{ attempt.used_memory|default_if_none:'' }}</td>
+        <td><a href="{% url 'contests:source' attempt_id=attempt.id %}">[link]</a></td>
       </tr>
-      {% for attempt in attempts %}
-        <tr>
-          <td>{{ attempt.created_at }}</td>
-          <td>{{ attempt.problem_in_contest.contest.name }}</td>
-          <td>
-            <a href="{% url 'contests:problem' contest_id=attempt.problem_in_contest.contest.id problem_number=attempt.problem_in_contest.number %}">
-               {{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}
-             </a>
-          </td>
-          <td>{{ attempt.compiler.name }}</td>
-          <td>
-            {% if attempt.result == "Compilation error" %}
-              <a href="{% url 'contests:errors' attempt_id=attempt.id %}">{{ attempt.result }}</a>
+    {% endfor %}
+    </table>
+
+    {% if page_obj %}
+      <div class="pagination">
+        <span class="step-links">
+
+        {% for i in paginator.page_range %}
+          [
+          {% if i == page_obj.number %}
+            {{ i }}
+          {% else %}
+            {% if i == 1 %}
+              {% url 'global_statistics:attempts' as u %}
             {% else %}
-              {{ attempt.result|default_if_none:'' }}
+              {% url 'global_statistics:attempts' i as u %}
             {% endif %}
-          </td>
-          <td>{{ attempt.used_time|default_if_none:'' }}</td>
-          <td>{{ attempt.used_memory|default_if_none:'' }}</td>
-          <td><a href="{% url 'contests:source' attempt_id=attempt.id %}">[link]</a></td>
-        </tr>
-      {% endfor %}
-      </table>
+            <a href="{{ u }}">{{ i }}</a>
+          {% endif %}
+          ]
+        {% endfor %}
 
-      {% if page_obj %}
-        <div class="pagination">
-          <span class="step-links">
-
-          {% for i in paginator.page_range %}
-            [
-            {% if i == page_obj.number %}
-              {{ i }}
-            {% else %}
-              {% if i == 1 %}
-                {% url 'global_statistics:attempts' as u %}
-              {% else %}
-                {% url 'global_statistics:attempts' i as u %}
-              {% endif %}
-              <a href="{{ u }}">{{ i }}</a>
-            {% endif %}
-            ]
-          {% endfor %}
-
-          </span>
-        </div>
-      {% endif %}
-    {% else %}
-      <p>На этой странице будет отображаться очередь ваших посылок</p>
+        </span>
+      </div>
     {% endif %}
   {% else %}
-    <p>
-      Войдите в систему, используя аккаунт пользователя, чтобы просматривать очередь своих попыток.
-    </p>
+    <p>На этой странице будет отображаться очередь ваших посылок</p>
   {% endif %}
 {% endblock body %}

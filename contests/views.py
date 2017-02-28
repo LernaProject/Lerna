@@ -1,13 +1,15 @@
 from django                     import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions     import PermissionDenied
-from django.db.models           import Count, Max, Q, Case, When, BooleanField
+from django.db                  import connection
+from django.db.models           import F, Q, Func, CharField
 from django.http                import Http404
 from django.shortcuts           import render, redirect
+from django.utils               import timezone
 from django.views.generic       import TemplateView, ListView
 from django.views.generic.edit  import FormView
 
-import datetime
+import collections
 from   operator import itemgetter
 import os
 
@@ -28,7 +30,7 @@ class ContestIndexView(TemplateView):
             .order_by('-start_time')
         )
 
-        actual, awaiting, past = Contest.three_way_split(contests, datetime.datetime.now())
+        actual, awaiting, past = Contest.three_way_split(contests, timezone.now())
         context.update(
             actual_contest_list=actual,
             wait_contest_list=awaiting,
@@ -161,7 +163,7 @@ class SubmitView(LoginRequiredMixin, FormView):
                 .get(id=contest_id)
             )
         except Contest.DoesNotExist:
-            raise Http404('Не существует соревнования с запрошенным id.')
+            raise Http404('Не существует контеста с запрошенным id.')
 
         form = self.form_class(contest_id)
         return render(request, self.template_name, {'form': form, 'contest': contest})
@@ -176,7 +178,7 @@ class SubmitView(LoginRequiredMixin, FormView):
                 .get(id=contest_id)
             )
         except Contest.DoesNotExist:
-            raise Http404('Не существует соревнования с запрошенным id.')
+            raise Http404('Не существует контеста с запрошенным id.')
 
         form = self.form_class(contest_id, request.POST)
         if form.is_valid():
@@ -265,22 +267,27 @@ class RatingView(ListView):
 
     def get_queryset(self):
         contest_id = self.kwargs['contest_id']
-        users = (
+        users = list(
             User
             .objects
-            .filter(
-                Q(attempt__result='Accepted') | Q(
-                    attempt__result='Tested',
-                    attempt__score__gt=99.99,
-                ),
-                attempt__problem_in_contest__contest=contest_id,
-            )
-            .annotate(
-                problems_solved=Count('attempt__problem_in_contest', distinct=True),
-                last_success_id=Max('attempt'),
-            )
-            .only('username')
-            .order_by('-problems_solved', 'last_success_id')
+            .raw("""
+                SELECT u.id, u.username, subq.problems_solved
+                FROM (
+                    SELECT id, COUNT(*) AS problems_solved, MAX(first_success) AS last_success
+                    FROM (
+                        SELECT u.id, MIN(a.created_at) AS first_success
+                        FROM users u
+                        JOIN attempts a ON a.user_id = u.id
+                        JOIN problem_in_contests pic ON pic.id = a.problem_in_contest_id
+                        WHERE pic.contest_id = %s
+                        AND (a.result = 'Accepted' OR (a.result = 'Tested' AND a.score > 99.99))
+                        GROUP BY u.id, a.problem_in_contest_id
+                    ) subq
+                    GROUP BY id
+                ) subq
+                JOIN users u ON u.id = subq.id
+                ORDER BY subq.problems_solved DESC, subq.last_success
+            """, [contest_id])
         )
         rank_users(users, 'problems_solved')
         pattern = ['.'] * ProblemInContest.objects.filter(contest=contest_id).count()
@@ -293,16 +300,13 @@ class RatingView(ListView):
             .objects
             .filter(problem_in_contest__contest=contest_id)
             .exclude(
-                Q(result__in=('', 'Ignored')) |
+                Q(result__in=['', 'Queued', 'Compilation error', 'Ignored']) |
                 Q(result__startswith='System error') |
                 Q(result__startswith='Testing')
             )
-            # Django has no way to `SELECT result = 'Accepted' FROM attempts`.
-            .annotate(succeeded=Case(
-                When(Q(result='Accepted') | Q(result='Tested', score__gt=99.99), then=True),
-                default=False,
-                output_field=BooleanField(),
-            ))
+            .extra(select={
+                'succeeded': "result = 'Accepted' OR (result = 'Tested' AND attempts.score > 99.99)"
+            })
             .distinct()
             .values_list('user', 'problem_in_contest__number', 'succeeded')
         )
@@ -350,122 +354,113 @@ class StandingsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         contest_id = self.kwargs['contest_id']
-        if not Contest.objects.filter(id=contest_id).exists():
+        try:
+            contest = (
+                Contest
+                .objects
+                .privileged(self.request.user.is_staff)
+                .only('name', 'start_time', 'duration', 'freezing_time')
+                .get(id=contest_id, is_training=False)
+            )
+        except Contest.DoesNotExist:
             raise Http404("Не существует контеста с запрошенным id.")
 
-        contest = Contest.objects.get(id=contest_id)
-        if contest.is_training:
-            raise Http404("Не существует контеста с запрошенным id.")
+        now = timezone.now()
+        internal_time = now - contest.start_time
+        remaining_time_secs = max(60 * contest.duration - internal_time.seconds, 0)
+        finished = remaining_time_secs <= 0
 
-        user = self.request.user
-        if contest.is_admin and not user.is_staff:
-            raise Http404("Не существует контеста с запрошенным id.")
+        # TODO: add calculation for remaining_time_str
 
-        now = datetime.datetime.now()
-        inner_time = now - contest.start_time
-        time_before_end = 60 * contest.duration - inner_time.seconds
-        finished = time_before_end < 0
-
-        # TODO: add calculation for time_before_end_str
-
-        # время, вплоть до которого мы просматриваем попытки (до заморозки или до конца контеста, если таковой нет)
+        # The time point we can see attempts until (either freezing or the end of the contest).
         if finished or contest.freezing_time is None:
-            inner_up_time = contest.duration
+            internal_due_time = contest.duration
         else:
-            inner_up_time = contest.freezing_time
-        up_time = contest.start_time + datetime.timedelta(minutes=inner_up_time)
-        if now < up_time:
-            up_time = now
+            internal_due_time = contest.freezing_time
+        due_time = min(contest.start_time + timezone.timedelta(minutes=internal_due_time), now)
 
         # TODO: add calculation for freezing_time_str
 
         problems = (
             ProblemInContest
             .objects
-            .filter(
-                contest_id=contest.id
-            )
-        )
-        for problem in problems:
-            problem.number_char = chr(ord('A') + problem.number - 1)
-
-        attempts = (
-            Attempt
-            .objects
-            .filter(
-                Q(problem_in_contest__contest_id=contest.id),
-                Q(time__gte=contest.start_time)
-            )
-            .exclude(
-                Q(result__in=('Compilation error', 'Ignored', '')) or
-                Q(result__startswith='Testing') or
-                Q(result__startswith='System error') or
-                Q(time__gt=up_time)
-            )
-            .order_by('time')
+            .filter(contest=contest)
+            # ord('A') - 1 == 64
+            .annotate(number_char=Func(F('number') + 64, function='chr', output_field=CharField()))
+            .order_by('number') # ?
+            .values('number_char', 'problem__name')
         )
 
-        prepared_attempts = {}
-        for attempt in attempts:
-            if attempt.user_id not in prepared_attempts:
-                prepared_attempts[attempt.user_id] = {}
-            if attempt.problem_in_contest.number not in prepared_attempts[attempt.user_id]:
-                prepared_attempts[attempt.user_id][attempt.problem_in_contest.number] = []
-            prepared_attempts[attempt.user_id][attempt.problem_in_contest.number].append(attempt)
-        users = (
+        Result = collections.namedtuple("Result", "status time")
+        standings = collections.defaultdict(lambda: {
+            # 'username': None,
+            'score': 0,
+            'penalty': 0,
+            'results': [Result('.', None)] * len(problems),
+        })
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                WITH all_attempts AS (
+                    SELECT u.id AS user_id,
+                        pic.number AS num,
+                        a.time,
+                        a.result = 'Accepted' AS succeeded
+                    FROM users u
+                    JOIN attempts a ON a.user_id = u.id
+                    JOIN problem_in_contests pic ON pic.id = a.problem_in_contest_id
+                    WHERE pic.contest_id = %s
+                    AND a.result NOT IN ('', 'Queued', 'Compilation error', 'Ignored')
+                    AND a.result NOT LIKE 'Testing%%'
+                    AND a.result NOT LIKE 'System error%%'
+                    AND a.time <= %s
+                )
+                SELECT a.user_id, a.num - 1, COUNT(*), ok.succeeded_at
+                FROM all_attempts a
+                LEFT JOIN (
+                    SELECT user_id, num, MIN("time") AS succeeded_at
+                    FROM all_attempts
+                    WHERE succeeded
+                    GROUP BY user_id, num
+                ) ok ON ok.user_id = a.user_id AND ok.num = a.num
+                WHERE ok.succeeded_at IS NULL
+                OR a.time <= ok.succeeded_at
+                GROUP BY a.user_id, a.num, ok.succeeded_at
+            """, [contest_id, due_time])
+
+            for user_id, problem_number, attempt_count, succeeded_at in cursor:
+                user_info = standings[user_id]
+                if succeeded_at is not None:
+                    accepted_time = (succeeded_at - contest.start_time).seconds // 60
+                    time_str = '%d:%02d' % divmod(accepted_time, 60)
+                    status = '+' if attempt_count == 1 else '+%d' % (attempt_count - 1)
+                    user_info['score'] += 1
+                    user_info['penalty'] += accepted_time + attempt_count * 20
+                    user_info['results'][problem_number] = Result(status, time_str)
+                else:
+                    user_info['results'][problem_number] = Result('-%d' % attempt_count, None)
+
+        names = (
             User
             .objects
-            .filter(
-                Q(id__in=prepared_attempts.keys())
-            )
+            .filter(id__in=standings)
+            .values_list('id', 'username')
         )
+        for user_id, username in names:
+            standings[user_id]['username'] = username
 
-        standings = []
-        for user in users:
-            user_info = {'user': user,
-                         'sum': 0,
-                         'fine_time': 0,
-                         'results': [{'status': '.', 'time': None}] * len(problems)}
-            for problem_number, problem_attempts in prepared_attempts[user.id].items():
-                fail_attempts_count = 0
-                accepted_time = None
-                for attempt in problem_attempts:
-                    if attempt.result == 'Accepted':
-                        accepted_time = attempt.time
-                        break
-                    else:
-                        fail_attempts_count += 1
-
-                number = int(problem_number) - 1
-                if accepted_time:
-                    user_info['sum'] += 1
-
-                    status = "+{0}".format(fail_attempts_count) if fail_attempts_count else '+'
-                    accepted_time = (accepted_time - contest.start_time).seconds // 60
-                    time = "{0}:{1:02}".format(accepted_time // 60, accepted_time % 60)
-
-                    user_info['results'][number] = {'status': status, 'time': time}
-                    user_info['fine_time'] += accepted_time + 20 * fail_attempts_count
-                elif fail_attempts_count:
-                    user_info['results'][number] = {'status': -fail_attempts_count, 'time': None}
-
-            standings.append(user_info)
-
-            standings.sort(key=itemgetter('fine_time'))
-            standings.sort(key=itemgetter('sum'), reverse=True)
-
-            rank = 0
-            for user_info in standings:
-                rank += 1
-                user_info['rank'] = rank
+        # TODO: Last submit time.
+        standings = sorted(standings.values(), key=lambda info: (-info['score'], info['penalty']))
+        for rank, user_info in enumerate(standings, 1):
+            user_info['rank'] = rank
 
         context = super().get_context_data(**kwargs)
-        context.update(contest=contest, problems=problems, standings=standings,
-                       now=now,
-                       inner_time=inner_time,
-                       inner_up_time=inner_up_time,
-                       up_time=up_time,
-                       prepared_attempts=prepared_attempts,
-                       users=users
-                       )
+        context.update(
+            contest=contest,
+            problems=problems,
+            standings=standings,
+            internal_time=internal_time,
+            internal_due_time=internal_due_time,
+            due_time=due_time,
+        )
         return context

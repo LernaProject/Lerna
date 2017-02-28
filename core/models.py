@@ -1,7 +1,6 @@
 from django.db    import models
+from django.utils import timezone
 from users.models import User
-
-import datetime
 
 
 class Problem(models.Model):
@@ -94,11 +93,16 @@ class Contest(models.Model):
         for contest in contests:
             if contest.start_time > threshold_time:
                 awaiting.append(contest)
-            elif contest.start_time + datetime.timedelta(minutes=contest.duration) < threshold_time:
+            elif contest.start_time + timezone.timedelta(minutes=contest.duration) < threshold_time:
                 past.append(contest)
             else:
                 actual.append(contest)
         return actual, awaiting, past
+
+
+class PICManager(models.Manager):
+    def is_visible(self, problem_id):
+        return self.filter(problem=problem_id, contest__is_admin=False).exists()
 
 
 class ProblemInContest(models.Model):
@@ -109,6 +113,8 @@ class ProblemInContest(models.Model):
     # TODO: Remove this field.
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = PICManager()
 
     class Meta:
         db_table             = 'problem_in_contests'
@@ -190,7 +196,7 @@ class Attempt(models.Model):
     used_memory        = models.PositiveIntegerField(blank=True, null=True)
     checker_comment    = models.TextField(blank=True, default='')
     score              = models.FloatField(blank=True, null=True)
-    # TODO: Remove these two fields.
+    # TODO: Remove this field.
     lock_version       = models.IntegerField(blank=True, null=True)
     created_at         = models.DateTimeField(auto_now_add=True)
     updated_at         = models.DateTimeField(auto_now=True)

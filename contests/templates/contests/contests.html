@@ -23,16 +23,16 @@
   <ul>
   {% for contest in past_contest_list %}
     <li>
-        <h2>{{ contest.name }}</h2>
-        <p>
-            {% if contest.is_school %}
-                Подсчёт результатов: по количеству пройденных тестов
-            {% else %}
-                Подсчёт результатов: по стандартным правилам ACM
-            {% endif %}
-        </p>
-        <p>Время начала: {{ contest.start_time }}</p>
-        <p>Продолжительность: {{ contest.duration_str }}</p>
+      <h2>{{ contest.name }}</h2>
+      <p>
+        {% if contest.is_school %}
+          Подсчёт результатов: по количеству пройденных тестов
+        {% else %}
+          Подсчёт результатов: по стандартным правилам ACM
+        {% endif %}
+      </p>
+      <p>Время начала: {{ contest.start_time }}</p>
+      <p>Продолжительность: {{ contest.duration_str }}</p>
     </li>
   {% endfor %}
   </ul>
