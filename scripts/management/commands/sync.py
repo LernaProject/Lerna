@@ -48,7 +48,7 @@ class Command(management.base.BaseCommand):
             print('Static collecting and minification started...')
             print('Logs are in build/logs/piped_static.log')
             os.mkdir('build/logs')
-            with open('build/logs/piped_static.log', 'w') as f:
+            with open('build/logs/piped_static.log', 'w', encoding='utf-8') as f:
                 management.call_command('collectstatic', interactive=False, stdout=f)
             print('Static collecting and minification done.')
 

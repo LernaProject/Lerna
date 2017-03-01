@@ -24,7 +24,7 @@ def _init_settings():
 
     configuration_files = ('settings.yml', 'static_files_settings.yml', 'local_settings.yml')
     for filename in configuration_files:
-        with open(os.path.join(BASE_DIR, 'lerna', filename)) as f:
+        with open(os.path.join(BASE_DIR, 'lerna', filename), encoding='utf-8-sig') as f:
             for yml_key, yml_data in yaml.load(f).items():
                 if yml_key == 'PREPEND':
                     for key, value in yml_data.items():
