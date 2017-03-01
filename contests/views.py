@@ -96,7 +96,7 @@ class TrainingView(TemplateView):
                 Contest
                 .objects
                 .privileged(self.request.user.is_staff)
-                .get(id=self.kwargs['contest_id'], is_training=True)
+                .get(id=self.kwargs['contest_id'])
             )
         except Contest.DoesNotExist:
             raise Http404('Не существует тренировки с запрошенным id.')

@@ -2,76 +2,72 @@
 
 {% block body %}{% spaceless %}
 
-{% if standings %}
-  <table>
-  <tr>
-    <th>Ранг</th>
-    <th>Имя</th>
-    {% for problem in problems %}
-        <th><span title="{{ problem.problem__name }}">{{ problem.number_char }}</span></th>
-    {% endfor %}
-    <th>Задач<br/>(из&nbsp;{{ problems|length }})</th>
-    <th>Время</th>
-  </tr>
-  {% for user_info in standings %}
-    <tr>
-       <td>{{ user_info.rank }}</td>
-       <td>{{ user_info.username }}</td>
-       {% for result in user_info.results %}
-         <td>{{ result.status }}{% if result.time %}<br/>{{ result.time }}{% endif %}</td>
-       {% endfor %}
-       <td>{{ user_info.score }}</td>
-       <td>{{ user_info.penalty }}</td>
-    </tr>
+<table>
+<tr>
+  <th>Ранг</th>
+  <th>Имя</th>
+  {% for problem in problems %}
+      <th><span title="{{ problem.problem__name }}">{{ problem.number_char }}</span></th>
   {% endfor %}
+  <th>Задач<br/>(из&nbsp;{{ problems|length }})</th>
+  <th>Время</th>
+</tr>
+{% for user_info in standings %}
   <tr>
-    <td></td>
-    <td>Всего попыток</td>
-    {% for statistic in statistics %}
-      <td>{{ statistic.total_runs }}</td>
-    {% endfor %}
-    <td></td>
-    <td></td>
+     <td>{{ user_info.rank }}</td>
+     <td>{{ user_info.username }}</td>
+     {% for result in user_info.results %}
+       <td>{{ result.status }}{% if result.time %}<br/>{{ result.time }}{% endif %}</td>
+     {% endfor %}
+     <td>{{ user_info.score }}</td>
+     <td>{{ user_info.penalty }}</td>
   </tr>
-  <tr>
-    <td></td>
-    <td>Успешных</td>
-    {% for statistic in statistics %}
-      <td>{{ statistic.accepted }}</td>
-    {% endfor %}
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>Неудачных</td>
-    {% for statistic in statistics %}
-      <td>{{ statistic.rejected }}</td>
-    {% endfor %}
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>Первая сдача</td>
-    {% for statistic in statistics %}
-      <td>{{ statistic.first_accept_str }}</td>
-    {% endfor %}
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>Последняя сдача</td>
-    {% for statistic in statistics %}
-      <td>{{ statistic.last_accept_str }}</td>
-    {% endfor %}
-    <td></td>
-    <td></td>
-  </tr>
-  </table>
-{% else %}
-  <p>Нет доступных для отображения в рейтинге пользователей</p>
-{% endif %}
+{% endfor %}
+<tr>
+  <td></td>
+  <td>Всего попыток</td>
+  {% for statistic in statistics %}
+    <td>{{ statistic.total_runs }}</td>
+  {% endfor %}
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+  <td>Успешных</td>
+  {% for statistic in statistics %}
+    <td>{{ statistic.accepted }}</td>
+  {% endfor %}
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+  <td>Неудачных</td>
+  {% for statistic in statistics %}
+    <td>{{ statistic.rejected }}</td>
+  {% endfor %}
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+  <td>Первая сдача</td>
+  {% for statistic in statistics %}
+    <td>{{ statistic.first_accept_str }}</td>
+  {% endfor %}
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+  <td>Последняя сдача</td>
+  {% for statistic in statistics %}
+    <td>{{ statistic.last_accept_str }}</td>
+  {% endfor %}
+  <td></td>
+  <td></td>
+</tr>
+</table>
 
 {% endspaceless %}{% endblock body %}

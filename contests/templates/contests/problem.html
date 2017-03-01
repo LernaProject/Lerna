@@ -3,6 +3,10 @@
 {% block body %}
   {% if problem %}
 
+    {% for pic in pics %}
+      <a href="{% url 'contests:problem' contest_id=contest.id problem_number=pic.number %}">[{{ pic.number }}]</a>
+    {% endfor %}
+
     <h2>{{ problem_number }}:{{ problem.name }}</h2>
 
     <a href="{% url 'global_statistics:best_time' problem_id=problem.id %}">Статистика</a>

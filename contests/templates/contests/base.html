@@ -6,10 +6,18 @@
 
 {% block links %}
   <p>
-    <a href="{% url 'contests:training' contest_id=contest.id %}">Задания</a>
+    {% if contest.is_training %}
+      <a href="{% url 'contests:training' contest_id=contest.id %}">Задания</a>
+    {% else %}
+      <a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">Задания</a>
+    {% endif %}
     <a href="{% url 'contests:submit' contest_id=contest.id %}">Послать</a>
     <a href="{% url 'contests:attempts' contest_id=contest.id %}">Очередь</a>
-    <a href="{% url 'contests:rating' contest_id=contest.id %}">Рейтинг</a>
+    {% if contest.is_training %}
+      <a href="{% url 'contests:rating' contest_id=contest.id %}">Рейтинг</a>
+    {% else %}
+      <a href="{% url 'contests:standings' contest_id=contest.id %}">Рейтинг</a>
+    {% endif %}
     <a href="">Вопросы</a>
   </p>
 {% endblock links %}
