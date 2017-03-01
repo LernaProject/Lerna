@@ -455,7 +455,6 @@ class StandingsView(TemplateView):
                 user_info = standings[user_id]
                 statistic = statistics[problem_number]
                 statistic['total_runs'] += attempt_count
-                statistic['rejected'] += attempt_count
                 if succeeded_at is not None:
                     accepted_time = int((succeeded_at - contest.start_time).total_seconds() / 60)
                     time_str = '%d:%02d' % divmod(accepted_time, 60)
@@ -463,8 +462,8 @@ class StandingsView(TemplateView):
                     user_info['score'] += 1
                     user_info['penalty'] += accepted_time + (attempt_count - 1) * 20
                     user_info['results'][problem_number] = Result(status, time_str)
-                    statistic['total_runs'] += 1
                     statistic['accepted'] += 1
+                    statistic['rejected'] += attempt_count - 1
                     if statistic['first_accept'] is None or statistic['first_accept'] > accepted_time:
                         statistic['first_accept'] = accepted_time
                         statistic['first_accept_str'] = time_str
@@ -473,6 +472,7 @@ class StandingsView(TemplateView):
                         statistic['last_accept_str'] = time_str
                 else:
                     user_info['results'][problem_number] = Result('-%d' % attempt_count, None)
+                    statistic['rejected'] += attempt_count
 
         names = (
             User
