@@ -4,7 +4,7 @@
 
 DEBUG: true
 
-SECRET_KEY: 'development_secret_key'
+SECRET_KEY: development_secret_key
 
 INTERNAL_IPS: [127.0.0.1]
 
