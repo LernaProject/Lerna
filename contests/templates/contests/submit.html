@@ -1,6 +1,11 @@
 {% extends 'contests/base.html' %}
 
 {% block body %}
+{% if not contest.is_training and not time_info.started %}
+    <p>Форма отправки решений будет доступна на этой странице сразу после начала соревнования.</p>
+{% elif not contest.is_training and time_info.finished %}
+    <p>Соревнование заверщилось, возможность посылать решения заблокирована</p>
+{% else %}
   {% if form.errors %}
     <p>Форма заполнена с допущением ошибок. Попробуйте снова.</p>
   {% endif %}
@@ -24,4 +29,5 @@
 
     <input type="submit" value="Отправить" />
   </form>
+{% endif %}
 {% endblock body %}

@@ -1,63 +1,63 @@
 {% extends 'contests/base.html' %}
 
 {% block body %}
-  {% if attempts %}
-    <table style="width: 100%">
+{% if not contest.is_training and not time_info.started %}
+  <p>Очередь ваших посылок будет доступна на этой странице сразу после начала соревнования.</p>
+{% else %}
+  <table style="width: 100%">
+  <tr>
+    <th>Время</th>
+    <th>Задача</th>
+    <th>Компилятор</th>
+    <th>Вердикт</th>
+    <th>Используемое<br/>время, сек</th>
+    <th>Используемая<br/>память, КБ</th>
+    <th>Исходный<br/>код</th>
+  </tr>
+  {% for attempt in attempts %}
     <tr>
-      <th>Время</th>
-      <th>Задача</th>
-      <th>Компилятор</th>
-      <th>Вердикт</th>
-      <th>Используемое<br/>время, сек</th>
-      <th>Используемая<br/>память, КБ</th>
-      <th>Исходный<br/>код</th>
+      <td>{{ attempt.created_at }}</td>
+      <td>
+        <a href="{% url 'contests:problem' contest_id=contest.id problem_number=attempt.problem_in_contest.number %}">
+          {{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}
+        </a>
+      </td>
+      <td>{{ attempt.compiler.name }}</td>
+      <td>
+        {% if attempt.result == "Compilation error" %}
+          <a href="{% url 'contests:errors' attempt_id=attempt.id %}">{{ attempt.result }}</a>
+        {% else %}
+          {{ attempt.verdict|default_if_none:'' }}
+        {% endif %}
+      </td>
+      <td>{{ attempt.used_time|default_if_none:'' }}</td>
+      <td>{{ attempt.used_memory|default_if_none:'' }}</td>
+      <td><a href="{% url 'contests:source' attempt_id=attempt.id %}">[link]</a></td>
     </tr>
-    {% for attempt in attempts %}
-      <tr>
-        <td>{{ attempt.created_at }}</td>
-        <td>
-          <a href="{% url 'contests:problem' contest_id=contest.id problem_number=attempt.problem_in_contest.number %}">
-            {{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}
-          </a>
-        </td>
-        <td>{{ attempt.compiler.name }}</td>
-        <td>
-          {% if attempt.result == "Compilation error" %}
-            <a href="{% url 'contests:errors' attempt_id=attempt.id %}">{{ attempt.result }}</a>
+  {% endfor %}
+  </table>
+
+  {% if page_obj %}
+    <div class="pagination">
+      <span class="step-links">
+
+      {% for i in paginator.page_range %}
+        [
+        {% if i == page_obj.number %}
+          {{ i }}
+        {% else %}
+          {% if i == 1 %}
+            {% url 'contests:attempts' contest.id as u %}
           {% else %}
-            {{ attempt.verdict|default_if_none:'' }}
+            {% url 'contests:attempts' contest.id i as u %}
           {% endif %}
-        </td>
-        <td>{{ attempt.used_time|default_if_none:'' }}</td>
-        <td>{{ attempt.used_memory|default_if_none:'' }}</td>
-        <td><a href="{% url 'contests:source' attempt_id=attempt.id %}">[link]</a></td>
-      </tr>
-    {% endfor %}
-    </table>
+          <a href="{{ u }}">{{ i }}</a>
+        {% endif %}
+        ]
+      {% endfor %}
 
-    {% if page_obj %}
-      <div class="pagination">
-        <span class="step-links">
-
-        {% for i in paginator.page_range %}
-          [
-          {% if i == page_obj.number %}
-            {{ i }}
-          {% else %}
-            {% if i == 1 %}
-              {% url 'contests:attempts' contest.id as u %}
-            {% else %}
-              {% url 'contests:attempts' contest.id i as u %}
-            {% endif %}
-            <a href="{{ u }}">{{ i }}</a>
-          {% endif %}
-          ]
-        {% endfor %}
-
-        </span>
-      </div>
-    {% endif %}
-  {% else %}
-    <p>На этой странице будет отображаться очередь ваших посылок</p>
+      </span>
+    </div>
   {% endif %}
+{% endif %}
 {% endblock body %}

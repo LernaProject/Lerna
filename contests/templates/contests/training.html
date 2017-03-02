@@ -1,6 +1,9 @@
 {% extends 'contests/base.html' %}
 
 {% block body %}
+{% if not contest.is_training and not time_info.started %}
+  <p>Список задач будет доступен на этой странице сразу после начала соревнования.</p>
+{% else %}
   {% if pics %}
     <ul>
     {% for pic in pics %}
@@ -14,4 +17,5 @@
   {% else %}
     <p>Нет задач для отображения</p>
   {% endif %}
+{% endif %}
 {% endblock body %}

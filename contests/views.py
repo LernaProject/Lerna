@@ -101,12 +101,24 @@ class SelectContestMixin:
             raise Http404('Не существует тренировки с запрошенным id.')
 
 
+def get_time_info(contest):
+    if contest.is_training:
+        return None
+    time_info_tuple = collections.namedtuple('TimeInfo', 'started finished time_str')
+    now = timezone.now()
+    started = now >= contest.start_time
+    finished = now >= contest.start_time + timezone.timedelta(minutes=contest.duration)
+    time_str = None
+    return time_info_tuple(started, finished, time_str)
+
+
 class TrainingView(SelectContestMixin, TemplateView):
     template_name = 'contests/training.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         training = self.select_contest()
+        time_info = get_time_info(training)
         pics = (
             ProblemInContest
             .objects
@@ -114,7 +126,7 @@ class TrainingView(SelectContestMixin, TemplateView):
             .order_by('number')
             .select_related('problem')
         )
-        context.update(contest=training, pics=pics)
+        context.update(contest=training, pics=pics, time_info=time_info)
         return context
 
 
@@ -169,15 +181,19 @@ class SubmitView(LoginRequiredMixin, SelectContestMixin, TemplateView):
     form_class = SubmitForm
 
     def get(self, request, **kwargs):
-        context = super().get_context_data(**kwargs)
-        contest = context['contest']
+        contest = self.select_contest()
+        time_info = get_time_info(contest)
 
         form = self.form_class(contest)
-        return render(request, self.template_name, {'form': form, 'contest': contest})
+        return render(request, self.template_name, {'form': form, 'contest': contest, 'time_info': time_info})
 
     def post(self, request, **kwargs):
-        context = super().get_context_data(**kwargs)
-        contest = context['contest']
+        contest = self.select_contest()
+        time_info = get_time_info(contest)
+        if not time_info.started:
+            raise Http404('Соревнование ещё не началось')
+        if time_info.finished:
+            raise Http404('Соревнование уже завершилось')
 
         form = self.form_class(contest, request.POST)
         if form.is_valid():
@@ -213,8 +229,9 @@ class AttemptsView(LoginRequiredMixin, SelectContestMixin, ListView):
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
+        time_info = get_time_info(contest)
         context = super().get_context_data(**kwargs)
-        context.update(contest=contest)
+        context.update(contest=contest, time_info=time_info)
         return context
 
 
@@ -333,6 +350,7 @@ class StandingsView(SelectContestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
+        time_info = get_time_info(contest)
 
         now = timezone.now()
         internal_time = now - contest.start_time
@@ -449,6 +467,7 @@ class StandingsView(SelectContestMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context.update(
             contest=contest,
+            time_info=time_info,
             problems=problems,
             standings=standings,
             statistics=statistics
