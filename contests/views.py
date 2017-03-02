@@ -1,13 +1,13 @@
-from django                     import forms
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions     import PermissionDenied
-from django.db                  import connection
-from django.db.models           import F, Q, Func, CharField
-from django.http                import Http404
-from django.shortcuts           import render, redirect
-from django.utils               import timezone
-from django.views.generic       import TemplateView, ListView
-from django.views.generic.edit  import FormView
+from django                      import forms
+from django.contrib.auth.mixins  import LoginRequiredMixin
+from django.core.exceptions      import PermissionDenied
+from django.db                   import connection
+from django.db.models            import F, Q, Func, CharField
+from django.http                 import Http404
+from django.shortcuts            import render, redirect
+from django.utils                import timezone
+from django.views.generic        import TemplateView, ListView
+from django.views.generic.edit   import FormView
 
 import collections
 import os
@@ -85,22 +85,28 @@ class TrainingIndexView(TemplateView):
         return context
 
 
-class TrainingView(TemplateView):
-    template_name = 'contests/training.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
+class SelectContestMixin:
+    def select_contest(self):
+        if 'contest_id' not in self.kwargs:
+            return None
         try:
-            training = (
+            contest = (
                 Contest
                 .objects
                 .privileged(self.request.user.is_staff)
                 .get(id=self.kwargs['contest_id'])
             )
+            return contest
         except Contest.DoesNotExist:
             raise Http404('Не существует тренировки с запрошенным id.')
 
+
+class TrainingView(SelectContestMixin, TemplateView):
+    template_name = 'contests/training.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        training = self.select_contest()
         pics = (
             ProblemInContest
             .objects
@@ -125,7 +131,7 @@ class ProblemView(TrainingView):
 
 
 class SubmitForm(forms.Form):
-    def __init__(self, contest_id, *args, **kwargs):
+    def __init__(self, contest, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         compilers = (
@@ -143,8 +149,6 @@ class SubmitForm(forms.Form):
                 self.initial['compiler'] = compiler.id
                 break
 
-        # FIXME(nickolas): A contest is fetched twice.
-        contest = Contest.objects.get(id=contest_id)
         pics = (
             ProblemInContest
             .objects
@@ -160,38 +164,22 @@ class SubmitForm(forms.Form):
         self.fields['source'] = forms.CharField(widget=forms.Textarea)
 
 
-class SubmitView(LoginRequiredMixin, FormView):
+class SubmitView(LoginRequiredMixin, SelectContestMixin, TemplateView):
     template_name = 'contests/submit.html'
     form_class = SubmitForm
 
     def get(self, request, **kwargs):
-        contest_id = self.kwargs['contest_id']
-        try:
-            contest = (
-                Contest
-                .objects
-                .privileged(self.request.user.is_staff)
-                .get(id=contest_id)
-            )
-        except Contest.DoesNotExist:
-            raise Http404('Не существует контеста с запрошенным id.')
+        context = super().get_context_data(**kwargs)
+        contest = context['contest']
 
-        form = self.form_class(contest_id)
+        form = self.form_class(contest)
         return render(request, self.template_name, {'form': form, 'contest': contest})
 
     def post(self, request, **kwargs):
-        contest_id = self.kwargs['contest_id']
-        try:
-            contest = (
-                Contest
-                .objects
-                .privileged(self.request.user.is_staff)
-                .get(id=contest_id)
-            )
-        except Contest.DoesNotExist:
-            raise Http404('Не существует контеста с запрошенным id.')
+        context = super().get_context_data(**kwargs)
+        contest = context['contest']
 
-        form = self.form_class(contest_id, request.POST)
+        form = self.form_class(contest, request.POST)
         if form.is_valid():
             Attempt.objects.create(
                 user=self.request.user,
@@ -200,11 +188,11 @@ class SubmitView(LoginRequiredMixin, FormView):
                 compiler=Compiler.objects.get(id=form.cleaned_data['compiler']),
                 source=form.cleaned_data['source'],
             )
-            return redirect('contests:attempts', contest_id=contest_id)
+            return redirect('contests:attempts', contest_id=contest.id)
         return render(request, self.template_name, {'form': form, 'contest': contest})
 
 
-class AttemptsView(LoginRequiredMixin, ListView):
+class AttemptsView(LoginRequiredMixin, SelectContestMixin, ListView):
     template_name = 'contests/attempts.html'
     context_object_name = 'attempts'
     allow_empty = True
@@ -213,7 +201,7 @@ class AttemptsView(LoginRequiredMixin, ListView):
 
     # FIXME(nickolas): A contest is fetched twice.
     def get_queryset(self):
-        contest = Contest.objects.get(id=self.kwargs['contest_id'])
+        contest = self.select_contest()
         attempts = (
             Attempt
             .objects
@@ -224,18 +212,8 @@ class AttemptsView(LoginRequiredMixin, ListView):
         return attempts
 
     def get_context_data(self, **kwargs):
+        contest = self.select_contest()
         context = super().get_context_data(**kwargs)
-
-        try:
-            contest = (
-                Contest
-                .objects
-                .privileged(self.request.user.is_staff)
-                .get(id=self.kwargs['contest_id'])
-            )
-        except Contest.DoesNotExist:
-            raise Http404('Не существует тренировки с запрошенным id.')
-
         context.update(contest=contest)
         return context
 
@@ -269,7 +247,7 @@ class ErrorsView(AttemptDetailsView):
     template_name = 'contests/errors.html'
 
 
-class RatingView(ListView):
+class RatingView(SelectContestMixin, ListView):
     template_name = 'contests/rating.html'
     context_object_name = 'user_list'
     allow_empty = True
@@ -335,17 +313,7 @@ class RatingView(ListView):
         return users
 
     def get_context_data(self, **kwargs):
-        try:
-            training = (
-                Contest
-                .objects
-                .privileged(self.request.user.is_staff)
-                .only('id', 'name')
-                .get(id=self.kwargs['contest_id'], is_training=True)
-            )
-        except Contest.DoesNotExist:
-            raise Http404('Не существует тренировки с запрошенным id.')
-
+        training = self.select_contest()
         problems = (
             ProblemInContest
             .objects
@@ -360,21 +328,11 @@ class RatingView(ListView):
         return context
 
 
-class StandingsView(TemplateView):
+class StandingsView(SelectContestMixin, TemplateView):
     template_name = 'contests/standings.html'
 
     def get_context_data(self, **kwargs):
-        contest_id = self.kwargs['contest_id']
-        try:
-            contest = (
-                Contest
-                .objects
-                .privileged(self.request.user.is_staff)
-                .only('name', 'start_time', 'duration', 'freezing_time')
-                .get(id=contest_id, is_training=False)
-            )
-        except Contest.DoesNotExist:
-            raise Http404("Не существует контеста с запрошенным id.")
+        contest = self.select_contest()
 
         now = timezone.now()
         internal_time = now - contest.start_time
@@ -449,7 +407,7 @@ class StandingsView(TemplateView):
                 WHERE ok.succeeded_at IS NULL
                 OR a.time <= ok.succeeded_at
                 GROUP BY a.user_id, a.num, ok.succeeded_at
-            """, [contest_id, due_time])
+            """, [contest.id, due_time])
 
             for user_id, problem_number, attempt_count, succeeded_at in cursor:
                 user_info = standings[user_id]

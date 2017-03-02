@@ -23,51 +23,53 @@
      <td>{{ user_info.penalty }}</td>
   </tr>
 {% endfor %}
-<tr>
-  <td></td>
-  <td>Всего попыток</td>
-  {% for statistic in statistics %}
-    <td>{{ statistic.total_runs }}</td>
-  {% endfor %}
-  <td></td>
-  <td></td>
-</tr>
-<tr>
-  <td></td>
-  <td>Успешных</td>
-  {% for statistic in statistics %}
-    <td>{{ statistic.accepted }}</td>
-  {% endfor %}
-  <td></td>
-  <td></td>
-</tr>
-<tr>
-  <td></td>
-  <td>Неудачных</td>
-  {% for statistic in statistics %}
-    <td>{{ statistic.rejected }}</td>
-  {% endfor %}
-  <td></td>
-  <td></td>
-</tr>
-<tr>
-  <td></td>
-  <td>Первая сдача</td>
-  {% for statistic in statistics %}
-    <td>{{ statistic.first_accept_str }}</td>
-  {% endfor %}
-  <td></td>
-  <td></td>
-</tr>
-<tr>
-  <td></td>
-  <td>Последняя сдача</td>
-  {% for statistic in statistics %}
-    <td>{{ statistic.last_accept_str }}</td>
-  {% endfor %}
-  <td></td>
-  <td></td>
-</tr>
+{% if standings %}
+  <tr>
+    <td></td>
+    <td>Всего попыток</td>
+    {% for statistic in statistics %}
+      <td>{{ statistic.total_runs }}</td>
+    {% endfor %}
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>Успешных</td>
+    {% for statistic in statistics %}
+      <td>{{ statistic.accepted }}</td>
+    {% endfor %}
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>Неудачных</td>
+    {% for statistic in statistics %}
+      <td>{{ statistic.rejected }}</td>
+    {% endfor %}
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>Первая сдача</td>
+    {% for statistic in statistics %}
+      <td>{{ statistic.first_accept_str }}</td>
+    {% endfor %}
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>Последняя сдача</td>
+    {% for statistic in statistics %}
+      <td>{{ statistic.last_accept_str }}</td>
+    {% endfor %}
+    <td></td>
+    <td></td>
+  </tr>
+{% endif %}
 </table>
 
 {% endspaceless %}{% endblock body %}
