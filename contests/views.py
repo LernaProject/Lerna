@@ -7,11 +7,9 @@ from django.http                 import Http404
 from django.shortcuts            import render, redirect
 from django.utils                import timezone
 from django.views.generic        import TemplateView, ListView
-from django.views.generic.edit   import FormView
 
 import collections
 import os
-import datetime
 
 from core.models  import Contest, ProblemInContest, Attempt, Compiler
 from users.models import User, rank_users
@@ -102,13 +100,31 @@ class SelectContestMixin:
 
 
 def get_time_info(contest):
+    def seconds_to_str(seconds):
+        hours = seconds // 3600
+        seconds %= 3600
+        t_str = '%02d:%02d' % divmod(seconds, 60)
+        if hours > 0:
+            t_str = ('%d:' % hours) + t_str
+        return t_str
+
     if contest.is_training:
         return None
     time_info_tuple = collections.namedtuple('TimeInfo', 'started finished time_str')
     now = timezone.now()
+    finish_time = contest.start_time + timezone.timedelta(minutes=contest.duration)
     started = now >= contest.start_time
-    finished = now >= contest.start_time + timezone.timedelta(minutes=contest.duration)
-    time_str = None
+    finished = now >= finish_time
+    if not started:
+        seconds_till_start = (contest.start_time - now).total_seconds()
+        time_str = 'До начала соревнования осталось ' + seconds_to_str(seconds_till_start)
+    elif finished:
+        fin_time_local = timezone.localtime(finish_time)
+        time_str = 'Соревнование завершилось %s в %s' % (fin_time_local.date(), fin_time_local.time())
+    else:
+        seconds_till_finish = (finish_time - now).total_seconds()
+        time_str = 'До конца соревнования осталось ' + seconds_to_str(seconds_till_finish)
+
     return time_info_tuple(started, finished, time_str)
 
 

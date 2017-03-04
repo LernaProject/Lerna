@@ -7,10 +7,32 @@
 {% if actual_contest_list or wait_contest_list %}
   <ul>
   {% for contest in actual_contest_list %}
-    <li><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></li>
+    <li>
+      <h2><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
+      <p>
+        {% if contest.is_school %}
+          Подсчёт результатов: по количеству пройденных тестов
+        {% else %}
+          Подсчёт результатов: по стандартным правилам ACM
+        {% endif %}
+      </p>
+      <p>Время начала: {{ contest.start_time }}</p>
+      <p>Продолжительность: {{ contest.duration_str }}</p>
+    </li>
   {% endfor %}
   {% for contest in wait_contest_list %}
-    <li><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></li>
+    <li>
+      <h2><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
+      <p>
+        {% if contest.is_school %}
+          Подсчёт результатов: по количеству пройденных тестов
+        {% else %}
+          Подсчёт результатов: по стандартным правилам ACM
+        {% endif %}
+      </p>
+      <p>Время начала: {{ contest.start_time }}</p>
+      <p>Продолжительность: {{ contest.duration_str }}</p>
+    </li>
   {% endfor %}
   </ul>
 {% else %}

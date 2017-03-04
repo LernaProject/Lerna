@@ -5,6 +5,10 @@
 {% endblock local_title %}
 
 {% block links %}
+    {% if not contest.is_training %}
+    <p>{{ time_info.time_str }}</p>
+  {% endif %}
+
   <p>
     {% if contest.is_training %}
       <a href="{% url 'contests:training' contest_id=contest.id %}">Задания</a>
