@@ -4,7 +4,7 @@
 
 {% block current_nav_section %} rating_nav_section {% endblock %}
 
-{% block body %}
+{% block content %}
 
 <h2>Глобальный рейтинг</h2>
 
@@ -27,7 +27,7 @@
   <p>Нет доступных для отображения в рейтинге пользователей</p>
 {% endif %}
 
-{% endblock body %}
+{% endblock %}
 
 {% block pagination %}
   {% with page_link='global_statistics:rating' %}

@@ -2,7 +2,7 @@
 
 {% block title %} {{ block.super }} :: Попытки {{ user.username }} {% endblock %}
 
-{% block body %}
+{% block content %}
   {% if attempts %}
     <table style="width: 100%">
     <tr>
@@ -41,7 +41,7 @@
   {% else %}
     <p>На этой странице будет отображаться очередь ваших посылок</p>
   {% endif %}
-{% endblock body %}
+{% endblock %}
 
 {% block pagination %}
   {% with page_link='global_statistics:attempts' %}

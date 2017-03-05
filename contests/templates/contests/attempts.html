@@ -1,6 +1,6 @@
 {% extends 'contests/base.html' %}
 
-{% block body %}
+{% block contest_page_content %}
 {% if not contest.is_training and not time_info.started %}
   <p>Очередь ваших посылок будет доступна на этой странице сразу после начала соревнования.</p>
 {% else %}
@@ -37,7 +37,7 @@
   {% endfor %}
   </table>
 {% endif %}
-{% endblock body %}
+{% endblock %}
 
 {% block pagination %}
   {% with page_link='contests:attempts' page_param=contest.id %}

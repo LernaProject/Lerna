@@ -8,26 +8,35 @@
 
 {% block local_title %}
   <h2>{{ contest.name }}</h2>
+  {% if not contest.is_training %}
+    {{ time_info.time_str }}
+  {% endif %}
 {% endblock local_title %}
 
-{% block links %}
-    {% if not contest.is_training %}
-    <p>{{ time_info.time_str }}</p>
-  {% endif %}
+{% block content %}
 
-  <p>
+<div class="large-10 columns">
+  {% block contest_page_content %}
+  {% endblock %}
+</div>
+
+<div class="large-2 columns lerna-sidebar">
+  <ul class="vertical menu">
     {% if contest.is_training %}
-      <a href="{% url 'contests:training' contest_id=contest.id %}">Задания</a>
+      <li><a href="{% url 'contests:training' contest_id=contest.id %}">Задания</a></li>
     {% else %}
-      <a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">Задания</a>
+      <li><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">Задания</a></li>
     {% endif %}
-    <a href="{% url 'contests:submit' contest_id=contest.id %}">Послать</a>
-    <a href="{% url 'contests:attempts' contest_id=contest.id %}">Очередь</a>
+    <li><a href="{% url 'contests:submit' contest_id=contest.id %}">Послать</a></li>
+    <li><a href="{% url 'contests:attempts' contest_id=contest.id %}">Очередь</a></li>
     {% if contest.is_training %}
-      <a href="{% url 'contests:rating' contest_id=contest.id %}">Рейтинг</a>
+      <li><a href="{% url 'contests:rating' contest_id=contest.id %}">Рейтинг</a></li>
     {% else %}
-      <a href="{% url 'contests:standings' contest_id=contest.id %}">Рейтинг</a>
+      <li><a href="{% url 'contests:standings' contest_id=contest.id %}">Рейтинг</a></li>
     {% endif %}
-    <a href="">Вопросы</a>
-  </p>
-{% endblock links %}
+    <li><a href="#">Вопросы</a></li>
+</ul>
+  <hr/>
+
+</div>
+{% endblock %}

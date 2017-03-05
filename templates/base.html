@@ -62,10 +62,9 @@
 </div>
 
 {# Main page content #}
-<div class="row small-12 columns">
-  {% block local_title %}{% endblock local_title %}
-  {% block links %}{% endblock links %}
-  {% block body %}{% endblock body %}
+<div class="row">
+  <div class="large-12 columns local_title">{% block local_title %}{% endblock local_title %}</div>
+  {% block content %}{% endblock %}
 </div>
 
 {# Pagination #}

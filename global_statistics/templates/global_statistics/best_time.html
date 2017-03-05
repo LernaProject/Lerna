@@ -2,7 +2,7 @@
 
 {% block title %} {{ block.super }} :: Рейтинг решений задачи по времени {% endblock %}
 
-{% block body %}
+{% block content %}
 
 <h2>Рейтинг используемого времени для решений задачи «{{ problem.name }}»</h2>
 
@@ -27,7 +27,7 @@
   <p>Нет доступных для отображения в рейтинге пользователей</p>
 {% endif %}
 
-{% endblock body %}
+{% endblock %}
 
 {% block pagination %}
   {% with page_link='global_statistics:best_time' page_param=problem.id %}

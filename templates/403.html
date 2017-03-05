@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Нет доступа{% endblock %}
+{% block title %}{{ block.super }} :: 403 - Нет доступа{% endblock %}
 
-{% block body %}
+{% block content %}
     <h1>403</h1>
     {% if exception %}
         <p>{{ exception }}</p>
     {% else %}
         <p>У Вас нет доступа для просмотра данной страницы.</p>
     {% endif %}
-{% endblock body %}
+{% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'contests/base.html' %}
 
-{% block body %}{% spaceless %}
+{% block contest_page_content %}
 {% if contest.is_school %}
   <p>На сайте временно не поддерживается отображение рейтинга соревнований, проведённых с подсчётом процента пройденных тестов</p>
 {% elif not contest.is_training and not time_info.started %}
@@ -76,4 +76,4 @@
   {% endif %}
   </table>
 {% endif %}
-{% endspaceless %}{% endblock body %}
+{% endblock %}

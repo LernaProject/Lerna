@@ -1,6 +1,6 @@
 {% extends 'contests/base.html' %}
 
-{% block body %}
+{% block contest_page_content %}
 {% if not contest.is_training and not time_info.started %}
   <p>Условия задач будут доступны на этой странице сразу после начала соревнования.</p>
 {% else %}
@@ -61,4 +61,4 @@
 
   {% endif %}
 {% endif %}
-{% endblock body %}
+{% endblock %}
