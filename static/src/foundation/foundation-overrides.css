@@ -16,8 +16,6 @@
     padding: 0.7rem 0.7rem;
 }
 
-/* TODO(viers): Implement paging from F6 and remove this */
-.pagination a {
-    display: inline;
-    padding: 0;
+.pagination .current {
+    background-color: #118C4E;
 }

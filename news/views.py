@@ -9,7 +9,7 @@ class IndexView(generic.ListView):
     ordering = '-created_at'
     template_name = 'news/index.html'
     allow_empty = True
-    paginate_by = 5
+    paginate_by = 10
     paginate_orphans = 1
 
 

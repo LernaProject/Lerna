@@ -23,27 +23,10 @@
 {% endfor %}
 </table>
 
-{% if page_obj %}
-<div class="pagination">
-  <span class="step-links">
-
-  {% for i in paginator.page_range %}
-    [
-    {% if i == page_obj.number %}
-      {{ i }}
-    {% else %}
-      {% if i == 1 %}
-        {% url 'contests:rating' contest.id as u %}
-      {% else %}
-        {% url 'contests:rating' contest.id i as u %}
-      {% endif %}
-      <a href="{{ u }}">{{ i }}</a>
-    {% endif %}
-    ]
-  {% endfor %}
-
-  </span>
-</div>
-{% endif %}
-
 {% endblock body %}
+
+{% block pagination %}
+  {% with page_link='contests:rating' page_param=contest.id %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}

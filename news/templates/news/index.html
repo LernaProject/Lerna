@@ -12,27 +12,10 @@
   <p>No news are available.</p>
 {% endif %}
 
-{% if page_obj %}
-<div class="pagination">
-  <span class="step-links">
+{% endblock %}
 
-  {% for i in paginator.page_range %}
-    [
-    {% if i == page_obj.number %}
-      {{ i }}
-    {% else %}
-      {% if i == 1 %}
-        {% url 'index' as u %}
-      {% else %}
-        {% url 'news:index' i as u %}
-      {% endif %}
-      <a href="{{ u }}">{{ i }}</a>
-    {% endif %}
-    ]
-  {% endfor %}
-
-  </span>
-</div>
-{% endif %}
-
+{% block pagination %}
+  {% with page_link='news:index' %}
+    {{ block.super }}
+  {% endwith %}
 {% endblock %}
