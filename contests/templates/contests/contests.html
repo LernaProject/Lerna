@@ -1,8 +1,12 @@
-{% extends 'global.html' %}
+{% extends 'base.html' %}
+
+{% block title %}{{ block.super }} :: Список соревнований {% endblock %}
+
+{% block current_nav_section %} competitions_nav_section {% endblock %}
 
 {% block body %}
 
-<h2>Текущие и ожидаемые олимпиады</h2>
+<h2>Актуальные соревнования</h2>
 
 {% if actual_contest_list or wait_contest_list %}
   <ul>
@@ -39,7 +43,7 @@
   <p>В данный момент нет активных или ожидаемых олимпиад.</p>
 {% endif %}
 
-<h2>Прошедшие олимпиады</h2>
+<h2>Прошедшие соревнования</h2>
 
 {% if past_contest_list %}
   <ul>

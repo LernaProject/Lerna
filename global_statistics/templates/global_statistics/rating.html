@@ -1,4 +1,8 @@
-{% extends 'global.html' %}
+{% extends 'base.html' %}
+
+{% block title %} {{ block.super }} :: Глобальный рейтинг {% endblock %}
+
+{% block current_nav_section %} rating_nav_section {% endblock %}
 
 {% block body %}
 

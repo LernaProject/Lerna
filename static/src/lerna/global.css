@@ -1,4 +1,16 @@
+/* Layout */
 body, html{
     margin: 0;
     padding: 0;
+}
+
+/* Top menu bar */
+.news_nav_section         .news_toplink,
+.competitions_nav_section .competitions_toplink,
+.trainings_nav_section    .trainings_toplink,
+.rating_nav_section       .rating_toplink
+{
+    border-bottom: 1px solid #1779ba;
+    background: inherit;
+    color: #1779ba;
 }

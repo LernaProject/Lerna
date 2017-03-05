@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ block.super }} :: {{ contest.name }}{% endblock %}
+
+{% block current_nav_section %}
+{% if contest.is_training %} trainings_nav_section {% else %} competitions_nav_section {% endif %}
+{% endblock %}
+
 {% block local_title %}
   <h2>{{ contest.name }}</h2>
 {% endblock local_title %}

@@ -1,5 +1,7 @@
 {% extends 'news/base.html' %}
 
+{% block title %} {{ block.super }} :: {{ news.title }} {% endblock %}
+
 {% block body %}
 
 <h1>{{ news.title }}</h1>

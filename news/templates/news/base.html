@@ -1,1 +1,5 @@
-{% extends 'global.html' %}
+{% extends 'base.html' %}
+
+{% block title %} {{ block.super }} :: Новости {% endblock %}
+
+{% block current_nav_section %} news_nav_section {% endblock %}

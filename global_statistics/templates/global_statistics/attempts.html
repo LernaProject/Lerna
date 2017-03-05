@@ -1,4 +1,6 @@
-{% extends 'global.html' %}
+{% extends 'base.html' %}
+
+{% block title %} {{ block.super }} :: Попытки {{ user.username }} {% endblock %}
 
 {% block body %}
   {% if attempts %}

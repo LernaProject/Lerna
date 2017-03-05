@@ -16,12 +16,6 @@
     padding: 0.7rem 0.7rem;
 }
 
-.menu .active > a {
-    border-bottom: 1px solid #1779ba;
-    background: inherit;
-    color: #1779ba;
-}
-
 /* TODO(viers): Implement paging from F6 and remove this */
 .pagination a {
     display: inline;
