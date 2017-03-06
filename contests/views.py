@@ -208,10 +208,11 @@ class SubmitView(LoginRequiredMixin, SelectContestMixin, TemplateView):
     def post(self, request, **kwargs):
         contest = self.select_contest()
         time_info = get_time_info(contest)
-        if not time_info.started:
-            raise Http404('Соревнование ещё не началось')
-        if time_info.finished:
-            raise Http404('Соревнование уже завершилось')
+        if time_info is not None:
+            if not time_info.started:
+                raise Http404('Соревнование ещё не началось')
+            if time_info.finished:
+                raise Http404('Соревнование уже завершилось')
 
         form = self.form_class(contest, request.POST)
         if form.is_valid():
