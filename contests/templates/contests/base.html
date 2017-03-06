@@ -25,7 +25,7 @@
     {% if contest.is_training %}
       <li><a href="{% url 'contests:training' contest.id %}">Задания</a></li>
     {% else %}
-      <li><a href="{% url 'contests:problem' contest.id problem_number=1 %}">Задания</a></li>
+      <li><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">Задания</a></li>
     {% endif %}
     <li><a href="{% url 'contests:submit' contest.id %}">Послать</a></li>
     <li><a href="{% url 'contests:attempts' contest.id %}">Очередь</a></li>
