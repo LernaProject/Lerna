@@ -1,5 +1,6 @@
 {% extends 'contests/base.html' %}
 
 {% block contest_page_content %}
-  <pre>{{ attempt.source }}</pre>
+  <style>{{ highlighting_styles|safe }}</style>
+  {{ highlighted_source|safe }}
 {% endblock %}

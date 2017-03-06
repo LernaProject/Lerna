@@ -172,6 +172,7 @@ class Compiler(models.Model):
     extension       = models.CharField(max_length=255)
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)
+    highlighter     = models.CharField(max_length=32)
 
     class Meta:
         db_table      = 'compilers'

@@ -10,6 +10,8 @@ from django.views.generic        import TemplateView, ListView
 
 import collections
 import os
+import pygments.lexers.special
+import pygments.formatters
 
 from core.models  import Contest, ProblemInContest, Attempt, Compiler
 from users.models import User, rank_users
@@ -259,7 +261,12 @@ class AttemptDetailsView(LoginRequiredMixin, TemplateView):
         try:
             # A user can view their attempts from hidden contests,
             # if they manage to have ones, somehow.
-            attempt = Attempt.objects.get(id=attempt_id)
+            attempt = (
+                Attempt
+                .objects
+                .select_related('compiler')
+                .get(id=attempt_id)
+            )
         except Attempt.DoesNotExist:
             raise Http404('Не существует попытки с запрошенным id.')
 
@@ -274,6 +281,24 @@ class AttemptDetailsView(LoginRequiredMixin, TemplateView):
 
 class SourceView(AttemptDetailsView):
     template_name = 'contests/source.html'
+
+    def _find_lexer(self, name, **kwargs):
+        try:
+            return pygments.lexers.get_lexer_by_name(name, **kwargs)
+        except pygments.util.ClassNotFound:
+            # TODO: Log that.
+            return pygments.lexers.special.TextLexer(**kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        attempt = context['attempt']
+        lexer = self._find_lexer(attempt.compiler.highlighter, tabsize=4)
+        formatter = pygments.formatters.HtmlFormatter(linenos='table', style='tango')
+        context.update(
+            highlighted_source=pygments.highlight(attempt.source, lexer, formatter),
+            highlighting_styles=formatter.get_style_defs('.highlight'),
+        )
+        return context
 
 
 class ErrorsView(AttemptDetailsView):
@@ -486,6 +511,6 @@ class StandingsView(SelectContestMixin, TemplateView):
             time_info=time_info,
             problems=problems,
             standings=standings,
-            statistics=statistics
+            statistics=statistics,
         )
         return context

@@ -12,7 +12,7 @@ class CompilerAdmin(admin.ModelAdmin):
     actual.boolean = True
 
     def get_fields(self, request, obj=None):
-        fields = ('name', 'codename', 'runner_codename', 'extension', 'obsolete')
+        fields = ('name', 'codename', 'runner_codename', 'highlighter', 'extension', 'obsolete')
         if obj is not None:
             fields += (
                 self.readonly_fields,
