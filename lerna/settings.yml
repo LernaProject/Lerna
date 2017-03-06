@@ -61,7 +61,8 @@ MIDDLEWARE_CLASSES:
 - django.contrib.messages.middleware.MessageMiddleware
 - django.middleware.clickjacking.XFrameOptionsMiddleware
 - django.middleware.security.SecurityMiddleware
-- pipeline.middleware.MinifyHTMLMiddleware
+# Disabled until it can work properly with 'contests:source' page.
+# - pipeline.middleware.MinifyHTMLMiddleware
 
 ROOT_URLCONF: lerna.urls
 
