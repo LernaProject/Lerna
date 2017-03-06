@@ -18,21 +18,21 @@
     <tr>
       <td>{{ attempt.created_at }}</td>
       <td>
-        <a href="{% url 'contests:problem' contest_id=contest.id problem_number=attempt.problem_in_contest.number %}">
-          {{ attempt.problem_in_contest.number }}:{{ attempt.problem_in_contest.problem.name }}
+        <a href="{% url 'contests:problem' contest.id attempt.problem_in_contest.number %}">
+          {{ attempt.problem_in_contest.number }}. {{ attempt.problem_in_contest.problem.name }}
         </a>
       </td>
       <td>{{ attempt.compiler.name }}</td>
       <td>
         {% if attempt.result == "Compilation error" %}
-          <a href="{% url 'contests:errors' attempt_id=attempt.id %}">{{ attempt.result }}</a>
+          <a href="{% url 'contests:errors' attempt.id %}">{{ attempt.result }}</a>
         {% else %}
           {{ attempt.verdict|default_if_none:'' }}
         {% endif %}
       </td>
       <td>{{ attempt.used_time|default_if_none:'' }}</td>
       <td>{{ attempt.used_memory|default_if_none:'' }}</td>
-      <td><a href="{% url 'contests:source' attempt_id=attempt.id %}">[link]</a></td>
+      <td><a href="{% url 'contests:source' attempt.id %}">[link]</a></td>
     </tr>
   {% endfor %}
   </table>

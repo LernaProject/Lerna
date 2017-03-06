@@ -8,8 +8,8 @@
     <ul>
     {% for pic in pics %}
       <li>
-        <a href="{% url 'contests:problem' contest_id=contest.id problem_number=pic.number %}">
-          {{ pic.number }} : {{ pic.problem.name }}
+        <a href="{% url 'contests:problem' contest.id pic.number %}">
+          {{ pic.number }}. {{ pic.problem.name }}
         </a>
       </li>
     {% endfor %}

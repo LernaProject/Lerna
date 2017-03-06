@@ -12,7 +12,7 @@
   <ul>
   {% for contest in actual_contest_list %}
     <li>
-      <h2><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
+      <h2><a href="{% url 'contests:problem' contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
       <p>
         {% if contest.is_school %}
           Подсчёт результатов: по количеству пройденных тестов
@@ -26,7 +26,7 @@
   {% endfor %}
   {% for contest in wait_contest_list %}
     <li>
-      <h2><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
+      <h2><a href="{% url 'contests:problem' contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
       <p>
         {% if contest.is_school %}
           Подсчёт результатов: по количеству пройденных тестов
@@ -49,7 +49,7 @@
   <ul>
   {% for contest in past_contest_list %}
     <li>
-      <h2><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
+      <h2><a href="{% url 'contests:problem' contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
       <p>
         {% if contest.is_school %}
           Подсчёт результатов: по количеству пройденных тестов

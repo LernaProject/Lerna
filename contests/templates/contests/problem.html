@@ -7,13 +7,13 @@
   {% if problem %}
 
     {% for pic in pics %}
-      <a href="{% url 'contests:problem' contest_id=contest.id problem_number=pic.number %}">[{{ pic.number }}]</a>
+      <a href="{% url 'contests:problem' contest.id pic.number %}">[{{ pic.number }}]</a>
     {% endfor %}
 
     <h2>{{ problem_number }}:{{ problem.name }}</h2>
 
-    <a href="{% url 'global_statistics:best_time' problem_id=problem.id %}">Статистика</a>
-    <a href="{% url 'global_statistics:problem_in_trainings' problem_id=problem.id %}">Найти в тренировках</a>
+    <a href="{% url 'global_statistics:best_time' problem.id %}">Статистика</a>
+    <a href="{% url 'global_statistics:problem_in_trainings' problem.id %}">Найти в тренировках</a>
 
     <p>
         Ограничение по времени: {{ problem.time_limit_in_secs }} сек<br/>
