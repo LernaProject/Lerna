@@ -90,13 +90,12 @@ class SelectContestMixin:
         if 'contest_id' not in self.kwargs:
             return None
         try:
-            contest = (
+            return (
                 Contest
                 .objects
                 .privileged(self.request.user.is_staff)
                 .get(id=self.kwargs['contest_id'])
             )
-            return contest
         except Contest.DoesNotExist:
             raise Http404('Не существует тренировки с запрошенным id.')
 
@@ -255,32 +254,6 @@ class AttemptsView(LoginRequiredMixin, SelectContestMixin, ListView):
 
 
 class AttemptDetailsView(LoginRequiredMixin, TemplateView):
-    def get_context_data(self, **kwargs):
-        attempt_id = self.kwargs['attempt_id']
-        context = super().get_context_data(**kwargs)
-
-        try:
-            # A user can view their attempts from hidden contests,
-            # if they manage to have ones, somehow.
-            attempt = (
-                Attempt
-                .objects
-                .select_related('compiler')
-                .get(id=attempt_id)
-            )
-        except Attempt.DoesNotExist:
-            raise Http404('Не существует попытки с запрошенным id.')
-
-        contest = attempt.problem_in_contest.contest
-        user = self.request.user
-        if user.id != attempt.user_id and not user.is_staff:
-            raise PermissionDenied('Вы не можете просматривать исходный код чужих посылок.')
-
-        context.update(contest=contest, attempt=attempt)
-        return context
-
-
-class SourceView(AttemptDetailsView):
     template_name = 'contests/source.html'
 
     def _find_lexer(self, name, **kwargs):
@@ -291,19 +264,34 @@ class SourceView(AttemptDetailsView):
             return pygments.lexers.special.TextLexer(**kwargs)
 
     def get_context_data(self, **kwargs):
+        attempt_id = self.kwargs['attempt_id']
         context = super().get_context_data(**kwargs)
-        attempt = context['attempt']
+
+        try:
+            # A user can view their attempts in hidden contests,
+            # if they manage to have ones, somehow.
+            attempt = (
+                Attempt
+                .objects
+                .select_related('compiler', 'problem_in_contest__contest')
+                .get(id=attempt_id)
+            )
+        except Attempt.DoesNotExist:
+            raise Http404('Не существует попытки с запрошенным id.')
+
+        user = self.request.user
+        if user.id != attempt.user_id and not user.is_staff:
+            raise PermissionDenied('Вы не можете просматривать исходный код чужих посылок.')
+
         lexer = self._find_lexer(attempt.compiler.highlighter, tabsize=4)
         formatter = pygments.formatters.HtmlFormatter(linenos='table', style='tango')
         context.update(
+            contest=attempt.problem_in_contest.contest,
+            attempt=attempt,
             highlighted_source=pygments.highlight(attempt.source, lexer, formatter),
             highlighting_styles=formatter.get_style_defs('.highlight'),
         )
         return context
-
-
-class ErrorsView(AttemptDetailsView):
-    template_name = 'contests/errors.html'
 
 
 class RatingView(SelectContestMixin, ListView):
