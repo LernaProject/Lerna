@@ -22,9 +22,9 @@ class ClarificationAnswerFilter(admin.SimpleListFilter):
         if self.value() is None:
             return queryset
         elif self.value() == '1':
-            return queryset.exclude(answer="")
+            return queryset.exclude(answer='')
         else:
-            return queryset.filter(answer="")
+            return queryset.filter(answer='')
 
 
 @admin.register(models.Clarification)

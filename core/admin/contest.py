@@ -1,17 +1,17 @@
-from ajax_select              import make_ajax_form
-from ajax_select.admin        import AjaxSelectAdminTabularInline
 from django.contrib           import admin
 from django.utils.translation import ugettext as _
+
+import ajax_select
 
 from jquery_model_admin import JQueryModelAdmin
 
 from .. import models
 
 
-# TODO: Put a constraint on problem numbers (must be unique, consecutive and start from 1).
-class ProblemInContestInline(AjaxSelectAdminTabularInline):
+# TODO(nickolas): Put a constraint on problem numbers (must be unique, consecutive, and 1-based).
+class ProblemInContestInline(ajax_select.admin.AjaxSelectAdminTabularInline):
     model = models.ProblemInContest
-    form = make_ajax_form(
+    form = ajax_select.make_ajax_form(
         model, {
             'problem': 'problems',
         }
@@ -20,8 +20,7 @@ class ProblemInContestInline(AjaxSelectAdminTabularInline):
     ordering = ['number']
 
     def get_extra(self, request, obj=None, **kwargs):
-        extra = 8
-        return extra if obj is None else max(extra - obj.problem_count, 0)
+        return 8 if obj is None else max(8 - obj.problem_count, 0)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('problem', 'contest')
@@ -53,6 +52,12 @@ class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
     list_filter = ('is_school', 'is_admin', 'is_training')
     date_hierarchy = 'start_time'
     search_fields = ('name', 'problems__name')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['duration'].initial = '300'
+        form.base_fields['freezing_time'].initial = '240'
+        return form
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('problem_in_contest_set')
