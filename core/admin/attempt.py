@@ -31,15 +31,19 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
         fieldsets = (
             (
                 None, {
-                    'fields': ('user', 'problem_in_contest', 'compiler', 'source'),
+                    'fields': ('user', 'problem_in_contest', 'compiler'),
+                }
+            ), (
+                _('Source'), {
+                    'fields': ('source', 'error_message'),
+                    'classes': ['collapse'],
                 }
             ), (
                 _('Results'), {
                     'fields': (
-                        'tester_name',
                         ('result', 'score'),
                         ('used_time', 'used_memory'),
-                        'error_message',
+                        'tester_name',
                         'checker_comment',
                     ),
                 }

@@ -4,7 +4,7 @@
 
 {% if news_list %}
   {% for news in news_list %}
-    <h5><a href="{% url 'news:show' news.id %}">{{ news.title }}</a></h5>
+    <h5><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></h5>
     <div>
       {{ news.short_description|safe }}
     </div>

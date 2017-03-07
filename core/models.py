@@ -1,4 +1,5 @@
 from django.db    import models
+from django.urls  import reverse
 from django.utils import timezone
 from users.models import User
 
@@ -80,6 +81,10 @@ class Contest(models.Model):
     def __str__(self):
         return self.name if len(self.name) <= 70 else self.name[:67] + '...'
 
+    def get_absolute_url(self):
+        # TODO: Replace with something more appropriate.
+        return reverse('contests:problem', args=[self.id, 1])
+
     @classmethod
     def three_way_split(cls, contests, threshold_time):
         """
@@ -124,6 +129,9 @@ class ProblemInContest(models.Model):
 
     def __str__(self):
         return '{0.contest.id:03}#{0.number}: "{0.problem}"'.format(self)
+
+    def get_absolute_url(self):
+        return reverse('contests:problem', args=[self.contest_id, self.number])
 
 
 class Clarification(models.Model):
@@ -202,6 +210,10 @@ class Attempt(models.Model):
     created_at         = models.DateTimeField(auto_now_add=True)
     updated_at         = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table      = 'attempts'
+        get_latest_by = 'time'
+
     @property
     def problem(self):
         return self.problem_in_contest.problem
@@ -214,12 +226,11 @@ class Attempt(models.Model):
     def verdict(self):
         return self.result if self.score is None else '{0.score:.1f}%'.format(self)
 
-    class Meta:
-        db_table      = 'attempts'
-        get_latest_by = 'time'
-
     def __str__(self):
         return '[{0.id:05}/{0.problem.id:03}] {0.problem_in_contest} by {0.user}'.format(self)
+
+    def get_absolute_url(self):
+        return reverse('contests:attempt', args=[self.id])
 
 
 class TestInfo(models.Model):

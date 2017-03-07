@@ -7,7 +7,7 @@
   {% if problem %}
 
     {% for pic in pics %}
-      <a href="{% url 'contests:problem' contest.id pic.number %}">[{{ pic.number }}]</a>
+      <a href="{{ pic.get_absolute_url }}">[{{ pic.number }}]</a>
     {% endfor %}
 
     <h2>{{ problem_number }}:{{ problem.name }}</h2>

@@ -10,8 +10,8 @@ from django.views.generic        import TemplateView, ListView
 
 import collections
 import os
-import pygments.lexers.special
 import pygments.formatters
+import pygments.lexers.special
 
 from core.models  import Contest, ProblemInContest, Attempt, Compiler
 from users.models import User, rank_users
@@ -22,6 +22,7 @@ class ContestIndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # FIXME(nickolas): `LIMIT`.
         contests = (
             Contest
             .objects
@@ -102,31 +103,30 @@ class SelectContestMixin:
 
 def get_time_info(contest):
     def seconds_to_str(seconds):
-        hours = seconds // 3600
-        seconds %= 3600
+        hours, seconds = divmod(seconds, 3600)
         t_str = '%02d:%02d' % divmod(seconds, 60)
         if hours > 0:
-            t_str = ('%d:' % hours) + t_str
+            return '%d:' % hours + t_str
         return t_str
 
     if contest.is_training:
         return None
-    time_info_tuple = collections.namedtuple('TimeInfo', 'started finished time_str')
+    TimeInfo = collections.namedtuple('TimeInfo', 'started finished time_str')
     now = timezone.now()
     finish_time = contest.start_time + timezone.timedelta(minutes=contest.duration)
     started = now >= contest.start_time
     finished = now >= finish_time
     if not started:
-        seconds_till_start = (contest.start_time - now).total_seconds()
+        seconds_till_start = int((contest.start_time - now).total_seconds())
         time_str = 'До начала соревнования осталось ' + seconds_to_str(seconds_till_start)
     elif finished:
-        fin_time_local = timezone.localtime(finish_time)
-        time_str = 'Соревнование завершилось %s в %s' % (fin_time_local.date(), fin_time_local.time())
+        finish_time_local = timezone.localtime(finish_time)
+        time_str = finish_time_local.strftime('Соревнование завершилось %d.%m.%y в %H:%M')
     else:
-        seconds_till_finish = (finish_time - now).total_seconds()
+        seconds_till_finish = int((finish_time - now).total_seconds())
         time_str = 'До конца соревнования осталось ' + seconds_to_str(seconds_till_finish)
 
-    return time_info_tuple(started, finished, time_str)
+    return TimeInfo(started, finished, time_str)
 
 
 class TrainingView(SelectContestMixin, TemplateView):
@@ -240,7 +240,7 @@ class AttemptsView(LoginRequiredMixin, SelectContestMixin, ListView):
             Attempt
             .objects
             .filter(problem_in_contest__contest=contest, user=self.request.user)
-            .select_related('problem_in_contest', 'compiler')
+            .select_related('problem_in_contest__problem', 'compiler')
             .order_by('-created_at')
         )
         return attempts
@@ -273,13 +273,16 @@ class AttemptDetailsView(LoginRequiredMixin, TemplateView):
             attempt = (
                 Attempt
                 .objects
-                .select_related('compiler', 'problem_in_contest__contest')
+                .select_related(
+                    'compiler', 'problem_in_contest__problem', 'problem_in_contest__contest',
+                )
                 .get(id=attempt_id)
             )
         except Attempt.DoesNotExist:
             raise Http404('Не существует попытки с запрошенным id.')
 
         user = self.request.user
+        # Compare IDs to avoid fetching attempt.user.
         if user.id != attempt.user_id and not user.is_staff:
             raise PermissionDenied('Вы не можете просматривать исходный код чужих посылок.')
 
