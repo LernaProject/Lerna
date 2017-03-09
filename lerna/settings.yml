@@ -81,14 +81,10 @@ WSGI_APPLICATION: lerna.wsgi.application
 
 # Internationalization
 LANGUAGE_CODE: ru-RU
-
 # TODO(viers): Do something with TZ, at least it must be moved to local settings
 TIME_ZONE: Asia/Novosibirsk
-
 USE_I18N: true
-
 USE_L10N: true
-
 USE_TZ: true
 
 LOGGING_CONFIG: lerna.settings.init_logging
