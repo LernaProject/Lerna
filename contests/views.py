@@ -1,3 +1,6 @@
+import collections
+import os
+
 from django                      import forms
 from django.contrib.auth.mixins  import LoginRequiredMixin
 from django.core.exceptions      import PermissionDenied
@@ -7,14 +10,12 @@ from django.http                 import Http404
 from django.shortcuts            import render, redirect
 from django.utils                import timezone
 from django.views.generic        import TemplateView, ListView
-
-import collections
-import os
 import pygments.formatters
 import pygments.lexers.special
 
-from core.models  import Contest, ProblemInContest, Attempt, Compiler
-from users.models import User, rank_users
+from core.models   import Contest, ProblemInContest, Attempt, Compiler
+from users.models  import User, rank_users
+from contests.util import get_relational_time_info
 
 
 class ContestIndexView(TemplateView):
@@ -101,41 +102,13 @@ class SelectContestMixin:
             raise Http404('Не существует тренировки с запрошенным id.')
 
 
-def get_time_info(contest):
-    def seconds_to_str(seconds):
-        hours, seconds = divmod(seconds, 3600)
-        t_str = '%02d:%02d' % divmod(seconds, 60)
-        if hours > 0:
-            return '%d:' % hours + t_str
-        return t_str
-
-    if contest.is_training:
-        return None
-    TimeInfo = collections.namedtuple('TimeInfo', 'started finished time_str')
-    now = timezone.now()
-    finish_time = contest.start_time + timezone.timedelta(minutes=contest.duration)
-    started = now >= contest.start_time
-    finished = now >= finish_time
-    if not started:
-        seconds_till_start = int((contest.start_time - now).total_seconds())
-        time_str = 'До начала соревнования осталось ' + seconds_to_str(seconds_till_start)
-    elif finished:
-        finish_time_local = timezone.localtime(finish_time)
-        time_str = finish_time_local.strftime('Соревнование завершилось %d.%m.%y в %H:%M')
-    else:
-        seconds_till_finish = int((finish_time - now).total_seconds())
-        time_str = 'До конца соревнования осталось ' + seconds_to_str(seconds_till_finish)
-
-    return TimeInfo(started, finished, time_str)
-
-
 class TrainingView(SelectContestMixin, TemplateView):
     template_name = 'contests/training.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         training = self.select_contest()
-        time_info = get_time_info(training)
+        time_info = get_relational_time_info(training)
         pics = (
             ProblemInContest
             .objects
@@ -174,7 +147,7 @@ class SubmitForm(forms.Form):
             choices=[(compiler.id, compiler.name) for compiler in compilers]
         )
         for compiler in compilers:
-            if 'C++' in compiler.name: # Rather sensible default.
+            if 'C++' in compiler.name:  # Rather sensible default.
                 self.initial['compiler'] = compiler.id
                 break
 
@@ -199,14 +172,14 @@ class SubmitView(LoginRequiredMixin, SelectContestMixin, TemplateView):
 
     def get(self, request, **kwargs):
         contest = self.select_contest()
-        time_info = get_time_info(contest)
+        time_info = get_relational_time_info(contest)
 
         form = self.form_class(contest)
         return render(request, self.template_name, {'form': form, 'contest': contest, 'time_info': time_info})
 
     def post(self, request, **kwargs):
         contest = self.select_contest()
-        time_info = get_time_info(contest)
+        time_info = get_relational_time_info(contest)
         if time_info is not None:
             if not time_info.started:
                 raise Http404('Соревнование ещё не началось')
@@ -247,7 +220,7 @@ class AttemptsView(LoginRequiredMixin, SelectContestMixin, ListView):
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
-        time_info = get_time_info(contest)
+        time_info = get_relational_time_info(contest)
         context = super().get_context_data(**kwargs)
         context.update(contest=contest, time_info=time_info)
         return context
@@ -256,7 +229,8 @@ class AttemptsView(LoginRequiredMixin, SelectContestMixin, ListView):
 class AttemptDetailsView(LoginRequiredMixin, TemplateView):
     template_name = 'contests/source.html'
 
-    def _find_lexer(self, name, **kwargs):
+    @staticmethod
+    def _find_lexer(name, **kwargs):
         try:
             return pygments.lexers.get_lexer_by_name(name, **kwargs)
         except pygments.util.ClassNotFound:
@@ -286,7 +260,7 @@ class AttemptDetailsView(LoginRequiredMixin, TemplateView):
         if user.id != attempt.user_id and not user.is_staff:
             raise PermissionDenied('Вы не можете просматривать исходный код чужих посылок.')
 
-        lexer = self._find_lexer(attempt.compiler.highlighter, tabsize=4)
+        lexer = AttemptDetailsView._find_lexer(attempt.compiler.highlighter, tabsize=4)
         formatter = pygments.formatters.HtmlFormatter(linenos='table', style='tango')
         context.update(
             contest=attempt.problem_in_contest.contest,
@@ -330,7 +304,7 @@ class RatingView(SelectContestMixin, ListView):
         )
         rank_users(users, 'problems_solved')
         pattern = ['.'] * ProblemInContest.objects.filter(contest=contest_id).count()
-        statuses = { }
+        statuses = {}
         for user in users:
             statuses[user.id] = user.problems_status = pattern[:]
 
@@ -353,7 +327,7 @@ class RatingView(SelectContestMixin, ListView):
             try:
                 status = statuses[user_id]
             except KeyError:
-                pass # Skip users that don't have at least 1 accepted problem.
+                pass  # Skip users that don't have at least 1 accepted problem.
             else:
                 if succeeded:
                     status[number - 1] = '+'
@@ -383,7 +357,7 @@ class StandingsView(SelectContestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
-        time_info = get_time_info(contest)
+        time_info = get_relational_time_info(contest)
 
         now = timezone.now()
         internal_time = now - contest.start_time
@@ -411,12 +385,12 @@ class StandingsView(SelectContestMixin, TemplateView):
             .values('number_char', 'problem__name')
         )
 
-        Result = collections.namedtuple('Result', 'status time')
+        result = collections.namedtuple('Result', 'status time')
         standings = collections.defaultdict(lambda: {
             # 'username': None,
             'score': 0,
             'penalty': 0,
-            'results': [Result('.', None)] * len(problems),
+            'results': [result('.', None)] * len(problems),
         })
 
         statistics = []
@@ -470,7 +444,7 @@ class StandingsView(SelectContestMixin, TemplateView):
                     status = '+' if attempt_count == 1 else '+%d' % (attempt_count - 1)
                     user_info['score'] += 1
                     user_info['penalty'] += accepted_time + (attempt_count - 1) * 20
-                    user_info['results'][problem_number] = Result(status, time_str)
+                    user_info['results'][problem_number] = result(status, time_str)
                     statistic['accepted'] += 1
                     statistic['rejected'] += attempt_count - 1
                     if statistic['first_accept'] is None or statistic['first_accept'] > accepted_time:
@@ -480,7 +454,7 @@ class StandingsView(SelectContestMixin, TemplateView):
                         statistic['last_accept'] = accepted_time
                         statistic['last_accept_str'] = time_str
                 else:
-                    user_info['results'][problem_number] = Result('-%d' % attempt_count, None)
+                    user_info['results'][problem_number] = result('-%d' % attempt_count, None)
                     statistic['rejected'] += attempt_count
 
         names = (
