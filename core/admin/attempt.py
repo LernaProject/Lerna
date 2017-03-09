@@ -73,6 +73,7 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
         'used_time', 'used_memory',
     )
     list_display_links = ('id', 'user', 'problem')
+    list_filter = ('runner_codename', 'obsolete')
     date_hierarchy = 'time'
 
     # actions = ()
