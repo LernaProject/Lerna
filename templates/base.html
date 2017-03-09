@@ -21,19 +21,26 @@
 
 <body>
 
-<div class="top-bar">
+<div class="top-bar {% block current_nav_section %}{% endblock %}">
   <div class="row small-12 columns">
 
+    {# Navigation links in top site menu bar #}
     <div class="top-bar-left">
       <ul class="horizontal menu">
-        <li class="menu-text"><a href="{% url 'index' %}"><img src="{% static 'ico_20px.png' %}" alt="+"/>Lerna</a></li>
-        {% block top_nav_links %}
-        {% endblock top_nav_links %}
+        <li class="menu-text"><a href="{% url 'index' %}">
+          Lerna
+        </a></li>
+        <li><a class="news_toplink"         href="{% url 'news:index' %}">Новости</a></li>
+        <li><a class="competitions_toplink" href="{% url 'contests:contests' %}">Соревнования</a></li>
+        <li><a class="trainings_toplink"    href="{% url 'contests:trainings' %}">Тренировки</a></li>
+        <li><a class="rating_toplink"       href="{% url 'global_statistics:rating' %}">Рейтинг</a></li>
       </ul>
     </div>
 
+    {# User-related links in top site menu bar #}
     <div class="top-bar-right">
       <ul class="horizontal dropdown menu" data-dropdown-menu>
+
         {% if user.is_authenticated %}
         <li>
           <a href="{% url 'global_statistics:attempts' %}">{{ user.username }}</a>
@@ -42,21 +49,66 @@
             <li><a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a></li>
           </ul>
         </li>
+
         {% else %}
         <li><a href="{% url 'registration' %}?back={{ request.path }}">Регистрация</a></li>
         <li><a href="{% url 'login' %}?back={{ request.path }}">Вход</a></li>
         {% endif %}
+
       </ul>
     </div>
 
   </div>
 </div>
 
-<div class="row small-12 columns">
-  {% block local_title %}{% endblock local_title %}
-  {% block links %}{% endblock links %}
-  {% block body %}{% endblock body %}
+{# Main page content #}
+<div class="row main-content">
+  <div class="large-12 columns local_title">{% block local_title %}{% endblock local_title %}</div>
+  {% block content %}{% endblock %}
 </div>
+
+{# Pagination #}
+{% block pagination %}
+  {% if is_paginated and page_link %}
+    <ul class="pagination text-center">
+      {% if page_obj.number == 1 %}
+        <li class="pagination-previous disabled">Назад</li>
+      {% else %}
+        {% if page_param %}
+          <li class="pagination-previous"><a href="{% url page_link page_param page_obj.number|add:'-1' %}">Назад</a></li>
+        {% else %}
+          <li class="pagination-previous"><a href="{% url page_link page_obj.number|add:'-1' %}">Назад</a></li>
+        {% endif %}
+      {% endif %}
+
+      {% for i in paginator.page_range %}
+        {% if page_obj.number > i|add:4 and i != 1 %}
+          {% if i == 2 %}<li class="ellipsis"></li>{% endif %}
+        {% elif i > page_obj.number|add:4 and i != paginator.num_pages %}
+          {% if i|add:1 == paginator.num_pages %}<li class="ellipsis"></li>{% endif %}
+        {% elif i == page_obj.number %}
+          <li class="current">{{ i }}</li>
+        {% else %}
+          {% if page_param %}
+            <li><a href="{% url page_link page_param i %}">{{ i }}</a></li>
+          {% else %}
+            <li><a href="{% url page_link i %}">{{ i }}</a></li>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.number == paginator.num_pages %}
+        <li class="pagination-next disabled">Вперёд</li>
+      {% else %}
+        {% if page_param %}
+          <li class="pagination-next"><a href="{% url page_link page_param page_obj.number|add:'1' %}">Вперёд</a></li>
+        {% else %}
+          <li class="pagination-next"><a href="{% url page_link page_obj.number|add:'1' %}">Вперёд</a></li>
+        {% endif %}
+      {% endif %}
+    </ul>
+  {% endif %}
+{% endblock %}
 
 {% block javascript_links %}
 {% javascript 'jquery' %}

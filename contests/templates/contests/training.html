@@ -1,21 +1,17 @@
 {% extends 'contests/base.html' %}
 
-{% block body %}
+{% block contest_page_content %}
 {% if not contest.is_training and not time_info.started %}
   <p>Список задач будет доступен на этой странице сразу после начала соревнования.</p>
 {% else %}
   {% if pics %}
     <ul>
     {% for pic in pics %}
-      <li>
-        <a href="{% url 'contests:problem' contest.id pic.number %}">
-          {{ pic.number }} : {{ pic.problem.name }}
-        </a>
-      </li>
+      <li><a href="{{ pic.get_absolute_url }}">{{ pic.number }}. {{ pic.problem.name }}</a></li>
     {% endfor %}
     </ul>
   {% else %}
     <p>Нет задач для отображения</p>
   {% endif %}
 {% endif %}
-{% endblock body %}
+{% endblock %}

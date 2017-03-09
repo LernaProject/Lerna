@@ -1,5 +1,7 @@
 from django.db    import models
+from django.urls  import reverse
 from users.models import User
+
 
 class News(models.Model):
     title       = models.CharField(max_length=255)
@@ -14,5 +16,12 @@ class News(models.Model):
         get_latest_by       = 'created_at'
         verbose_name_plural = 'news'
 
+    @property
+    def short_description(self):
+        return self.description.partition('<more>')[0]
+
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('news:show', args=[self.id])

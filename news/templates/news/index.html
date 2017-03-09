@@ -1,38 +1,22 @@
 {% extends 'news/base.html' %}
 
-{% block body %}
+{% block content %}
 
 {% if news_list %}
-  <ul>
   {% for news in news_list %}
-    <li><a href="{% url 'news:show' news.id %}">{{ news.title }}</a></li>
+    <h5><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></h5>
+    <div>
+      {{ news.short_description|safe }}
+    </div>
   {% endfor %}
-  </ul>
 {% else %}
-  <p>No news are available.</p>
+  <div>Нет новостей для отображения</div>
 {% endif %}
 
-{% if page_obj %}
-<div class="pagination">
-  <span class="step-links">
+{% endblock %}
 
-  {% for i in paginator.page_range %}
-    [
-    {% if i == page_obj.number %}
-      {{ i }}
-    {% else %}
-      {% if i == 1 %}
-        {% url 'index' as u %}
-      {% else %}
-        {% url 'news:index' i as u %}
-      {% endif %}
-      <a href="{{ u }}">{{ i }}</a>
-    {% endif %}
-    ]
-  {% endfor %}
-
-  </span>
-</div>
-{% endif %}
-
+{% block pagination %}
+  {% with page_link='news:index' %}
+    {{ block.super }}
+  {% endwith %}
 {% endblock %}

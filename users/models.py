@@ -76,7 +76,7 @@ def rank_users(users, field_name, start=1):
         if len(g) == 1:
             g[0].rank = str(start)
         else:
-            rank = "%d-%d" % (start, start + len(g) - 1)
+            rank = '%d-%d' % (start, start + len(g) - 1)
             for user in g:
                 user.rank = rank
 

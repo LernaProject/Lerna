@@ -1,6 +1,10 @@
-{% extends 'global.html' %}
+{% extends 'base.html' %}
 
-{% block body %}
+{% block title %} {{ block.super }} :: Глобальный рейтинг {% endblock %}
+
+{% block current_nav_section %} rating_nav_section {% endblock %}
+
+{% block content %}
 
 <h2>Глобальный рейтинг</h2>
 
@@ -23,27 +27,10 @@
   <p>Нет доступных для отображения в рейтинге пользователей</p>
 {% endif %}
 
-{% if page_obj %}
-<div class="pagination">
-  <span class="step-links">
+{% endblock %}
 
-  {% for i in paginator.page_range %}
-    [
-    {% if i == page_obj.number %}
-      {{ i }}
-    {% else %}
-      {% if i == 1 %}
-        {% url 'global_statistics:rating' as u %}
-      {% else %}
-        {% url 'global_statistics:rating' i as u %}
-      {% endif %}
-      <a href="{{ u }}">{{ i }}</a>
-    {% endif %}
-    ]
-  {% endfor %}
-
-  </span>
-</div>
-{% endif %}
-
-{% endblock body %}
+{% block pagination %}
+  {% with page_link='global_statistics:rating' %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}

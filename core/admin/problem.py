@@ -47,6 +47,15 @@ class ProblemAdmin(admin.ModelAdmin):
             )
         return fieldsets
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['time_limit'].initial = '1000'
+        form.base_fields['memory_limit'].initial = '64'
+        # Polygon default masks.
+        form.base_fields['mask_in'].initial = '%02d'
+        form.base_fields['mask_out'].initial = '%02d.a'
+        return form
+
     readonly_fields = ('created_at', 'updated_at')
     list_display = ('id', 'name', 'path', 'mask_in', 'mask_out', 'checker')
     list_display_links = ('id', 'name')

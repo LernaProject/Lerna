@@ -1,5 +1,16 @@
 {% extends 'contests/base.html' %}
 
-{% block body %}
-  <pre>{{ attempt.source }}</pre>
-{% endblock body %}
+{% block contest_page_content %}
+  <h4><a href="{{ attempt.problem_in_contest.get_absolute_url }}">
+    {{ attempt.problem_in_contest.number }}. {{ attempt.problem_in_contest.problem.name }}
+  </a></h4>
+
+  <p>{{ attempt.verdict|default:'Waiting' }}</p>
+
+  {% if attempt.error_message %}
+    <pre>{{ attempt.error_message }}</pre>
+  {% endif %}
+
+  <style>{{ highlighting_styles|safe }}</style>
+  {{ highlighted_source|safe }}
+{% endblock %}

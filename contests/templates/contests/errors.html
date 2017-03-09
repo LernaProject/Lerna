@@ -1,9 +1,0 @@
-{% extends 'contests/base.html' %}
-
-{% block body %}
-  {% if attempt.error_message %}
-    <pre>{{ attempt.error_message }}</pre>
-  {% else %}
-    Нет ошибок компиляции.
-  {% endif %}
-{% endblock body %}

@@ -1,14 +1,18 @@
-{% extends 'global.html' %}
+{% extends 'base.html' %}
 
-{% block body %}
+{% block title %}{{ block.super }} :: Список соревнований {% endblock %}
 
-<h2>Текущие и ожидаемые олимпиады</h2>
+{% block current_nav_section %} competitions_nav_section {% endblock %}
+
+{% block content %}
+
+<h2>Актуальные соревнования</h2>
 
 {% if actual_contest_list or wait_contest_list %}
   <ul>
   {% for contest in actual_contest_list %}
     <li>
-      <h2><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
+      <h2><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></h2>
       <p>
         {% if contest.is_school %}
           Подсчёт результатов: по количеству пройденных тестов
@@ -22,7 +26,7 @@
   {% endfor %}
   {% for contest in wait_contest_list %}
     <li>
-      <h2><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
+      <h2><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></h2>
       <p>
         {% if contest.is_school %}
           Подсчёт результатов: по количеству пройденных тестов
@@ -39,13 +43,13 @@
   <p>В данный момент нет активных или ожидаемых олимпиад.</p>
 {% endif %}
 
-<h2>Прошедшие олимпиады</h2>
+<h2>Прошедшие соревнования</h2>
 
 {% if past_contest_list %}
   <ul>
   {% for contest in past_contest_list %}
     <li>
-      <h2><a href="{% url 'contests:problem' contest_id=contest.id problem_number=1 %}">{{ contest.name }}</a></h2>
+      <h2><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></h2>
       <p>
         {% if contest.is_school %}
           Подсчёт результатов: по количеству пройденных тестов

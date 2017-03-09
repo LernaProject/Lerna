@@ -1,6 +1,10 @@
-{% extends 'global.html' %}
+{% extends 'base.html' %}
 
-{% block body %}
+{% block title %} {{ block.super }} :: Список тренировок {% endblock %}
+
+{% block current_nav_section %} trainings_nav_section {% endblock %}
+
+{% block content %}
 
 {% for t in trainings %}
   <div>

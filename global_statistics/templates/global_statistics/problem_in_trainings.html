@@ -1,17 +1,21 @@
-{% extends 'global.html' %}
+{% extends 'base.html' %}
 
-{% block body %}
+{% block title %} {{ block.super }} :: Поиск в тренировках {% endblock %}
+
+{% block current_nav_section %} trainings_nav_section {% endblock %}
+
+{% block content %}
 
 <h2>Тренировки, в которых можно сдать задачу «{{ problem.name }}»:</h2>
 
 {% if training_list %}
   {% for training in training_list %}
-    <a href="{% url 'contests:problem' contest_id=training.id problem_number=training.problem_number %}">
-        <p>{{ training.name }}</p>
+    <a href="{% url 'contests:problem' training.id training.problem_number %}">
+      <p>{{ training.name }}</p>
     </a>
   {% endfor %}
 {% else %}
   <p>-</p>
 {% endif %}
 
-{% endblock body %}
+{% endblock %}
