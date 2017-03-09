@@ -506,6 +506,7 @@ class ClarificationsView(LoginRequiredMixin, SelectContestMixin, NotificationLis
         context = super().get_context_data(**kwargs)
         context.update(
             contest=contest,
+            time_info=get_relative_time_info(contest),
             notifications=self.get_notifications(contest),
             clarifications=(
                 Clarification
