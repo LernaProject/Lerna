@@ -1,7 +1,8 @@
 /* Layout */
-body, html{
+body, html {
     margin: 0;
     padding: 0;
+    border: 0;
 }
 
 /* Top menu bar */
@@ -13,4 +14,9 @@ body, html{
     border-bottom: 1px solid #1779ba;
     background: inherit;
     color: #1779ba;
+}
+
+.main-content {
+    padding: 25px 0 15px 0;
+    border: 0;
 }
