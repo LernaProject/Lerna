@@ -17,6 +17,8 @@ from core.models   import Contest, ProblemInContest, Attempt, Compiler
 from users.models  import User, rank_users
 from contests.util import get_relational_time_info
 
+from abc import ABC, abstractmethod
+
 
 class ContestIndexView(TemplateView):
     template_name = 'contests/contests.html'
@@ -352,28 +354,19 @@ class RatingView(SelectContestMixin, ListView):
         return context
 
 
-class StandingsView(SelectContestMixin, TemplateView):
+class BaseStandingsView(ABC, SelectContestMixin, TemplateView):
     template_name = 'contests/standings.html'
+
+    @abstractmethod
+    def get_due_time(self, contest, time_info):
+        pass
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
         time_info = get_relational_time_info(contest)
 
-        now = timezone.now()
-        internal_time = now - contest.start_time
-        remaining_time_secs = max(60 * contest.duration - internal_time.total_seconds(), 0)
-        finished = remaining_time_secs <= 0
-
-        # TODO: add calculation for remaining_time_str
-
         # The time point we can see attempts until (either freezing or the end of the contest).
-        if finished or contest.freezing_time is None:
-            internal_due_time = contest.duration
-        else:
-            internal_due_time = contest.freezing_time
-        due_time = min(contest.start_time + timezone.timedelta(minutes=internal_due_time), now)
-
-        # TODO: add calculation for freezing_time_str
+        due_time = self.get_due_time(contest, time_info)
 
         problems = (
             ProblemInContest
@@ -394,7 +387,7 @@ class StandingsView(SelectContestMixin, TemplateView):
         })
 
         statistics = []
-        for problem in problems:
+        for _ in problems:
             statistics.append({
                 'total_runs': 0,
                 'accepted': 0,
@@ -479,4 +472,28 @@ class StandingsView(SelectContestMixin, TemplateView):
             standings=standings,
             statistics=statistics,
         )
+        return context
+
+
+class StandingsView(BaseStandingsView):
+    def get_due_time(self, contest, time_info):
+        now = timezone.now()
+        if time_info.finished or contest.freezing_time is None:
+            internal_due_time = contest.duration
+        else:
+            internal_due_time = contest.freezing_time
+        return min(contest.start_time + timezone.timedelta(minutes=internal_due_time), now)
+
+
+class UnfrozenStandingsView(BaseStandingsView):
+    def get_due_time(self, contest, time_info):
+        now = timezone.now()
+        return min(contest.start_time + timezone.timedelta(minutes=contest.duration), now)
+
+    # TODO: use is_staff mixin instead, when it will be ready
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if not user.is_staff:
+            raise Http404('Не существует запрошенной страницы')
         return context
