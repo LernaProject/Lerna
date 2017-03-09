@@ -14,6 +14,9 @@
 
     <a href="{% url 'global_statistics:best_time' problem.id %}">Статистика</a>
     <a href="{% url 'global_statistics:problem_in_trainings' problem.id %}">Найти в тренировках</a>
+    {% if user.is_staff %}
+        <a href="{% url 'admin:core_problem_change' problem.id %}" target="_blank">Редактировать</a>
+    {% endif %}
 
     <p>
         Ограничение по времени: {{ problem.time_limit_in_secs }} сек<br />
