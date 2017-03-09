@@ -3,7 +3,7 @@ from django.utils import timezone
 import collections
 
 
-def get_relational_time_info(contest):
+def get_relative_time_info(contest):
     def seconds_to_str(seconds):
         hours, seconds = divmod(seconds, 3600)
         t_str = '%02d:%02d' % divmod(seconds, 60)
@@ -28,7 +28,7 @@ def get_relational_time_info(contest):
         seconds_till_finish = int((finish_time - now).total_seconds())
         time_str = 'До конца соревнования осталось ' + seconds_to_str(seconds_till_finish)
 
-    frozen = None
+    frozen = False
     freezing_time_str = None
     if started and contest.freezing_time is not None:
         if finished:

@@ -13,7 +13,7 @@
     {% for problem in problems %}
         <th><span title="{{ problem.problem__name }}">{{ problem.number_char }}</span></th>
     {% endfor %}
-    <th>Задач<br/>(из&nbsp;{{ problems|length }})</th>
+    <th>Задач<br />(из&nbsp;{{ problems|length }})</th>
     <th>Время</th>
   </tr>
   {% for user_info in standings %}
@@ -21,7 +21,7 @@
        <td>{{ user_info.rank }}</td>
        <td>{{ user_info.username }}</td>
        {% for result in user_info.results %}
-         <td>{{ result.status }}{% if result.time %}<br/>{{ result.time }}{% endif %}</td>
+         <td>{{ result.status }}{% if result.time %}<br />{{ result.time }}{% endif %}</td>
        {% endfor %}
        <td>{{ user_info.score }}</td>
        <td>{{ user_info.penalty }}</td>

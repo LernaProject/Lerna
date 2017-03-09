@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from .views import (
     ContestIndexView, TrainingIndexView, TrainingView, ProblemView, AttemptsView,
-    AttemptDetailsView, SubmitView, RatingView, StandingsView, UnfrozenStandingsView
+    AttemptDetailsView, SubmitView, RatingView, StandingsView, UnfrozenStandingsView,
 )
 
 urlpatterns = (

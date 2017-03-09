@@ -156,12 +156,21 @@ class Clarification(models.Model):
         return self.question if len(self.question) <= 70 else self.question[:67] + '...'
 
 
+class NotificationManager(models.Manager):
+    def privileged(self, allow_hidden):
+        if allow_hidden:
+            return self.get_queryset()
+        return self.filter(visible=True, created_at__lte=timezone.now())
+
+
 class Notification(models.Model):
     contest     = models.ForeignKey(Contest)
     description = models.TextField()
     visible     = models.BooleanField(default=True)
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
+
+    objects = NotificationManager()
 
     class Meta:
         db_table      = 'notifications'

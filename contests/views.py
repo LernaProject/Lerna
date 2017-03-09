@@ -1,23 +1,45 @@
+import abc
 import collections
 import os
 
-from django                      import forms
-from django.contrib.auth.mixins  import LoginRequiredMixin
-from django.core.exceptions      import PermissionDenied
-from django.db                   import connection
-from django.db.models            import F, Q, Func, CharField
-from django.http                 import Http404
-from django.shortcuts            import render, redirect
-from django.utils                import timezone
-from django.views.generic        import TemplateView, ListView
+from django                     import forms
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions     import PermissionDenied
+from django.db                  import connection
+from django.db.models           import F, Q, Func, CharField
+from django.http                import Http404
+from django.shortcuts           import render, redirect
+from django.utils               import timezone
+from django.views.generic       import TemplateView, ListView
 import pygments.formatters
 import pygments.lexers.special
 
-from core.models   import Contest, ProblemInContest, Attempt, Compiler
+from core.models   import Contest, ProblemInContest, Notification, Attempt, Compiler
 from users.models  import User, rank_users
-from contests.util import get_relational_time_info
+from contests.util import get_relative_time_info
 
-from abc import ABC, abstractmethod
+
+class NotificationListMixin:
+    def get_notifications(self, contest):
+        return (
+            Notification
+            .objects
+            .privileged(self.request.user.is_staff)
+            .filter(contest=contest)
+        )
+
+
+class SelectContestMixin:
+    def select_contest(self):
+        try:
+            return (
+                Contest
+                .objects
+                .privileged(self.request.user.is_staff)
+                .get(id=self.kwargs['contest_id'])
+            )
+        except Contest.DoesNotExist:
+            raise Http404('Не существует тренировки с запрошенным id.')
 
 
 class ContestIndexView(TemplateView):
@@ -89,28 +111,13 @@ class TrainingIndexView(TemplateView):
         return context
 
 
-class SelectContestMixin:
-    def select_contest(self):
-        if 'contest_id' not in self.kwargs:
-            return None
-        try:
-            return (
-                Contest
-                .objects
-                .privileged(self.request.user.is_staff)
-                .get(id=self.kwargs['contest_id'])
-            )
-        except Contest.DoesNotExist:
-            raise Http404('Не существует тренировки с запрошенным id.')
-
-
-class TrainingView(SelectContestMixin, TemplateView):
+class TrainingView(SelectContestMixin, NotificationListMixin, TemplateView):
     template_name = 'contests/training.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         training = self.select_contest()
-        time_info = get_relational_time_info(training)
+        time_info = get_relative_time_info(training)
         pics = (
             ProblemInContest
             .objects
@@ -118,7 +125,12 @@ class TrainingView(SelectContestMixin, TemplateView):
             .order_by('number')
             .select_related('problem')
         )
-        context.update(contest=training, pics=pics, time_info=time_info)
+        context.update(
+            contest=training,
+            pics=pics,
+            time_info=time_info,
+            notifications=self.get_notifications(training),
+        )
         return context
 
 
@@ -168,20 +180,25 @@ class SubmitForm(forms.Form):
         self.fields['source'] = forms.CharField(widget=forms.Textarea)
 
 
-class SubmitView(LoginRequiredMixin, SelectContestMixin, TemplateView):
+class SubmitView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, TemplateView):
     template_name = 'contests/submit.html'
     form_class = SubmitForm
 
     def get(self, request, **kwargs):
         contest = self.select_contest()
-        time_info = get_relational_time_info(contest)
+        time_info = get_relative_time_info(contest)
 
         form = self.form_class(contest)
-        return render(request, self.template_name, {'form': form, 'contest': contest, 'time_info': time_info})
+        return render(request, self.template_name, {
+            'form': form,
+            'contest': contest,
+            'time_info': time_info,
+            'notifications': self.get_notifications(contest),
+        })
 
     def post(self, request, **kwargs):
         contest = self.select_contest()
-        time_info = get_relational_time_info(contest)
+        time_info = get_relative_time_info(contest)
         if time_info is not None:
             if not time_info.started:
                 raise Http404('Соревнование ещё не началось')
@@ -197,11 +214,16 @@ class SubmitView(LoginRequiredMixin, SelectContestMixin, TemplateView):
                 compiler=Compiler.objects.get(id=form.cleaned_data['compiler']),
                 source=form.cleaned_data['source'],
             )
-            return redirect('contests:attempts', contest_id=contest.id)
-        return render(request, self.template_name, {'form': form, 'contest': contest})
+            return redirect('contests:attempts', contest.id)
+
+        return render(request, self.template_name, {
+            'form': form,
+            'contest': contest,
+            'notifications': self.get_notifications(contest),
+        })
 
 
-class AttemptsView(LoginRequiredMixin, SelectContestMixin, ListView):
+class AttemptsView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, ListView):
     template_name = 'contests/attempts.html'
     context_object_name = 'attempts'
     allow_empty = True
@@ -222,13 +244,17 @@ class AttemptsView(LoginRequiredMixin, SelectContestMixin, ListView):
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
-        time_info = get_relational_time_info(contest)
+        time_info = get_relative_time_info(contest)
         context = super().get_context_data(**kwargs)
-        context.update(contest=contest, time_info=time_info)
+        context.update(
+            contest=contest,
+            time_info=time_info,
+            notifications=self.get_notifications(contest),
+        )
         return context
 
 
-class AttemptDetailsView(LoginRequiredMixin, TemplateView):
+class AttemptDetailsView(LoginRequiredMixin, NotificationListMixin, TemplateView):
     template_name = 'contests/source.html'
 
     @staticmethod
@@ -267,13 +293,14 @@ class AttemptDetailsView(LoginRequiredMixin, TemplateView):
         context.update(
             contest=attempt.problem_in_contest.contest,
             attempt=attempt,
+            notifications=self.get_notifications(attempt.problem_in_contest.contest),
             highlighted_source=pygments.highlight(attempt.source, lexer, formatter),
             highlighting_styles=formatter.get_style_defs('.highlight'),
         )
         return context
 
 
-class RatingView(SelectContestMixin, ListView):
+class RatingView(SelectContestMixin, NotificationListMixin, ListView):
     template_name = 'contests/rating.html'
     context_object_name = 'user_list'
     allow_empty = True
@@ -350,20 +377,24 @@ class RatingView(SelectContestMixin, ListView):
         )
 
         context = super().get_context_data(**kwargs)
-        context.update(contest=training, problems=problems)
+        context.update(
+            contest=training,
+            problems=problems,
+            notifications=self.get_notifications(training),
+        )
         return context
 
 
-class BaseStandingsView(ABC, SelectContestMixin, TemplateView):
+class BaseStandingsView(abc.ABC, SelectContestMixin, NotificationListMixin, TemplateView):
     template_name = 'contests/standings.html'
 
-    @abstractmethod
+    @abc.abstractmethod
     def get_due_time(self, contest, time_info):
         pass
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
-        time_info = get_relational_time_info(contest)
+        time_info = get_relative_time_info(contest)
 
         # The time point we can see attempts until (either freezing or the end of the contest).
         due_time = self.get_due_time(contest, time_info)
@@ -469,6 +500,7 @@ class BaseStandingsView(ABC, SelectContestMixin, TemplateView):
             contest=contest,
             time_info=time_info,
             problems=problems,
+            notifications=self.get_notifications(contest),
             standings=standings,
             statistics=statistics,
         )

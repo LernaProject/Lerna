@@ -39,8 +39,17 @@
       <li><a href="{% url 'contests:standings' contest.id %}">Рейтинг</a></li>
     {% endif %}
     <li><a href="#">Вопросы</a></li>
-</ul>
-  <hr/>
+  </ul>
+  <hr />
+  {% if notifications %}
+    <strong>Объявления</strong>
+    <hr />
+    {% for notification in notifications %}
+      <p>{{ notification|safe }}</p>
+      <hr />
+    {% endfor %}
+  {% endif %}
 
 </div>
+
 {% endblock %}

@@ -16,16 +16,16 @@
     <a href="{% url 'global_statistics:problem_in_trainings' problem.id %}">Найти в тренировках</a>
 
     <p>
-        Ограничение по времени: {{ problem.time_limit_in_secs }} сек<br/>
+        Ограничение по времени: {{ problem.time_limit_in_secs }} сек<br />
         Ограничение по памяти: {{ problem.memory_limit }} МБ
     </p>
 
     <i>
     {% if problem.author %}
-        Автор задачи: {{ problem.author }}<br/>
+        Автор задачи: {{ problem.author }}<br />
     {% endif %}
     {% if problem.developer and problem.developer != problem.author %}
-        Разработчик задачи: {{ problem.developer }}<br/>
+        Разработчик задачи: {{ problem.developer }}<br />
     {% endif %}
     {% if problem.origin %}
         Источник: {{ problem.origin }}
