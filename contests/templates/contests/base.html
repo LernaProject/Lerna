@@ -8,14 +8,18 @@
 
 {% block local_title %}
   <h2>{{ contest.name }}</h2>
-  {% if not contest.is_training %}
-    {{ time_info.time_str }}
-  {% endif %}
 {% endblock local_title %}
 
 {% block content %}
 
 <div class="large-10 columns">
+  {% if time_info.time_str %}
+    <p>{{ time_info.time_str }}</p>
+  {% endif %}
+  {% if time_info.freezing_time_str %}
+    <p>{{ time_info.freezing_time_str }}</p>
+  {% endif %}
+
   {% block contest_page_content %}
   {% endblock %}
 </div>

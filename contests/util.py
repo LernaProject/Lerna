@@ -13,7 +13,7 @@ def get_relational_time_info(contest):
 
     if contest.is_training:
         return None
-    time_info = collections.namedtuple('TimeInfo', 'started finished time_str')
+    time_info = collections.namedtuple('TimeInfo', 'started finished frozen time_str freezing_time_str')
     now = timezone.now()
     finish_time = contest.start_time + timezone.timedelta(minutes=contest.duration)
     started = now >= contest.start_time
@@ -28,4 +28,18 @@ def get_relational_time_info(contest):
         seconds_till_finish = int((finish_time - now).total_seconds())
         time_str = 'До конца соревнования осталось ' + seconds_to_str(seconds_till_finish)
 
-    return time_info(started, finished, time_str)
+    frozen = None
+    freezing_time_str = None
+    if started and contest.freezing_time is not None:
+        if finished:
+            freezing_time_str = 'Соревнование завершилось, таблица результатов разморожена'
+        else:
+            freezing_time = contest.start_time + timezone.timedelta(minutes=contest.freezing_time)
+            frozen = now > freezing_time
+            if frozen:
+                freezing_time_str = 'Таблица результатов заморожена'
+            else:
+                seconds_till_freezing = int((freezing_time - now).total_seconds())
+                freezing_time_str = 'Да заморозки таблицы результатов осталось ' + seconds_to_str(seconds_till_freezing)
+
+    return time_info(started, finished, frozen, time_str, freezing_time_str)
