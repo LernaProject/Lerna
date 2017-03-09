@@ -47,8 +47,8 @@ class Problem(models.Model):
 
 
 class ContestManager(models.Manager):
-    def privileged(self, allow_hidden):
-        return self.get_queryset() if allow_hidden else self.filter(is_admin=False)
+    def privileged(self, user):
+        return self.get_queryset() if user.is_staff else self.filter(is_admin=False)
 
 
 class Contest(models.Model):
@@ -106,8 +106,8 @@ class Contest(models.Model):
 
 
 class PICManager(models.Manager):
-    def is_visible(self, problem_id):
-        return self.filter(problem=problem_id, contest__is_admin=False).exists()
+    def is_visible(self, problem):
+        return self.filter(problem=problem, contest__is_admin=False).exists()
 
 
 class ProblemInContest(models.Model):
@@ -134,6 +134,11 @@ class ProblemInContest(models.Model):
         return reverse('contests:problem', args=[self.contest_id, self.number])
 
 
+class ClarificationManager(models.Manager):
+    def privileged(self, user):
+        return self.get_queryset() if user.is_staff else self.filter(user=user)
+
+
 class Clarification(models.Model):
     # TODO: Replace contest with problem_in_contest.
     contest    = models.ForeignKey(Contest, db_index=False)
@@ -142,6 +147,8 @@ class Clarification(models.Model):
     answer     = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = ClarificationManager()
 
     class Meta:
         db_table      = 'clarifications'
@@ -157,8 +164,8 @@ class Clarification(models.Model):
 
 
 class NotificationManager(models.Manager):
-    def privileged(self, allow_hidden):
-        if allow_hidden:
+    def privileged(self, user):
+        if user.is_staff:
             return self.get_queryset()
         return self.filter(visible=True, created_at__lte=timezone.now())
 

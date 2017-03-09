@@ -38,14 +38,18 @@
     {% else %}
       <li><a href="{% url 'contests:standings' contest.id %}">Рейтинг</a></li>
     {% endif %}
-    <li><a href="#">Вопросы</a></li>
+    <li><a href="{% url 'contests:clarifications' contest.id %}">Вопросы</a></li>
   </ul>
   <hr />
+  {% if user.is_staff %}
+    <a href="{% url 'admin:core_notification_add' %}" target="_blank">Сделать объявление</a>
+  {% endif %}
   {% if notifications %}
+    <hr />
     <strong>Объявления</strong>
     <hr />
     {% for notification in notifications %}
-      <p>{{ notification|safe }}</p>
+      <p>{{ notification.description|safe|linebreaksbr }}</p>
       <hr />
     {% endfor %}
   {% endif %}

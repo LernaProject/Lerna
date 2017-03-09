@@ -2,7 +2,6 @@ import abc
 import collections
 import os
 
-from django                     import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions     import PermissionDenied
 from django.db                  import connection
@@ -11,12 +10,14 @@ from django.http                import Http404
 from django.shortcuts           import render, redirect
 from django.utils               import timezone
 from django.views.generic       import TemplateView, ListView
+from django.views.generic.edit  import FormView
 import pygments.formatters
 import pygments.lexers.special
 
-from core.models   import Contest, ProblemInContest, Notification, Attempt, Compiler
-from users.models  import User, rank_users
-from contests.util import get_relative_time_info
+from contests.forms import SubmitForm, ClarificationForm
+from contests.util  import get_relative_time_info
+from core.models    import Contest, ProblemInContest, Notification, Clarification, Attempt, Compiler
+from users.models   import User, rank_users
 
 
 class NotificationListMixin:
@@ -24,8 +25,9 @@ class NotificationListMixin:
         return (
             Notification
             .objects
-            .privileged(self.request.user.is_staff)
+            .privileged(self.request.user)
             .filter(contest=contest)
+            .order_by('-created_at')
         )
 
 
@@ -35,7 +37,7 @@ class SelectContestMixin:
             return (
                 Contest
                 .objects
-                .privileged(self.request.user.is_staff)
+                .privileged(self.request.user)
                 .get(id=self.kwargs['contest_id'])
             )
         except Contest.DoesNotExist:
@@ -51,7 +53,7 @@ class ContestIndexView(TemplateView):
         contests = (
             Contest
             .objects
-            .privileged(self.request.user.is_staff)
+            .privileged(self.request.user)
             .filter(is_training=False)
             .order_by('-start_time')
         )
@@ -73,7 +75,7 @@ class TrainingIndexView(TemplateView):
         trainings_raw = (
             Contest
             .objects
-            .privileged(self.request.user.is_staff)
+            .privileged(self.request.user)
             .filter(is_training=True)
             .order_by('name')
         )
@@ -144,40 +146,6 @@ class ProblemView(TrainingView):
         problem = context['pics'].get(number=problem_number).problem
         context.update(problem=problem, problem_number=problem_number)
         return context
-
-
-class SubmitForm(forms.Form):
-    def __init__(self, contest, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        compilers = (
-            Compiler
-            .objects
-            .filter(obsolete=False)
-            .only('name')
-            .order_by('name')
-        )
-        self.fields['compiler'] = forms.ChoiceField(
-            choices=[(compiler.id, compiler.name) for compiler in compilers]
-        )
-        for compiler in compilers:
-            if 'C++' in compiler.name:  # Rather sensible default.
-                self.initial['compiler'] = compiler.id
-                break
-
-        pics = (
-            ProblemInContest
-            .objects
-            .filter(contest=contest)
-            .select_related('problem')
-            .only('number', 'problem__name')
-            .order_by('number')
-        )
-        self.fields['problem'] = forms.ChoiceField(
-            choices=[(pic.id, '%d. %s' % (pic.number, pic.problem.name)) for pic in pics],
-        )
-
-        self.fields['source'] = forms.CharField(widget=forms.Textarea)
 
 
 class SubmitView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, TemplateView):
@@ -522,10 +490,36 @@ class UnfrozenStandingsView(BaseStandingsView):
         now = timezone.now()
         return min(contest.start_time + timezone.timedelta(minutes=contest.duration), now)
 
-    # TODO: use is_staff mixin instead, when it will be ready
+    # TODO: use is_staff mixin instead, when it is ready
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-        if not user.is_staff:
+        if not self.request.user.is_staff:
             raise Http404('Не существует запрошенной страницы')
+        return super().get_context_data(**kwargs)
+
+
+class ClarificationsView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, FormView):
+    template_name = 'contests/clarifications.html'
+    form_class = ClarificationForm
+
+    def get_context_data(self, **kwargs):
+        contest = self.select_contest()
+        context = super().get_context_data(**kwargs)
+        context.update(
+            contest=contest,
+            notifications=self.get_notifications(contest),
+            clarifications=(
+                Clarification
+                .objects
+                .privileged(self.request.user)
+                .filter(contest=contest)
+                .order_by('-created_at')
+            ),
+        )
         return context
+
+    def form_valid(self, form):
+        form.ask(self.request.user, self.select_contest())
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.request.get_full_path()

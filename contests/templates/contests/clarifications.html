@@ -1,0 +1,23 @@
+{% extends 'contests/base.html' %}
+
+{% block contest_page_content %}
+
+{% for clarification in clarifications %}
+  <div class="clarification">
+    {% if user.is_staff %}
+      <div class="clarification-user">{{ clarification.user }}:</div>
+    {% endif %}
+    <div class="clarification-question">{{ clarification.question|linebreaksbr }}</div>
+    {% if clarification.answer %}
+      <div class="clarification-answer">{{ clarification.answer|safe|linebreaksbr }}</div>
+    {% endif %}
+  </div>
+{% endfor %}
+
+<form method="post" action="">
+  {% csrf_token %}
+  {{ form.question }}
+  <input type="submit" value="Задать" />
+</form>
+
+{% endblock %}
