@@ -9,7 +9,7 @@ from django.db.models           import F, Q, Func, CharField
 from django.http                import Http404
 from django.shortcuts           import render, redirect
 from django.utils               import timezone
-from django.views.generic       import TemplateView, ListView
+from django.views.generic       import TemplateView, ListView, FormView, View
 from django.views.generic.edit  import FormView
 import pygments.formatters
 import pygments.lexers.special
@@ -148,47 +148,57 @@ class ProblemView(TrainingView):
         return context
 
 
-class SubmitView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, TemplateView):
-    template_name = 'contests/submit.html'
-    form_class = SubmitForm
+class SubmitView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, View):
+    @staticmethod
+    def _create_form(contest, *args, **kwargs):
+        compilers = (
+            Compiler
+            .objects
+            .filter(obsolete=False)
+            .only('name')
+            .order_by('name')
+        )
+        pics = (
+            ProblemInContest
+            .objects
+            .filter(contest=contest)
+            .select_related('problem')
+            .only('number', 'problem__name')
+            .order_by('number')
+        )
 
-    def get(self, request, **kwargs):
+        for compiler in compilers:
+            if 'C++' in compiler.name:  # Rather sensible default.
+                initial = compiler.id
+                break
+        else:
+            initial = None
+
+        return SubmitForm(compilers, pics, initial, *args, **kwargs)
+
+    def handle(self, request):
         contest = self.select_contest()
         time_info = get_relative_time_info(contest)
+        if request.method == 'POST':
+            available = time_info is None or (time_info.started and not time_info.finished)
+            form = self._create_form(contest, request.POST)
+            if available and form.is_valid():
+                form.submit(request.user)
+                return redirect('contests:attempts', contest.id)
+        else:
+            form = self._create_form(contest)
 
-        form = self.form_class(contest)
-        return render(request, self.template_name, {
+        return render(request, 'contests/submit.html', {
             'form': form,
             'contest': contest,
             'time_info': time_info,
             'notifications': self.get_notifications(contest),
         })
 
-    def post(self, request, **kwargs):
-        contest = self.select_contest()
-        time_info = get_relative_time_info(contest)
-        if time_info is not None:
-            if not time_info.started:
-                raise Http404('Соревнование ещё не началось')
-            if time_info.finished:
-                raise Http404('Соревнование уже завершилось')
+    def get(self, request, *args, **kwargs):
+        return self.handle(request)
 
-        form = self.form_class(contest, request.POST)
-        if form.is_valid():
-            Attempt.objects.create(
-                user=self.request.user,
-                # TODO: Move object fetching to the form (if possible).
-                problem_in_contest=ProblemInContest.objects.get(id=form.cleaned_data['problem']),
-                compiler=Compiler.objects.get(id=form.cleaned_data['compiler']),
-                source=form.cleaned_data['source'],
-            )
-            return redirect('contests:attempts', contest.id)
-
-        return render(request, self.template_name, {
-            'form': form,
-            'contest': contest,
-            'notifications': self.get_notifications(contest),
-        })
+    post = get
 
 
 class AttemptsView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, ListView):

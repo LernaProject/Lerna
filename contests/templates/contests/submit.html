@@ -6,27 +6,13 @@
 {% elif not contest.is_training and time_info.finished %}
     <p>Соревнование завершилось, возможность посылать решения заблокирована</p>
 {% else %}
-  {% if form.errors %}
-    <p>Форма заполнена с допущением ошибок. Попробуйте снова.</p>
+  {% if form.non_field_errors %}
+    {{ form.non_field_errors }}
   {% endif %}
 
   <form method="post" action="">
     {% csrf_token %}
-    <table>
-      <tr>
-        <td>компилятор</td>
-        <td>{{ form.compiler }}</td>
-      </tr>
-      <tr>
-        <td>задача</td>
-        <td>{{ form.problem }}</td>
-      </tr>
-      <tr>
-        <td>код</td>
-        <td>{{ form.source }}</td>
-      </tr>
-    </table>
-
+    <table>{{ form.as_table }}</table>
     <input type="submit" value="Отправить" />
   </form>
 {% endif %}
