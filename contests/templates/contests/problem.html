@@ -1,67 +1,89 @@
 {% extends 'contests/base.html' %}
 
-{% block contest_page_content %}
-{% if not contest.is_training and not time_info.started %}
-  <p>Условия задач будут доступны на этой странице сразу после начала соревнования.</p>
-{% else %}
-  {% if problem %}
 
-    {% for pic in pics %}
-      <a href="{{ pic.get_absolute_url }}">[{{ pic.number }}]</a>
-    {% endfor %}
+{% with current_contest_problem=problem_number %}
+  {% block contest_sidebar %} {{ block.super }} {% endblock %}
+{% endwith %}
 
-    <h2>{{ problem_number }}:{{ problem.name }}</h2>
 
-    <a href="{% url 'global_statistics:best_time' problem.id %}">Статистика</a>
-    <a href="{% url 'global_statistics:problem_in_trainings' problem.id %}">Найти в тренировках</a>
-    {% if user.is_staff %}
-        <a href="{% url 'admin:core_problem_change' problem.id %}" target="_blank">Редактировать</a>
-    {% endif %}
+{% load static %}
 
-    <p>
-        Ограничение по времени: {{ problem.time_limit_in_secs }} сек<br />
-        Ограничение по памяти: {{ problem.memory_limit }} МБ
-    </p>
 
-    <i>
-    {% if problem.author %}
-        Автор задачи: {{ problem.author }}<br />
-    {% endif %}
-    {% if problem.developer and problem.developer != problem.author %}
-        Разработчик задачи: {{ problem.developer }}<br />
-    {% endif %}
-    {% if problem.origin %}
-        Источник: {{ problem.origin }}
-    {% endif %}
-    </i>
-
-    <p>{{ problem.description|safe }}</p>
-
-    {% if problem.input_specification %}
-        <b>Входные данные</b>
-        <p>{{ problem.input_specification|safe }}</p>
-    {% endif %}
-
-    {% if problem.output_specification %}
-        <b>Выходные данные</b>
-        <p>{{ problem.output_specification|safe }}</p>
-    {% endif %}
-
-    {% if problem.samples %}
-        <b>Примеры</b>
-        <p>{{ problem.samples|safe }}</p>
-    {% endif %}
-
-    {% if problem.explanations %}
-        <b>Пояснения к примерам</b>
-        <p>{{ problem.explanations|safe }}</p>
-    {% endif %}
-
-    {% if problem.notes %}
-        <b>Примечания</b>
-        <p>{{ problem.notes|safe }}</p>
-    {% endif %}
-
+{% block local_title %}
+  {{ block.super }}
+  {% if not contest.is_training and not time_info.started %}
+    <h3>Задачи недоступны</h3>
+  {% else %}
+    <h3>
+      {{ problem_number }}: {{ problem.name }}
+      <button class="button lerna-small-button" type="button" data-toggle="contest-problem-menu">
+        <img src="{% static 'lerna/icons/more.svg' %}"/>
+      </button>
+      <div class="dropdown-pane" id="contest-problem-menu" data-dropdown data-hover="true" data-hover-pane="true">
+        <ul class="menu vertical">
+        <li><a href="{% url 'contests:submit' contest.id %}">Послать решение</a></li>
+        <li><a href="{% url 'global_statistics:best_time' problem.id %}">Статистика</a></li>
+        <li><a href="{% url 'global_statistics:problem_in_trainings' problem.id %}">Найти в тренировках</a></li>
+        {% if user.is_staff %}
+          <hr/>
+          <li><a href="{% url 'admin:core_problem_change' problem.id %}" target="_blank">Редактировать</a></li>
+        {% endif %}
+      </ul>
+      </div>
+    </h3>
   {% endif %}
-{% endif %}
+{% endblock %}
+
+
+{% block contest_page_content %}
+  {% if not contest.is_training and not time_info.started %}
+    <p>Условия задач будут доступны на этой странице сразу после начала соревнования.</p>
+
+  {% else %}
+    {% if problem %}
+      {% if problem.author or problem.developer or problem.origin %}
+        <div class="contest-problem-meta">
+          {% if problem.author %}
+            <div>Автор задачи: {{ problem.author }}</div>
+          {% endif %}
+          {% if problem.developer and problem.developer != problem.author %}
+            <div>Разработчик задачи: {{ problem.developer }}</div>
+          {% endif %}
+          {% if problem.origin %}
+            <div>Источник: {{ problem.origin }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="contest-problem-info">Ограничение по времени: {{ problem.time_limit_in_secs }} с.</div>
+      <div class="contest-problem-info">Ограничение по памяти: {{ problem.memory_limit }} МБ</div>
+
+      <div>{{ problem.description|safe }}</div>
+
+      {% if problem.input_specification %}
+          <b>Входные данные:</b>
+          <div>{{ problem.input_specification|safe }}</div>
+      {% endif %}
+
+      {% if problem.output_specification %}
+          <b>Выходные данные:</b>
+          <div>{{ problem.output_specification|safe }}</div>
+      {% endif %}
+
+      {% if problem.samples %}
+          <b>Примеры</b>
+          <div>{{ problem.samples|safe }}</div>
+      {% endif %}
+
+      {% if problem.explanations %}
+          <b>Пояснения к примерам:</b>
+          <div>{{ problem.explanations|safe }}</div>
+      {% endif %}
+
+      {% if problem.notes %}
+          <b>Примечания:</b>
+          <div>{{ problem.notes|safe }}</div>
+      {% endif %}
+    {% endif %}
+  {% endif %}
 {% endblock %}

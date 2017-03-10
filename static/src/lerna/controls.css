@@ -1,0 +1,32 @@
+/* Buttons */
+.lerna-small-button,
+.lerna-small-button:visited {
+    background: inherit;
+    margin: 0 0 0 5px;
+    padding: 2px;
+    width: 21px;
+    height: 21px;
+    border: solid 1px #118c4e;
+    border-radius: 1px;
+}
+
+.lerna-small-button:hover,
+.lerna-small-button:focus {
+    background-color: #d5f0e0;
+}
+
+.lerna-small-button > img {
+    width: 15px;
+    height: 15px;
+}
+
+
+.lerna-button,
+.lerna-button:visited {
+    background: #118c4e;
+}
+
+.lerna-button:hover,
+.lerna-button:focus {
+    background: #0a6035;
+}

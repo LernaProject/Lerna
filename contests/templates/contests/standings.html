@@ -1,11 +1,14 @@
 {% extends 'contests/base.html' %}
 
-{% block contest_page_content %}
+{% block content %}
 {% if contest.is_school %}
   <p>На сайте временно не поддерживается отображение рейтинга соревнований, проведённых с подсчётом процента пройденных тестов</p>
 {% elif not contest.is_training and not time_info.started %}
   <p>Текущий рейтинг будет доступен на этой странице сразу после начала соревнования.</p>
 {% else %}
+  {% if time_info.freezing_time_str %}
+    <div>{{ time_info.freezing_time_str }}</div>
+  {% endif %}
   <table>
   <tr>
     <th>Ранг</th>

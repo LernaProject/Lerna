@@ -1,0 +1,38 @@
+/* Contest page heading */
+.contest-timestamp {
+    color: #777;
+    margin-top: -3px;
+}
+
+.contest-heading > h4 > img {
+    width: 28px;
+    height: 28px;
+}
+
+.contest-heading > hr {
+    margin: 5px 0 25px 0;
+}
+
+.contest-heading > h4 > a {
+    color: inherit;
+}
+
+.contest-heading > .menu > li > a {
+    padding: 2px 25px 4px 0;
+}
+
+
+/* Page content*/
+.contest-content {
+    margin: 0;
+    padding: 15px 40px 0 0;
+}
+
+.contest-problem-meta {
+    font-size: 14px;
+    color: #444;
+    margin: -10px 0 25px 0;
+}
+
+.contest-problem-info {
+}

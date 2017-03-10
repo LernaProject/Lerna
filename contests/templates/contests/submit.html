@@ -13,7 +13,7 @@
   <form method="post" action="">
     {% csrf_token %}
     <table>{{ form.as_table }}</table>
-    <input type="submit" value="Отправить" />
+    <input class="button lerna-button" type="submit" value="Отправить"/>
   </form>
 {% endif %}
 {% endblock %}

@@ -23,7 +23,7 @@
   <form method="post" action="">
     {% csrf_token %}
     {{ form.question }}
-    <input type="submit" value="Задать" />
+    <input class="button lerna-button" type="submit" value="Задать" />
   </form>
 {% else %}
   <p>После начала соревнования на этой странице можно будет задать вопросы жюри.</p>
