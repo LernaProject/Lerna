@@ -19,10 +19,14 @@
   </div>
 {% endfor %}
 
-<form method="post" action="">
-  {% csrf_token %}
-  {{ form.question }}
-  <input type="submit" value="Задать" />
-</form>
+{% if contest.is_training or time_info.started %}
+  <form method="post" action="">
+    {% csrf_token %}
+    {{ form.question }}
+    <input type="submit" value="Задать" />
+  </form>
+{% else %}
+  <p>После начала соревнования на этой странице можно будет задать вопросы жюри.</p>
+{% endif %}
 
 {% endblock %}

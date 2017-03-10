@@ -529,7 +529,10 @@ class ClarificationsView(LoginRequiredMixin, SelectContestMixin, NotificationLis
         return context
 
     def form_valid(self, form):
-        form.ask(self.request.user, self.select_contest())
+        contest = self.select_contest()
+        time_info = get_relative_time_info(contest)
+        if time_info is None or time_info.started:
+            form.ask(self.request.user, contest)
         return super().form_valid(form)
 
     def get_success_url(self):
