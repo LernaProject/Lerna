@@ -50,13 +50,15 @@
           <li><a href="{% url 'contests:standings' contest.id %}">Рейтинг</a></li>
         {% endif %}
         <li><a href="{% url 'contests:clarifications' contest.id %}">Вопросы</a></li>
-        {% if pics and contest.is_training or time_info.started %}
-          <hr/>
-          {% for pic in pics %}
-            <li class="{% if problem_number == pic.number %} active {% endif %}">
-            <a href="{{ pic.get_absolute_url }}">{{ pic.number }}: {{ pic.problem.name }}</a>
-            </li>
-          {% endfor %}
+        {% if contest.is_training or time_info.started %}
+          {% if pics %}
+            <hr/>
+            {% for pic in pics %}
+              <li class="{% if problem_number == pic.number %} active {% endif %}">
+              <a href="{{ pic.get_absolute_url }}">{{ pic.number }}: {{ pic.problem.name }}</a>
+              </li>
+            {% endfor %}
+          {% endif %}
         {% endif %}
       </ul>
 
