@@ -50,7 +50,7 @@
           <li><a href="{% url 'contests:standings' contest.id %}">Рейтинг</a></li>
         {% endif %}
         <li><a href="{% url 'contests:clarifications' contest.id %}">Вопросы</a></li>
-        {% if pics %}
+        {% if pics and contest.is_training or time_info.started %}
           <hr/>
           {% for pic in pics %}
             <li class="{% if problem_number == pic.number %} active {% endif %}">
