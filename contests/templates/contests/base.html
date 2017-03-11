@@ -19,7 +19,7 @@
       {% endif %}
         <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
       {% if user.is_staff %}
-        <a class="button lerna-small-button" href="{% url 'admin:core_notification_add' %}" target="_blank">
+        <a class="button lerna-small-button" href="{% url 'admin:core_notification_add' %}?contest={{ contest.id }}" target="_blank">
           <img src="{% static 'lerna/icons/megaphone.svg' %}" title="Сделать объявление"/>
         </a>
       {% endif %}
@@ -33,7 +33,7 @@
   </div>
 {% endblock local_title %}
 
-{%block content %}
+{% block content %}
   <div class="large-9 columns contest-content">
     {% block contest_page_content %}{% endblock %}
   </div>
