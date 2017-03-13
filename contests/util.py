@@ -40,6 +40,6 @@ def get_relative_time_info(contest):
                 freezing_time_str = 'Таблица результатов заморожена'
             else:
                 seconds_till_freezing = int((freezing_time - now).total_seconds())
-                freezing_time_str = 'Да заморозки таблицы результатов осталось ' + seconds_to_str(seconds_till_freezing)
+                freezing_time_str = 'До заморозки таблицы результатов осталось ' + seconds_to_str(seconds_till_freezing)
 
     return time_info(started, finished, frozen, time_str, freezing_time_str)
