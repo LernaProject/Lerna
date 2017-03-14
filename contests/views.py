@@ -531,7 +531,7 @@ class BaseXMLStandingsView(SelectContestMixin, View):
             .objects
             .filter(contest=contest_id)
             .annotate_with_number_char()
-            # .order_by('number')
+            .order_by('number')
             .values_list('id', 'number_char', 'problem__name')
         )
         attempts = (
