@@ -3,6 +3,7 @@ import collections
 import io
 import os
 import uuid
+from   xml.sax import saxutils
 
 from django.contrib.auth.mixins   import LoginRequiredMixin
 from django.core.exceptions       import PermissionDenied
@@ -586,21 +587,23 @@ class BaseXMLStandingsView(SelectContestMixin, View):
                 self._encode_datetime(contest.finish_time),
                 self._encode_datetime(timezone.now()),
                 contest.freezing_time * 60,
-                contest.name.encode(),
+                saxutils.escape(contest.name).encode(),
             )
         )
         for user_id, username in users.items():
-            r.write(b'<user id="%d" name="%s"/>' % (user_id, username.encode()))
+            r.write(b'<user id="%d" name=%s/>' % (user_id, saxutils.quoteattr(username).encode()))
         r.write(b'</users><problems>')
         for pic_id, number_char, name in pics:
-            r.write(b'<problem id="%d" short_name="%c" long_name="%s"/>' % (
-                pic_id, number_char.encode(), name.encode(),
+            r.write(b'<problem id="%d" short_name="%c" long_name=%s/>' % (
+                pic_id, number_char.encode(), saxutils.quoteattr(name).encode(),
             ))
         r.write(b'</problems><languages>')
         for compiler_id, (codename, name) in compilers.items():
             r.write(
-                b'<language id="%d" short_name="%s" long_name="%s"/>' % (
-                compiler_id, codename.encode(), name.encode(),
+                b'<language id="%d" short_name=%s long_name=%s/>' % (
+                compiler_id,
+                saxutils.quoteattr(codename).encode(),
+                saxutils.quoteattr(name).encode(),
             ))
         r.write(b'</languages><runs>')
         r.write(a.getvalue())
