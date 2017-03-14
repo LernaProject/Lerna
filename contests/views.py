@@ -369,12 +369,31 @@ class RatingView(SelectContestMixin, NotificationListMixin, ListView):
         return context
 
 
-class BaseStandingsView(abc.ABC, SelectContestMixin, NotificationListMixin, TemplateView):
-    template_name = 'contests/standings.html'
-
+class StandingsDueTimeMixinABC(abc.ABC):
     @abc.abstractmethod
     def get_due_time(self, contest):
         pass
+
+
+class StandingsDueTimeMixin:
+    @staticmethod
+    def get_due_time(contest):
+        now = timezone.now()
+        if contest.is_frozen_at(now):
+            return contest.start_time + timezone.timedelta(minutes=contest.freezing_time)
+        else:
+            return min(contest.finish_time, now)
+
+
+class UnfrozenStandingsDueTimeMixin:
+    @staticmethod
+    def get_due_time(contest):
+        return min(contest.finish_time, timezone.now())
+
+
+class BaseStandingsView(
+        StandingsDueTimeMixinABC, SelectContestMixin, NotificationListMixin, TemplateView):
+    template_name = 'contests/standings.html'
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
@@ -490,38 +509,28 @@ class BaseStandingsView(abc.ABC, SelectContestMixin, NotificationListMixin, Temp
         return context
 
 
-class StandingsDueTimeMixin:
-    @staticmethod
-    def get_due_time(contest):
-        now = timezone.now()
-        if contest.is_frozen_at(now):
-            return contest.start_time + timezone.timedelta(minutes=contest.freezing_time)
-        else:
-            return min(contest.finish_time, now)
-
-
-class UnfrozenStandingsDueTimeMixin:
-    @staticmethod
-    def get_due_time(contest):
-        return min(contest.finish_time, timezone.now())
-
-
 class StandingsView(StandingsDueTimeMixin, BaseStandingsView):
     pass
 
 
 class UnfrozenStandingsView(UnfrozenStandingsDueTimeMixin, BaseStandingsView):
     # TODO: use is_staff mixin instead, when it is ready
-    def dispath(self, *args, **kwargs):
-        if not self.request.user.is_staff:
+    def dispath(self, request, *args, **kwargs):
+        if not request.user.is_staff:
             raise Http404('Не существует запрошенной страницы')
-        return super().dispath(*args, **kwargs)
+        return super().dispath(request, *args, **kwargs)
 
 
-class BaseXMLStandingsView(SelectContestMixin, View):
+class BaseXMLStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, View):
     @staticmethod
     def _encode_datetime(moment):
         return timezone.localtime(moment).strftime('%Y/%m/%d %H:%M:%S').encode()
+
+    # TODO: use is_staff mixin instead, when it is ready
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise Http404('Не существует запрошенной страницы')
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, contest_id, *args, **kwargs):
         contest = self.select_contest()
@@ -616,11 +625,7 @@ class XMLStandingsView(StandingsDueTimeMixin, BaseXMLStandingsView):
 
 
 class UnfrozenXMLStandingsView(UnfrozenStandingsDueTimeMixin, BaseXMLStandingsView):
-    # TODO: use is_staff mixin instead, when it is ready
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            raise Http404('Не существует запрошенной страницы')
-        return super().dispatch(request, *args, **kwargs)
+    pass
 
 
 class ClarificationsView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, FormView):
