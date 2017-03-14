@@ -15,17 +15,16 @@ def get_relative_time_info(contest):
         return None
     time_info = collections.namedtuple('TimeInfo', 'started finished frozen time_str freezing_time_str')
     now = timezone.now()
-    finish_time = contest.start_time + timezone.timedelta(minutes=contest.duration)
     started = now >= contest.start_time
-    finished = now >= finish_time
+    finished = now >= contest.finish_time
     if not started:
         seconds_till_start = int((contest.start_time - now).total_seconds())
         time_str = 'До начала соревнования осталось ' + seconds_to_str(seconds_till_start)
     elif finished:
-        finish_time_local = timezone.localtime(finish_time)
+        finish_time_local = timezone.localtime(contest.finish_time)
         time_str = finish_time_local.strftime('Соревнование завершилось %d.%m.%y в %H:%M')
     else:
-        seconds_till_finish = int((finish_time - now).total_seconds())
+        seconds_till_finish = int((contest.finish_time - now).total_seconds())
         time_str = 'До конца соревнования осталось ' + seconds_to_str(seconds_till_finish)
 
     frozen = False

@@ -46,9 +46,9 @@ class Problem(models.Model):
         return self.name
 
 
-class ContestManager(models.Manager):
+class ContestQuerySet(models.QuerySet):
     def privileged(self, user):
-        return self.get_queryset() if user.is_staff else self.filter(is_admin=False)
+        return self if user.is_staff else self.filter(is_admin=False)
 
 
 class Contest(models.Model):
@@ -64,11 +64,19 @@ class Contest(models.Model):
     updated_at    = models.DateTimeField(auto_now=True)
     problems      = models.ManyToManyField(Problem, through='ProblemInContest')
 
-    objects = ContestManager()
+    objects = ContestQuerySet.as_manager()
 
     class Meta:
         db_table      = 'contests'
         get_latest_by = 'created_at'
+
+    @property
+    def finish_time(self):
+        return self.start_time + timezone.timedelta(minutes=self.duration)
+
+    def is_frozen_at(self, moment):
+        freezing_moment = self.start_time + timezone.timedelta(minutes=self.freezing_time)
+        return freezing_moment <= moment < self.finish_time
 
     @property
     def problem_count(self):
@@ -98,14 +106,24 @@ class Contest(models.Model):
         for contest in contests:
             if contest.start_time > threshold_time:
                 awaiting.append(contest)
-            elif contest.start_time + timezone.timedelta(minutes=contest.duration) < threshold_time:
+            elif contest.finish_time <= threshold_time:
                 past.append(contest)
             else:
                 actual.append(contest)
         return actual, awaiting, past
 
 
-class PICManager(models.Manager):
+class PICQuerySet(models.QuerySet):
+    def annotate_with_number_char(self):
+        return self.annotate(
+            number_char=models.Func(
+                # ord('A') - 1 == 64
+                models.F('number') + 64,
+                function='chr',
+                output_field=models.CharField(),
+            ),
+        )
+
     def is_visible(self, problem):
         return self.filter(problem=problem, contest__is_admin=False).exists()
 
@@ -119,7 +137,7 @@ class ProblemInContest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    objects = PICManager()
+    objects = PICQuerySet.as_manager()
 
     class Meta:
         db_table             = 'problem_in_contests'
@@ -134,9 +152,9 @@ class ProblemInContest(models.Model):
         return reverse('contests:problem', args=[self.contest_id, self.number])
 
 
-class ClarificationManager(models.Manager):
+class ClarificationQuerySet(models.QuerySet):
     def privileged(self, user):
-        return self.get_queryset() if user.is_staff else self.filter(user=user)
+        return self if user.is_staff else self.filter(user=user)
 
 
 class Clarification(models.Model):
@@ -148,7 +166,7 @@ class Clarification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    objects = ClarificationManager()
+    objects = ClarificationQuerySet.as_manager()
 
     class Meta:
         db_table      = 'clarifications'
@@ -163,11 +181,9 @@ class Clarification(models.Model):
         return self.question if len(self.question) <= 70 else self.question[:67] + '...'
 
 
-class NotificationManager(models.Manager):
+class NotificationQuerySet(models.QuerySet):
     def privileged(self, user):
-        if user.is_staff:
-            return self.get_queryset()
-        return self.filter(visible=True, created_at__lte=timezone.now())
+        return self if user.is_staff else self.filter(visible=True, created_at__lte=timezone.now())
 
 
 class Notification(models.Model):
@@ -177,7 +193,7 @@ class Notification(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
 
-    objects = NotificationManager()
+    objects = NotificationQuerySet.as_manager()
 
     class Meta:
         db_table      = 'notifications'
@@ -247,6 +263,49 @@ class Attempt(models.Model):
 
     def get_absolute_url(self):
         return reverse('contests:attempt', args=[self.id])
+
+    @staticmethod
+    def encode_ejudge_verdict(result, score) -> (bytes, int):
+        def parse_test(pos):
+            try:
+                return int(result[pos:])
+            except (IndexError, ValueError):
+                return 0
+
+        # Sorted by popularity.
+        if not result:  # But check for None first.
+            return b'PD', 0
+        if result.startswith('Wrong answer'):
+            return b'WA', parse_test(21)
+        if result.startswith('Time limit exceeded'):
+            return b'TL', parse_test(28)
+        if result.startswith('Runtime error'):
+            return b'RT', parse_test(22)
+        if result == 'Accepted' or (result == 'Tested' and score > 99.99):
+            # FIXME: Number of passed tests should be returned.
+            return b'OK', 0
+        if result == 'Tested':
+            # ditto
+            return b'PT', 0
+        if result.startswith('Memory limit exceeded'):
+            return b'ML', parse_test(30)
+        if result == 'Compilation error':
+            return b'CE', 0
+        if result.startswith('Presentation error'):
+            return b'PE', parse_test(27)
+        if result.startswith('Security violation'):
+            return b'SE', parse_test(27)
+        if result.startswith('Idleness limit exceeded'):
+            return b'WT', parse_test(32)
+        if result == 'Ignored':
+            return b'IG', 0
+        if result.startswith('Testing'):
+            return b'RU', parse_test(11)
+        if result in ('Queued', 'Compiling...'):
+            return b'CG', 0
+        if result.startswith('System error'):
+            return b'CF', parse_test(21)
+        return b'CF', 0
 
 
 class TestInfo(models.Model):

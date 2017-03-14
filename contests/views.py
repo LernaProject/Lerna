@@ -1,16 +1,20 @@
 import abc
 import collections
+import io
 import os
+import uuid
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions     import PermissionDenied
-from django.db                  import connection
-from django.db.models           import F, Q, Func, CharField
-from django.http                import Http404
-from django.shortcuts           import render, redirect
-from django.utils               import timezone
-from django.views.generic       import TemplateView, ListView, FormView, View
-from django.views.generic.edit  import FormView
+from django.contrib.auth.mixins   import LoginRequiredMixin
+from django.core.exceptions       import PermissionDenied
+from django.db                    import connection
+from django.db.models             import F, Q, Func, BigIntegerField
+from django.db.models.expressions import RawSQL
+from django.db.models.functions   import Cast
+from django.http                  import HttpResponse, Http404
+from django.shortcuts             import render, redirect
+from django.utils                 import timezone
+from django.views.generic         import TemplateView, ListView, FormView, View
+from django.views.generic.edit    import FormView
 import pygments.formatters
 import pygments.lexers.special
 
@@ -320,13 +324,14 @@ class RatingView(SelectContestMixin, NotificationListMixin, ListView):
             .objects
             .filter(problem_in_contest__contest=contest_id)
             .exclude(
-                Q(result__in=['', 'Queued', 'Compilation error', 'Ignored']) |
+                Q(result__in=['', 'Queued', 'Compiling...', 'Compilation error', 'Ignored']) |
                 Q(result__startswith='System error') |
                 Q(result__startswith='Testing')
             )
-            .extra(select={
-                'succeeded': "result = 'Accepted' OR (result = 'Tested' AND attempts.score > 99.99)"
-            })
+            .annotate(succeeded=RawSQL(
+                "result = 'Accepted' OR (result = 'Tested' AND attempts.score > 99.99)",
+                (),
+            ))
             .distinct()
             .values_list('user', 'problem_in_contest__number', 'succeeded')
         )
@@ -367,7 +372,7 @@ class BaseStandingsView(abc.ABC, SelectContestMixin, NotificationListMixin, Temp
     template_name = 'contests/standings.html'
 
     @abc.abstractmethod
-    def get_due_time(self, contest, time_info):
+    def get_due_time(self, contest):
         pass
 
     def get_context_data(self, **kwargs):
@@ -375,14 +380,13 @@ class BaseStandingsView(abc.ABC, SelectContestMixin, NotificationListMixin, Temp
         time_info = get_relative_time_info(contest)
 
         # The time point we can see attempts until (either freezing or the end of the contest).
-        due_time = self.get_due_time(contest, time_info)
+        due_time = self.get_due_time(contest)
 
         problems = (
             ProblemInContest
             .objects
             .filter(contest=contest)
-            # ord('A') - 1 == 64
-            .annotate(number_char=Func(F('number') + 64, function='chr', output_field=CharField()))
+            .annotate_with_number_char()
             .order_by('number')
             .values('number_char', 'problem__name')
         )
@@ -418,10 +422,10 @@ class BaseStandingsView(abc.ABC, SelectContestMixin, NotificationListMixin, Temp
                     JOIN attempts a ON a.user_id = u.id
                     JOIN problem_in_contests pic ON pic.id = a.problem_in_contest_id
                     WHERE pic.contest_id = %s
-                    AND a.result NOT IN ('', 'Queued', 'Compilation error', 'Ignored')
+                    AND a.result NOT IN ('', 'Queued', 'Compiling...', 'Compilation error', 'Ignored')
                     AND a.result NOT LIKE 'Testing%%'
                     AND a.result NOT LIKE 'System error%%'
-                    AND a.time <= %s
+                    AND a.time < %s
                 )
                 SELECT a.user_id, a.num - 1, COUNT(*), ok.succeeded_at
                 FROM all_attempts a
@@ -485,26 +489,133 @@ class BaseStandingsView(abc.ABC, SelectContestMixin, NotificationListMixin, Temp
         return context
 
 
-class StandingsView(BaseStandingsView):
-    def get_due_time(self, contest, time_info):
+class StandingsDueTimeMixin:
+    @staticmethod
+    def get_due_time(contest):
         now = timezone.now()
-        if time_info.finished or contest.freezing_time is None:
-            internal_due_time = contest.duration
+        if contest.is_frozen_at(now):
+            return contest.start_time + timezone.timedelta(minutes=contest.freezing_time)
         else:
-            internal_due_time = contest.freezing_time
-        return min(contest.start_time + timezone.timedelta(minutes=internal_due_time), now)
+            return min(contest.finish_time, now)
 
 
-class UnfrozenStandingsView(BaseStandingsView):
-    def get_due_time(self, contest, time_info):
-        now = timezone.now()
-        return min(contest.start_time + timezone.timedelta(minutes=contest.duration), now)
+class UnfrozenStandingsDueTimeMixin:
+    @staticmethod
+    def get_due_time(contest):
+        return min(contest.finish_time, timezone.now())
 
+
+class StandingsView(StandingsDueTimeMixin, BaseStandingsView):
+    pass
+
+
+class UnfrozenStandingsView(UnfrozenStandingsDueTimeMixin, BaseStandingsView):
     # TODO: use is_staff mixin instead, when it is ready
-    def get_context_data(self, **kwargs):
+    def dispath(self, *args, **kwargs):
         if not self.request.user.is_staff:
             raise Http404('Не существует запрошенной страницы')
-        return super().get_context_data(**kwargs)
+        return super().dispath(*args, **kwargs)
+
+
+class BaseXMLStandingsView(SelectContestMixin, View):
+    @staticmethod
+    def _encode_datetime(moment):
+        return timezone.localtime(moment).strftime('%Y/%m/%d %H:%M:%S').encode()
+
+    def get(self, request, contest_id, *args, **kwargs):
+        contest = self.select_contest()
+        pics = (
+            ProblemInContest
+            .objects
+            .filter(contest=contest_id)
+            .annotate_with_number_char()
+            # .order_by('number')
+            .values_list('id', 'number_char', 'problem__name')
+        )
+        attempts = (
+            Attempt
+            .objects
+            .filter(
+                problem_in_contest__in=[pic_id for pic_id, number_char, name in pics],
+                time__lt=self.get_due_time(contest),
+            )
+            .annotate(
+                submit_time_sec=RawSQL('extract(epoch FROM time - %s)', [contest.start_time]),
+                time_ns=Cast(F('used_time') * 1000000000 + 0.5, BigIntegerField()),
+            )
+            # .order_by('time')
+            .values_list(
+                'id', 'submit_time_sec', 'result', 'score', 'time_ns',
+                'user', 'user__username',
+                'problem_in_contest',
+                'compiler', 'compiler__codename', 'compiler__name',
+            )
+        )
+        users = { }
+        compilers = { }
+        a = io.BytesIO()
+        # We generate XML "by hand" for extra speed.
+        for (attempt_id, submit_time_sec, result, score, time_ns, user_id, username, pic_id,
+            compiler_id, codename, compiler_name) in attempts:
+
+            users[user_id] = username
+            compilers[compiler_id] = (codename, compiler_name)
+            status, test = Attempt.encode_ejudge_verdict(result, score)
+            a.write(
+                b'<run run_id="%d" time="%d"'
+                b' user_id="%d" prob_id="%d" lang_id="%d" status="%s" test="%d"'
+                b' nsec="%d" run_uuid="%s" passed_mode="yes"/>' % (
+                    attempt_id, submit_time_sec,
+                    user_id, pic_id, compiler_id, status, test,
+                    time_ns or 0, str(uuid.uuid4()).encode(),
+                )
+            )
+
+        r = HttpResponse(content_type='application/xml')
+        r.write(
+            b'<?xml version="1.0" encoding="utf-8"?>'
+            b'<runlog contest_id="%s" duration="%d"'
+            b' start_time="%s" stop_time="%s" current_time="%s" fog_time="%d">'
+            b'<name>%s</name>'
+            b'<users>' % (
+                contest_id.encode(),
+                contest.duration * 60,
+                self._encode_datetime(contest.start_time),
+                self._encode_datetime(contest.finish_time),
+                self._encode_datetime(timezone.now()),
+                contest.freezing_time * 60,
+                contest.name.encode(),
+            )
+        )
+        for user_id, username in users.items():
+            r.write(b'<user id="%d" name="%s"/>' % (user_id, username.encode()))
+        r.write(b'</users><problems>')
+        for pic_id, number_char, name in pics:
+            r.write(b'<problem id="%d" short_name="%c" long_name="%s"/>' % (
+                pic_id, number_char.encode(), name.encode(),
+            ))
+        r.write(b'</problems><languages>')
+        for compiler_id, (codename, name) in compilers.items():
+            r.write(
+                b'<language id="%d" short_name="%s" long_name="%s"/>' % (
+                compiler_id, codename.encode(), name.encode(),
+            ))
+        r.write(b'</languages><runs>')
+        r.write(a.getvalue())
+        r.write(b'</runs></runlog>')
+        return r
+
+
+class XMLStandingsView(StandingsDueTimeMixin, BaseXMLStandingsView):
+    pass
+
+
+class UnfrozenXMLStandingsView(UnfrozenStandingsDueTimeMixin, BaseXMLStandingsView):
+    # TODO: use is_staff mixin instead, when it is ready
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise Http404('Не существует запрошенной страницы')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ClarificationsView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, FormView):

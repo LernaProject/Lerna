@@ -59,7 +59,7 @@ class SubmitForm(forms.Form):
                 widget=forms.Textarea,
                 label='Код',
             )),
-            # TODO: Allow to upload a source file.
+            # TODO: Allow uploading a source file.
         ])
 
     def submit(self, user):
