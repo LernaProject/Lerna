@@ -524,6 +524,8 @@ class BaseXMLStandingsView(SelectContestMixin, View):
 
     def get(self, request, contest_id, *args, **kwargs):
         contest = self.select_contest()
+        if contest.is_training:
+            raise Http404
         pics = (
             ProblemInContest
             .objects
