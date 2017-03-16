@@ -22,7 +22,7 @@
 }
 
 
-/* Page content*/
+/* Page content */
 .contest-content {
     margin: 0;
     padding: 15px 40px 0 0;
@@ -37,7 +37,16 @@
 .contest-problem-info {
 }
 
+.clarification-user {
+    font-style: italic;
+    color: #777;
+}
+
 .clarification-question {
     color: #777;
+    margin-bottom: 10px;
+}
+
+.clarification-answer {
     margin-bottom: 10px;
 }

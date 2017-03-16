@@ -44,6 +44,7 @@ INSTALLED_APPS:
 - django.contrib.staticfiles
 - ajax_select
 - pipeline
+# Project-local.
 - scripts
 - core
 - users
