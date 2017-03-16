@@ -129,8 +129,8 @@ class PICQuerySet(md.QuerySet):
 
 
 class ProblemInContest(md.Model):
-    problem    = md.ForeignKey(Problem)
-    contest    = md.ForeignKey(Contest)
+    problem    = md.ForeignKey(Problem, md.PROTECT)
+    contest    = md.ForeignKey(Contest, md.CASCADE)
     number     = md.PositiveIntegerField()
     score      = md.IntegerField(blank=True, null=True)
     # TODO: Remove this field.
@@ -159,8 +159,8 @@ class ClarificationQuerySet(md.QuerySet):
 
 class Clarification(md.Model):
     # TODO: Replace contest with problem_in_contest.
-    contest    = md.ForeignKey(Contest, db_index=False)
-    user       = md.ForeignKey(User, db_index=False)
+    contest    = md.ForeignKey(Contest, md.CASCADE, db_index=False)
+    user       = md.ForeignKey(User, md.CASCADE, db_index=False)
     question   = md.TextField()
     answer     = md.TextField(blank=True)
     created_at = md.DateTimeField(auto_now_add=True)
@@ -187,7 +187,7 @@ class NotificationQuerySet(md.QuerySet):
 
 
 class Notification(md.Model):
-    contest     = md.ForeignKey(Contest)
+    contest     = md.ForeignKey(Contest, md.CASCADE)
     description = md.TextField()
     visible     = md.BooleanField(default=True)
     created_at  = md.DateTimeField(auto_now_add=True)
@@ -223,10 +223,10 @@ class Compiler(md.Model):
 
 
 class Attempt(md.Model):
-    problem_in_contest = md.ForeignKey(ProblemInContest)
-    user               = md.ForeignKey(User)
+    problem_in_contest = md.ForeignKey(ProblemInContest, md.CASCADE)
+    user               = md.ForeignKey(User, md.CASCADE)
     source             = md.TextField()
-    compiler           = md.ForeignKey(Compiler)
+    compiler           = md.ForeignKey(Compiler, md.CASCADE)
     time               = md.DateTimeField(auto_now_add=True)
     tester_name        = md.CharField(max_length=48, blank=True, default='')
     # TODO: SET NOT NULL.
@@ -309,7 +309,7 @@ class Attempt(md.Model):
 
 
 class TestInfo(md.Model):
-    attempt         = md.ForeignKey(Attempt)
+    attempt         = md.ForeignKey(Attempt, md.CASCADE)
     test_number     = md.PositiveIntegerField()
     result          = md.CharField(max_length=23, blank=True, default='')
     # TODO: Maybe make these fields non-nullable? TestInfos are immutable anyway.

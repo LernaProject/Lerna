@@ -6,7 +6,7 @@ from users.models import User
 class News(md.Model):
     title       = md.CharField(max_length=255)
     description = md.TextField()
-    user        = md.ForeignKey(User, db_index=False)
+    user        = md.ForeignKey(User, md.PROTECT, db_index=False)
     created_at  = md.DateTimeField(auto_now_add=True)
     updated_at  = md.DateTimeField(auto_now=True)
     visible     = md.BooleanField(default=True)

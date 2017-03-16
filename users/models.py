@@ -85,7 +85,7 @@ def rank_users(users, field_name, start=1):
 
 class Achievement(md.Model):
     # TODO: Add the DB index.
-    user               = md.ForeignKey(User, db_index=False)
+    user               = md.ForeignKey(User, md.CASCADE, db_index=False)
     achievement_number = md.IntegerField()
     created_at         = md.DateTimeField(auto_now_add=True)
     updated_at         = md.DateTimeField(auto_now=True)

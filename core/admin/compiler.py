@@ -10,6 +10,7 @@ class CompilerAdmin(admin.ModelAdmin):
         return not compiler.obsolete
 
     actual.boolean = True
+    actual.admin_order_field = 'obsolete'
 
     def get_fields(self, request, obj=None):
         fields = ('name', 'codename', 'runner_codename', 'highlighter', 'extension', 'obsolete')
