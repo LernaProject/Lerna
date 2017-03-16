@@ -1,15 +1,15 @@
-from django.db    import models
+from django.db    import models as md
 from django.urls  import reverse
 from users.models import User
 
 
-class News(models.Model):
-    title       = models.CharField(max_length=255)
-    description = models.TextField()
-    user        = models.ForeignKey(User, db_index=False)
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
-    visible     = models.BooleanField(default=True)
+class News(md.Model):
+    title       = md.CharField(max_length=255)
+    description = md.TextField()
+    user        = md.ForeignKey(User, db_index=False)
+    created_at  = md.DateTimeField(auto_now_add=True)
+    updated_at  = md.DateTimeField(auto_now=True)
+    visible     = md.BooleanField(default=True)
 
     class Meta:
         db_table            = 'news'

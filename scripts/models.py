@@ -1,8 +1,8 @@
-from django.db import models
+from django.db import models as md
 
 
-class TesterStatus(models.Model):
-    updated_at = models.DateTimeField(auto_now=True)
+class TesterStatus(md.Model):
+    updated_at = md.DateTimeField(auto_now=True)
 
     class Meta:
         db_table      = 'checker_statuses'

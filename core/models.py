@@ -1,31 +1,31 @@
-from django.db    import models
+from django.db    import models as md
 from django.urls  import reverse
 from django.utils import timezone
 from users.models import User
 
 
-class Problem(models.Model):
-    name                 = models.CharField(max_length=80)
-    path                 = models.CharField(max_length=255)
-    author               = models.CharField(max_length=64, blank=True, db_index=True)
-    developer            = models.CharField(max_length=64, blank=True, db_index=True)
-    origin               = models.CharField(max_length=128, blank=True, db_index=True)
-    description          = models.TextField()
-    input_specification  = models.TextField(blank=True)
-    output_specification = models.TextField(blank=True)
-    samples              = models.TextField(blank=True)
-    explanations         = models.TextField(blank=True)
-    notes                = models.TextField(blank=True)
-    input_file           = models.CharField(max_length=16, blank=True)
-    output_file          = models.CharField(max_length=16, blank=True)
-    time_limit           = models.PositiveIntegerField()
-    memory_limit         = models.PositiveIntegerField()
-    checker              = models.CharField(max_length=100)
-    mask_in              = models.CharField(max_length=32)
-    mask_out             = models.CharField(max_length=32, blank=True)
-    analysis             = models.TextField(blank=True)
-    created_at           = models.DateTimeField(auto_now_add=True)
-    updated_at           = models.DateTimeField(auto_now=True)
+class Problem(md.Model):
+    name                 = md.CharField(max_length=80)
+    path                 = md.CharField(max_length=255)
+    author               = md.CharField(max_length=64, blank=True, db_index=True)
+    developer            = md.CharField(max_length=64, blank=True, db_index=True)
+    origin               = md.CharField(max_length=128, blank=True, db_index=True)
+    description          = md.TextField()
+    input_specification  = md.TextField(blank=True)
+    output_specification = md.TextField(blank=True)
+    samples              = md.TextField(blank=True)
+    explanations         = md.TextField(blank=True)
+    notes                = md.TextField(blank=True)
+    input_file           = md.CharField(max_length=16, blank=True)
+    output_file          = md.CharField(max_length=16, blank=True)
+    time_limit           = md.PositiveIntegerField()
+    memory_limit         = md.PositiveIntegerField()
+    checker              = md.CharField(max_length=100)
+    mask_in              = md.CharField(max_length=32)
+    mask_out             = md.CharField(max_length=32, blank=True)
+    analysis             = md.TextField(blank=True)
+    created_at           = md.DateTimeField(auto_now_add=True)
+    updated_at           = md.DateTimeField(auto_now=True)
 
     class Meta:
         db_table      = 'problems'
@@ -46,23 +46,23 @@ class Problem(models.Model):
         return self.name
 
 
-class ContestQuerySet(models.QuerySet):
+class ContestQuerySet(md.QuerySet):
     def privileged(self, user):
         return self if user.is_staff else self.filter(is_admin=False)
 
 
-class Contest(models.Model):
-    name          = models.CharField(max_length=255)
-    description   = models.TextField(blank=True)
-    start_time    = models.DateTimeField(blank=True, null=True)
-    duration      = models.PositiveIntegerField(blank=True, null=True)
-    freezing_time = models.IntegerField(blank=True, null=True)
-    is_school     = models.BooleanField()
-    is_admin      = models.BooleanField()
-    is_training   = models.BooleanField()
-    created_at    = models.DateTimeField(auto_now_add=True)
-    updated_at    = models.DateTimeField(auto_now=True)
-    problems      = models.ManyToManyField(Problem, through='ProblemInContest')
+class Contest(md.Model):
+    name          = md.CharField(max_length=255)
+    description   = md.TextField(blank=True)
+    start_time    = md.DateTimeField(blank=True, null=True)
+    duration      = md.PositiveIntegerField(blank=True, null=True)
+    freezing_time = md.IntegerField(blank=True, null=True)
+    is_school     = md.BooleanField()
+    is_admin      = md.BooleanField()
+    is_training   = md.BooleanField()
+    created_at    = md.DateTimeField(auto_now_add=True)
+    updated_at    = md.DateTimeField(auto_now=True)
+    problems      = md.ManyToManyField(Problem, through='ProblemInContest')
 
     objects = ContestQuerySet.as_manager()
 
@@ -73,10 +73,6 @@ class Contest(models.Model):
     @property
     def finish_time(self):
         return self.start_time + timezone.timedelta(minutes=self.duration)
-
-    def is_frozen_at(self, moment):
-        freezing_moment = self.start_time + timezone.timedelta(minutes=self.freezing_time)
-        return freezing_moment <= moment < self.finish_time
 
     @property
     def problem_count(self):
@@ -92,6 +88,10 @@ class Contest(models.Model):
     def get_absolute_url(self):
         # TODO: Replace with something more appropriate.
         return reverse('contests:problem', args=[self.id, 1])
+
+    def is_frozen_at(self, moment):
+        freezing_moment = self.start_time + timezone.timedelta(minutes=self.freezing_time)
+        return freezing_moment <= moment < self.finish_time
 
     @classmethod
     def three_way_split(cls, contests, threshold_time):
@@ -113,14 +113,14 @@ class Contest(models.Model):
         return actual, awaiting, past
 
 
-class PICQuerySet(models.QuerySet):
+class PICQuerySet(md.QuerySet):
     def annotate_with_number_char(self):
         return self.annotate(
-            number_char=models.Func(
+            number_char=md.Func(
                 # ord('A') - 1 == 64
-                models.F('number') + 64,
+                md.F('number') + 64,
                 function='chr',
-                output_field=models.CharField(),
+                output_field=md.CharField(),
             ),
         )
 
@@ -128,14 +128,14 @@ class PICQuerySet(models.QuerySet):
         return self.filter(problem=problem, contest__is_admin=False).exists()
 
 
-class ProblemInContest(models.Model):
-    problem    = models.ForeignKey(Problem)
-    contest    = models.ForeignKey(Contest)
-    number     = models.PositiveIntegerField()
-    score      = models.IntegerField(blank=True, null=True)
+class ProblemInContest(md.Model):
+    problem    = md.ForeignKey(Problem)
+    contest    = md.ForeignKey(Contest)
+    number     = md.PositiveIntegerField()
+    score      = md.IntegerField(blank=True, null=True)
     # TODO: Remove this field.
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = md.DateTimeField(auto_now_add=True)
+    updated_at = md.DateTimeField(auto_now=True)
 
     objects = PICQuerySet.as_manager()
 
@@ -152,19 +152,19 @@ class ProblemInContest(models.Model):
         return reverse('contests:problem', args=[self.contest_id, self.number])
 
 
-class ClarificationQuerySet(models.QuerySet):
+class ClarificationQuerySet(md.QuerySet):
     def privileged(self, user):
         return self if user.is_staff else self.filter(user=user)
 
 
-class Clarification(models.Model):
+class Clarification(md.Model):
     # TODO: Replace contest with problem_in_contest.
-    contest    = models.ForeignKey(Contest, db_index=False)
-    user       = models.ForeignKey(User, db_index=False)
-    question   = models.TextField()
-    answer     = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    contest    = md.ForeignKey(Contest, db_index=False)
+    user       = md.ForeignKey(User, db_index=False)
+    question   = md.TextField()
+    answer     = md.TextField(blank=True)
+    created_at = md.DateTimeField(auto_now_add=True)
+    updated_at = md.DateTimeField(auto_now=True)
 
     objects = ClarificationQuerySet.as_manager()
 
@@ -181,17 +181,17 @@ class Clarification(models.Model):
         return self.question if len(self.question) <= 70 else self.question[:67] + '...'
 
 
-class NotificationQuerySet(models.QuerySet):
+class NotificationQuerySet(md.QuerySet):
     def privileged(self, user):
         return self if user.is_staff else self.filter(visible=True, created_at__lte=timezone.now())
 
 
-class Notification(models.Model):
-    contest     = models.ForeignKey(Contest)
-    description = models.TextField()
-    visible     = models.BooleanField(default=True)
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
+class Notification(md.Model):
+    contest     = md.ForeignKey(Contest)
+    description = md.TextField()
+    visible     = md.BooleanField(default=True)
+    created_at  = md.DateTimeField(auto_now_add=True)
+    updated_at  = md.DateTimeField(auto_now=True)
 
     objects = NotificationQuerySet.as_manager()
 
@@ -203,16 +203,16 @@ class Notification(models.Model):
         return self.description if len(self.description) <= 70 else self.description[:67] + '...'
 
 
-class Compiler(models.Model):
-    name            = models.CharField(max_length=64)
-    codename        = models.CharField(max_length=32)
-    runner_codename = models.CharField(max_length=32)
-    obsolete        = models.BooleanField(default=False)
+class Compiler(md.Model):
+    name            = md.CharField(max_length=64)
+    codename        = md.CharField(max_length=32)
+    runner_codename = md.CharField(max_length=32)
+    obsolete        = md.BooleanField(default=False)
     # TODO: Remove this field when old tester support is dropped.
-    extension       = models.CharField(max_length=255)
-    created_at      = models.DateTimeField(auto_now_add=True)
-    updated_at      = models.DateTimeField(auto_now=True)
-    highlighter     = models.CharField(max_length=32)
+    extension       = md.CharField(max_length=255)
+    created_at      = md.DateTimeField(auto_now_add=True)
+    updated_at      = md.DateTimeField(auto_now=True)
+    highlighter     = md.CharField(max_length=32)
 
     class Meta:
         db_table      = 'compilers'
@@ -222,25 +222,25 @@ class Compiler(models.Model):
         return self.name
 
 
-class Attempt(models.Model):
-    problem_in_contest = models.ForeignKey(ProblemInContest)
-    user               = models.ForeignKey(User)
-    source             = models.TextField()
-    compiler           = models.ForeignKey(Compiler)
-    time               = models.DateTimeField(auto_now_add=True)
-    tester_name        = models.CharField(max_length=48, blank=True, default='')
+class Attempt(md.Model):
+    problem_in_contest = md.ForeignKey(ProblemInContest)
+    user               = md.ForeignKey(User)
+    source             = md.TextField()
+    compiler           = md.ForeignKey(Compiler)
+    time               = md.DateTimeField(auto_now_add=True)
+    tester_name        = md.CharField(max_length=48, blank=True, default='')
     # TODO: SET NOT NULL.
-    result             = models.CharField(max_length=36, blank=True, null=True, db_index=True)
-    error_message      = models.TextField(blank=True, null=True) # NULL for optimization reason.
+    result             = md.CharField(max_length=36, blank=True, null=True, db_index=True)
+    error_message      = md.TextField(blank=True, null=True) # NULL for optimization reason.
     # TODO: Make this field an integer (properly converting old attempts).
-    used_time          = models.FloatField(blank=True, null=True)
-    used_memory        = models.PositiveIntegerField(blank=True, null=True)
-    checker_comment    = models.TextField(blank=True, default='')
-    score              = models.FloatField(blank=True, null=True)
+    used_time          = md.FloatField(blank=True, null=True)
+    used_memory        = md.PositiveIntegerField(blank=True, null=True)
+    checker_comment    = md.TextField(blank=True, default='')
+    score              = md.FloatField(blank=True, null=True)
     # TODO: Remove this field.
-    lock_version       = models.IntegerField(blank=True, null=True)
-    created_at         = models.DateTimeField(auto_now_add=True)
-    updated_at         = models.DateTimeField(auto_now=True)
+    lock_version       = md.IntegerField(blank=True, null=True)
+    created_at         = md.DateTimeField(auto_now_add=True)
+    updated_at         = md.DateTimeField(auto_now=True)
 
     class Meta:
         db_table      = 'attempts'
@@ -308,14 +308,14 @@ class Attempt(models.Model):
         return b'CF', 0
 
 
-class TestInfo(models.Model):
-    attempt         = models.ForeignKey(Attempt)
-    test_number     = models.PositiveIntegerField()
-    result          = models.CharField(max_length=23, blank=True, default='')
+class TestInfo(md.Model):
+    attempt         = md.ForeignKey(Attempt)
+    test_number     = md.PositiveIntegerField()
+    result          = md.CharField(max_length=23, blank=True, default='')
     # TODO: Maybe make these fields non-nullable? TestInfos are immutable anyway.
-    used_memory     = models.PositiveIntegerField(blank=True, null=True)
-    used_time       = models.FloatField(blank=True, null=True)
-    checker_comment = models.TextField(blank=True, default='')
+    used_memory     = md.PositiveIntegerField(blank=True, null=True)
+    used_time       = md.FloatField(blank=True, null=True)
+    checker_comment = md.TextField(blank=True, default='')
 
     class Meta:
         db_table        = 'test_infos'

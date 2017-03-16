@@ -586,16 +586,16 @@ class BaseXMLStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, View):
         r = HttpResponse(content_type='application/xml')
         r.write(
             b'<?xml version="1.0" encoding="utf-8"?>'
-            b'<runlog contest_id="%s" duration="%d"'
-            b' start_time="%s" stop_time="%s" current_time="%s" fog_time="%d">'
+            b'<runlog contest_id="%s" duration="%d" fog_time="%d"'
+            b' start_time="%s" stop_time="%s" current_time="%s">'
             b'<name>%s</name>'
             b'<users>' % (
                 contest_id.encode(),
                 contest.duration * 60,
+                contest.freezing_time * 60,
                 self._encode_datetime(contest.start_time),
                 self._encode_datetime(contest.finish_time),
                 self._encode_datetime(timezone.now()),
-                contest.freezing_time * 60,
                 saxutils.escape(contest.name).encode(),
             )
         )

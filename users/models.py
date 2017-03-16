@@ -1,5 +1,5 @@
 from django.contrib import auth
-from django.db      import models
+from django.db      import models as md
 
 import itertools
 import operator
@@ -23,15 +23,15 @@ class UserManager(auth.models.BaseUserManager):
 
 
 class User(auth.models.AbstractBaseUser):
-    login             = models.CharField(unique=True, max_length=255)
-    username          = models.CharField(max_length=255)
-    email             = models.EmailField(max_length=255, blank=True, null=True)
-    created_at        = models.DateTimeField(auto_now_add=True)
-    updated_at        = models.DateTimeField(auto_now=True)
-    password_salt     = models.CharField(max_length=255, blank=True)
-    crypted_password  = models.CharField(max_length=255, blank=True)
-    persistence_token = models.CharField(max_length=255, blank=True)
-    rights            = models.IntegerField(default=0x1)
+    login             = md.CharField(unique=True, max_length=255)
+    username          = md.CharField(max_length=255)
+    email             = md.EmailField(max_length=255, blank=True, null=True)
+    created_at        = md.DateTimeField(auto_now_add=True)
+    updated_at        = md.DateTimeField(auto_now=True)
+    password_salt     = md.CharField(max_length=255, blank=True)
+    crypted_password  = md.CharField(max_length=255, blank=True)
+    persistence_token = md.CharField(max_length=255, blank=True)
+    rights            = md.IntegerField(default=0x1)
 
     class Meta:
         db_table      = 'users'
@@ -83,12 +83,12 @@ def rank_users(users, field_name, start=1):
         start += len(g)
 
 
-class Achievement(models.Model):
+class Achievement(md.Model):
     # TODO: Add the DB index.
-    user               = models.ForeignKey(User, db_index=False)
-    achievement_number = models.IntegerField()
-    created_at         = models.DateTimeField(auto_now_add=True)
-    updated_at         = models.DateTimeField(auto_now=True)
+    user               = md.ForeignKey(User, db_index=False)
+    achievement_number = md.IntegerField()
+    created_at         = md.DateTimeField(auto_now_add=True)
+    updated_at         = md.DateTimeField(auto_now=True)
 
     class Meta:
         db_table        = 'achievements'
