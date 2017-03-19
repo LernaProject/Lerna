@@ -2,12 +2,12 @@
     "name": "Lerna",
     "icons": [
         {
-            "src": "/lerna/logo/android-chrome-192x192.png",
+            "src": "/static/lerna/logo/favicon/android-chrome-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "/lerna/logo/android-chrome-512x512.png",
+            "src": "/static/lerna/logo/favicon/android-chrome-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         }
