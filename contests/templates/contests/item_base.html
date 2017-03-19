@@ -13,65 +13,47 @@
 
 
 
-{% block local_title %}
-  <div class="contest-heading">
+{% block content %}
+  <div class="lerna-contest-heading">
     <h4>
       {% if time_info.frozen %}
         <img src="{% static 'lerna/icons/snowflake.svg' %}" title="Таблица результатов заморожена"/>
       {% endif %}
-        <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
+
+      {{ contest.name }}
+
       {% if user.is_staff %}
-        <a class="button lerna-small-button" href="{% url 'admin:core_notification_add' %}?contest={{ contest.id }}" target="_blank">
-          <img src="{% static 'lerna/icons/megaphone.svg' %}" title="Сделать объявление"/>
-        </a>
+        <button class="button lerna-small-button" type="button" data-toggle="contest-dropdown-menu">
+          <img src="{% static 'lerna/icons/item_menu.svg' %}"/>
+        </button>
+        <div class="dropdown-pane right" id="contest-dropdown-menu" data-dropdown>
+          <ul class="menu vertical">
+            <li><a href="{% url 'admin:core_notification_add' %}?contest={{ contest.id }}" target="_blank">
+              Сделать объявление
+            </a></li>
+          </ul>
+        </div>
       {% endif %}
     </h4>
+
     {% if not contest.is_training %}
-      <div class="contest-timestamp">
+      <div class="lch-timestamp">
         {{ time_info.time_str }}
       </div>
     {% endif %}
     <hr/>
-  </div>
-{% endblock local_title %}
 
-{% block content %}
-  <div class="large-9 columns contest-content">
-    {% block contest_page_content %}{% endblock %}
-  </div>
-
-  {% block contest_sidebar %}
-    <div class="large-3 columns contest-sidebar {% block current_contest_nav_section %}{% endblock %}">
-      <ul class="vertical menu">
-        <li><a href="{{ contest.get_absolute_url }}">Задачи</a></li>
-        <li><a href="{% url 'contests:submit' contest.id %}">Послать</a></li>
-        <li><a href="{% url 'contests:attempts' contest.id %}">Попытки</a></li>
-        {% if contest.is_training %}
-          <li><a href="{% url 'contests:rating' contest.id %}">Рейтинг</a></li>
-        {% else %}
-          <li><a href="{% url 'contests:standings' contest.id %}">Рейтинг</a></li>
-        {% endif %}
-        <li><a href="{% url 'contests:clarifications' contest.id %}">Вопросы</a></li>
-        {% if contest.is_training or time_info.started %}
-          {% if pics %}
-            <hr/>
-            {% for pic in pics %}
-              <li class="{% if problem_number == pic.number %} active {% endif %}">
-              <a href="{{ pic.get_absolute_url }}">{{ pic.number }}: {{ pic.problem.name }}</a>
-              </li>
-            {% endfor %}
-          {% endif %}
-        {% endif %}
-      </ul>
-
-      {% if notifications %}
-        {% for notification in notifications %}
-          <hr/>
-          <b>Внимание!</b>
-          <div>{{ notification.description|safe|linebreaksbr }}</div>
-        {% endfor %}
+    <ul class="menu">
+      <li><a href="{{ contest.get_absolute_url }}">Задачи</a></li>
+      <li><a href="{% url 'contests:submit' contest.id %}">Послать</a></li>
+      <li><a href="{% url 'contests:attempts' contest.id %}">Попытки</a></li>
+      {% if contest.is_training %}
+        <li><a href="{% url 'contests:rating' contest.id %}">Рейтинг</a></li>
+      {% else %}
+        <li><a href="{% url 'contests:standings' contest.id %}">Рейтинг</a></li>
       {% endif %}
-    </div>
-  {% endblock %}
+      <li><a href="{% url 'contests:clarifications' contest.id %}">Вопросы</a></li>
+    </ul>
+  </div>
 {% endblock %}
 

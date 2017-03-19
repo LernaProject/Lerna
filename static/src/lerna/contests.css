@@ -1,42 +1,4 @@
-/* Contest page heading */
-.contest-timestamp {
-    color: #777;
-    margin-top: -3px;
-}
-
-.contest-heading > h4 > img {
-    width: 28px;
-    height: 28px;
-}
-
-.contest-heading > hr {
-    margin: 5px 0 25px 0;
-}
-
-.contest-heading > h4 > a {
-    color: inherit;
-}
-
-.contest-heading > .menu > li > a {
-    padding: 2px 25px 4px 0;
-}
-
-
 /* Page content */
-.contest-content {
-    margin: 0;
-    padding: 15px 40px 0 0;
-}
-
-.contest-problem-meta {
-    font-size: 14px;
-    color: #444;
-    margin: -10px 0 25px 0;
-}
-
-.contest-problem-info {
-}
-
 .clarification-user {
     font-style: italic;
     color: #777;
@@ -49,6 +11,44 @@
 
 .clarification-answer {
     margin-bottom: 10px;
+}
+
+/* =================================== */
+
+.lerna-contest-heading > h4 > img {
+    width: 28px;
+    height: 28px;
+}
+
+.lerna-contest-heading .lch-timestamp,
+.lerna-contest-problem .lcpc-meta > div {
+    color: #777;
+    font-size: 14px;
+    margin-top: -3px;
+}
+
+.lerna-contest-heading > hr {
+    margin: 5px 0;
+}
+
+.lerna-contest-problem > .lcp-content {
+    margin-top: 25px;
+}
+
+.lerna-contest-problem .lcpc-meta {
+    margin-bottom: 15px;
+}
+
+.lerna-contest-problem .lcpc-examples-table td {
+    font-family: monospace;
+}
+
+.lerna-contest-problem > .lcp-sidebar {
+    margin-top: 35px;
+}
+
+.lerna-contest-problem > .lcp-sidebar .active > a {
+    background-color: #118C4E;
 }
 
 /* Contest lists */

@@ -1,19 +1,23 @@
 {% extends 'contests/item_base.html' %}
 
-{% block contest_page_content %}
-{% if not contest.is_training and not time_info.started %}
-    <p>Форма отправки решений будет доступна на этой странице сразу после начала соревнования.</p>
-{% elif not contest.is_training and time_info.finished %}
-    <p>Соревнование завершилось, возможность посылать решения заблокирована</p>
-{% else %}
-  {% if form.non_field_errors %}
-    {{ form.non_field_errors }}
-  {% endif %}
 
-  <form method="post" action="">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input class="button lerna-button" type="submit" value="Отправить"/>
-  </form>
-{% endif %}
+{% block content %}
+  {{ block.super }}
+
+  {% if not contest.is_full_information_available %}
+    <div>Форма отправки решений будет доступна на этой странице сразу после начала соревнования.</div>
+  {% elif not contest.is_training and time_info.finished %}
+    <div>Соревнование завершилось, возможность посылать решения заблокирована.</div>
+  {% else %}
+    {% if form.non_field_errors %}
+      {{ form.non_field_errors }}
+    {% endif %}
+
+    <form method="post" action="">
+      {% csrf_token %}
+      {{ form }}
+      <input class="button lerna-button" type="submit" value="Отправить"/>
+    </form>
+  {% endif %}
 {% endblock %}
+

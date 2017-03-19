@@ -7,83 +7,98 @@
 
 
 {% load static %}
+{% load contest_filters %}
 
 
-{% block local_title %}
+{% block content %}
   {{ block.super }}
-  {% if not contest.is_training and not time_info.started %}
-    <h3>Задачи недоступны</h3>
-  {% else %}
-    <h3>
-      {{ problem_number }}: {{ problem.name }}
-      <button class="button lerna-small-button" type="button" data-toggle="contest-problem-menu">
-        <img src="{% static 'lerna/icons/more.svg' %}"/>
-      </button>
-      <div class="dropdown-pane" id="contest-problem-menu" data-dropdown data-hover="true" data-hover-pane="true">
-        <ul class="menu vertical">
-        <li><a href="{% url 'contests:submit' contest.id %}">Послать решение</a></li>
-        <li><a href="{% url 'global_statistics:best_time' problem.id %}">Статистика</a></li>
-        <li><a href="{% url 'global_statistics:problem_in_trainings' problem.id %}">Найти в тренировках</a></li>
-        {% if user.is_staff %}
-          <hr/>
-          <li><a href="{% url 'admin:core_problem_change' problem.id %}" target="_blank">Редактировать</a></li>
+
+  <div class="lerna-contest-problem row">
+    {% if not contest.is_full_information_available %}
+      <div>Задачи недоступны</div>
+
+    {% else %}
+      <div class="large-9 columns lcp-content">
+        <h4>
+          {{ problem_number|to_ordering_letter }}: {{ problem.name }}
+          <button class="button lerna-small-button" type="button" data-toggle="contest-problem-dropdown-menu">
+            <img src="{% static 'lerna/icons/item_menu.svg' %}"/>
+          </button>
+          <div class="dropdown-pane" id="contest-problem-dropdown-menu" data-dropdown>
+            <ul class="menu vertical">
+              <li><a href="{% url 'contests:submit' contest.id %}">Послать решение</a></li>
+              <li><a href="{% url 'global_statistics:best_time' problem.id %}">Статистика</a></li>
+              <li><a href="{% url 'global_statistics:problem_in_trainings' problem.id %}">Найти в тренировках</a></li>
+              {% if user.is_staff %}
+                <hr/>
+                <li><a href="{% url 'admin:core_problem_change' problem.id %}" target="_blank">Редактировать</a></li>
+              {% endif %}
+            </ul>
+          </div>
+        </h4>
+
+        {% if problem.author or problem.developer or problem.origin %}
+          <div class="lcpc-meta">
+            {% if problem.author %}
+              <div>Автор задачи: {{ problem.author }}</div>
+            {% endif %}
+            {% if problem.developer and problem.developer != problem.author %}
+              <div>Разработчик задачи: {{ problem.developer }}</div>
+            {% endif %}
+            {% if problem.origin %}
+              <div>Источник: {{ problem.origin }}</div>
+            {% endif %}
+          </div>
         {% endif %}
-      </ul>
+
+        <div>Ограничение по времени: {{ problem.time_limit_in_secs }} с.</div>
+        <div>Ограничение по памяти: {{ problem.memory_limit }} МБ</div>
+
+        <div>{{ problem.description|safe }}</div>
+
+        {% if problem.input_specification %}
+            <b>Входные данные:</b>
+            <div>{{ problem.input_specification|safe }}</div>
+        {% endif %}
+
+        {% if problem.output_specification %}
+            <b>Выходные данные:</b>
+            <div>{{ problem.output_specification|safe }}</div>
+        {% endif %}
+
+        {% if problem.samples %}
+            <b>Примеры</b>
+            <div class="lcpc-examples-table">{{ problem.samples|safe }}</div>
+        {% endif %}
+
+        {% if problem.explanations %}
+            <b>Пояснения к примерам:</b>
+            <div>{{ problem.explanations|safe }}</div>
+        {% endif %}
+
+        {% if problem.notes %}
+            <b>Примечания:</b>
+            <div>{{ problem.notes|safe }}</div>
+        {% endif %}
       </div>
-    </h3>
-  {% endif %}
-{% endblock %}
 
-
-{% block contest_page_content %}
-  {% if not contest.is_training and not time_info.started %}
-    <p>Условия задач будут доступны на этой странице сразу после начала соревнования.</p>
-
-  {% else %}
-    {% if problem %}
-      {% if problem.author or problem.developer or problem.origin %}
-        <div class="contest-problem-meta">
-          {% if problem.author %}
-            <div>Автор задачи: {{ problem.author }}</div>
+      <div class="large-3 columns lcp-sidebar">
+        <ul class="vertical menu">
+          {% if pics %}
+            {% for pic in pics %}
+              <li class="{% if problem_number == pic.number %} active {% endif %}">
+                <a href="{{ pic.get_absolute_url }}">{{ pic.letter }}: {{ pic.problem.name }}</a>
+              </li>
+            {% endfor %}
           {% endif %}
-          {% if problem.developer and problem.developer != problem.author %}
-            <div>Разработчик задачи: {{ problem.developer }}</div>
-          {% endif %}
-          {% if problem.origin %}
-            <div>Источник: {{ problem.origin }}</div>
-          {% endif %}
-        </div>
-      {% endif %}
-
-      <div class="contest-problem-info">Ограничение по времени: {{ problem.time_limit_in_secs }} с.</div>
-      <div class="contest-problem-info">Ограничение по памяти: {{ problem.memory_limit }} МБ</div>
-
-      <div>{{ problem.description|safe }}</div>
-
-      {% if problem.input_specification %}
-          <b>Входные данные:</b>
-          <div>{{ problem.input_specification|safe }}</div>
-      {% endif %}
-
-      {% if problem.output_specification %}
-          <b>Выходные данные:</b>
-          <div>{{ problem.output_specification|safe }}</div>
-      {% endif %}
-
-      {% if problem.samples %}
-          <b>Примеры</b>
-          <div>{{ problem.samples|safe }}</div>
-      {% endif %}
-
-      {% if problem.explanations %}
-          <b>Пояснения к примерам:</b>
-          <div>{{ problem.explanations|safe }}</div>
-      {% endif %}
-
-      {% if problem.notes %}
-          <b>Примечания:</b>
-          <div>{{ problem.notes|safe }}</div>
-      {% endif %}
-    {% endif %}
+        </ul>
+        {% if notifications %}
+          {% for notification in notifications %}
+            <hr/>
+            <div>{{ notification.description|safe|linebreaksbr }}</div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
   {% endif %}
 {% endblock %}

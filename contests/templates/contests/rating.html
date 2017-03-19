@@ -1,82 +1,83 @@
 {% extends 'contests/item_base.html' %}
 
 {% block content %}
-{% if contest.is_school %}
-  <p>На сайте временно не поддерживается отображение рейтинга соревнований, проведённых с подсчётом процента пройденных тестов</p>
-{% elif not contest.is_training and not time_info.started %}
-  <p>Текущий рейтинг будет доступен на этой странице сразу после начала соревнования.</p>
-{% else %}
-  {% if time_info.freezing_time_str %}
-    <div>{{ time_info.freezing_time_str }}</div>
-  {% endif %}
-  <table>
-  <tr>
-    <th>Ранг</th>
-    <th>Имя</th>
-    {% for problem in problems %}
-        <th><span title="{{ problem.problem__name }}">{{ problem.number_char }}</span></th>
+  {{ block.super }}
+  {% if contest.is_school %}
+    <p>На сайте временно не поддерживается отображение рейтинга соревнований, проведённых с подсчётом процента пройденных тестов</p>
+  {% elif not contest.is_training and not time_info.started %}
+    <p>Текущий рейтинг будет доступен на этой странице сразу после начала соревнования.</p>
+  {% else %}
+    {% if time_info.freezing_time_str %}
+      <div>{{ time_info.freezing_time_str }}</div>
+    {% endif %}
+    <table>
+    <tr>
+      <th>Ранг</th>
+      <th>Имя</th>
+      {% for problem in problems %}
+          <th><span title="{{ problem.problem__name }}">{{ problem.number_char }}</span></th>
+      {% endfor %}
+      <th>Задач<br />(из&nbsp;{{ problems|length }})</th>
+      <th>Время</th>
+    </tr>
+    {% for user_info in standings %}
+      <tr>
+         <td>{{ user_info.rank }}</td>
+         <td>{{ user_info.username }}</td>
+         {% for result in user_info.results %}
+           <td>{{ result.status }}{% if result.time %}<br />{{ result.time }}{% endif %}</td>
+         {% endfor %}
+         <td>{{ user_info.score }}</td>
+         <td>{{ user_info.penalty }}</td>
+      </tr>
     {% endfor %}
-    <th>Задач<br />(из&nbsp;{{ problems|length }})</th>
-    <th>Время</th>
-  </tr>
-  {% for user_info in standings %}
-    <tr>
-       <td>{{ user_info.rank }}</td>
-       <td>{{ user_info.username }}</td>
-       {% for result in user_info.results %}
-         <td>{{ result.status }}{% if result.time %}<br />{{ result.time }}{% endif %}</td>
-       {% endfor %}
-       <td>{{ user_info.score }}</td>
-       <td>{{ user_info.penalty }}</td>
-    </tr>
-  {% endfor %}
-  {% if standings %}
-    <tr>
-      <td></td>
-      <td>Всего попыток</td>
-      {% for statistic in statistics %}
-        <td>{{ statistic.total_runs }}</td>
-      {% endfor %}
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>Успешных</td>
-      {% for statistic in statistics %}
-        <td>{{ statistic.accepted }}</td>
-      {% endfor %}
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>Неудачных</td>
-      {% for statistic in statistics %}
-        <td>{{ statistic.rejected }}</td>
-      {% endfor %}
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>Первая сдача</td>
-      {% for statistic in statistics %}
-        <td>{{ statistic.first_accept_str }}</td>
-      {% endfor %}
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>Последняя сдача</td>
-      {% for statistic in statistics %}
-        <td>{{ statistic.last_accept_str }}</td>
-      {% endfor %}
-      <td></td>
-      <td></td>
-    </tr>
+    {% if standings %}
+      <tr>
+        <td></td>
+        <td>Всего попыток</td>
+        {% for statistic in statistics %}
+          <td>{{ statistic.total_runs }}</td>
+        {% endfor %}
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>Успешных</td>
+        {% for statistic in statistics %}
+          <td>{{ statistic.accepted }}</td>
+        {% endfor %}
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>Неудачных</td>
+        {% for statistic in statistics %}
+          <td>{{ statistic.rejected }}</td>
+        {% endfor %}
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>Первая сдача</td>
+        {% for statistic in statistics %}
+          <td>{{ statistic.first_accept_str }}</td>
+        {% endfor %}
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>Последняя сдача</td>
+        {% for statistic in statistics %}
+          <td>{{ statistic.last_accept_str }}</td>
+        {% endfor %}
+        <td></td>
+        <td></td>
+      </tr>
+    {% endif %}
+    </table>
   {% endif %}
-  </table>
-{% endif %}
 {% endblock %}

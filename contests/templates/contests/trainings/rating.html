@@ -1,28 +1,28 @@
-{% extends 'contests/base.html' %}
+{% extends 'contests/item_base.html' %}
 
-{% block contest_page_content %}
+{% block content %}
+  {{ block.super }}
 
-<table>
-<tr>
-  <th>Ранг</th>
-  <th>Имя</th>
-  {% for problem in problems %}
-    <th><span title="{{ problem.problem.name }}">{{ problem.number }}</span></th>
-  {% endfor %}
-  <th>Задач<br />(из {{ problems|length }})</th>
-</tr>
-{% for user in user_list %}
+  <table>
   <tr>
-    <td>{{ user.rank }}</td>
-    <td>{{ user.username }}</td>
-      {% for status in user.problems_status %}
-        <td>{{ status }}</td>
-      {% endfor %}
-    <td>{{ user.problems_solved }}</td>
+    <th>Ранг</th>
+    <th>Имя</th>
+    {% for problem in problems %}
+      <th><span title="{{ problem.problem.name }}">{{ problem.number }}</span></th>
+    {% endfor %}
+    <th>Задач<br />(из {{ problems|length }})</th>
   </tr>
-{% endfor %}
-</table>
-
+  {% for user in user_list %}
+    <tr>
+      <td>{{ user.rank }}</td>
+      <td>{{ user.username }}</td>
+        {% for status in user.problems_status %}
+          <td>{{ status }}</td>
+        {% endfor %}
+      <td>{{ user.problems_solved }}</td>
+    </tr>
+  {% endfor %}
+  </table>
 {% endblock %}
 
 {% block pagination %}

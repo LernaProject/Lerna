@@ -1,17 +1,12 @@
 /* Buttons */
 .lerna-small-button,
-.lerna-small-button:visited {
+.lerna-small-button:visited,
+.lerna-small-button:hover,
+.lerna-small-button:focus {
     background: inherit;
     margin: 3px;
     padding: 2px;
-    width: 25px;
-    height: 25px;
-}
-
-.lerna-small-button:hover,
-.lerna-small-button:focus {
-    background-color: #D5F0E0;
-    border: 1px solid #A9D9BC;
+    height: inherit;
 }
 
 .lerna-small-button > img {

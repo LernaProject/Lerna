@@ -71,8 +71,8 @@ class Contest(md.Model):
         get_latest_by = 'created_at'
 
     @property
-    def is_information_available(self):
-        return self.is_training or self.start_time >= timezone.now()
+    def is_full_information_available(self):
+        return self.is_training or timezone.now() >= self.start_time
 
     @property
     def finish_time(self):
@@ -154,6 +154,10 @@ class ProblemInContest(md.Model):
 
     def get_absolute_url(self):
         return reverse('contests:problem', args=[self.contest_id, self.number])
+
+    @property
+    def letter(self):
+        return chr(ord('A') + (self.number - 1))
 
 
 class ClarificationQuerySet(md.QuerySet):

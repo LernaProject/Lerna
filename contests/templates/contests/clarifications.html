@@ -1,38 +1,39 @@
 {% extends 'contests/item_base.html' %}
 
-{% block contest_page_content %}
 
-{% if contest.is_training or time_info.started %}
-  <h5>Задать вопрос:</h5>
-  <form method="post" action="">
-    {% csrf_token %}
-    {{ form.question }}
-    <input class="button lerna-button" type="submit" value="Задать" />
-  </form>
-{% else %}
-  <p>После начала соревнования на этой странице можно будет задать вопросы жюри.</p>
-{% endif %}
+{% block content %}
+  {{ block.super }}
 
-{% for clarification in clarifications %}
-  <hr/>
-  <div class="clarification">
-    {% if user.is_staff %}
-      <div class="clarification-user">{{ clarification.user }}:</div>
-    {% endif %}
-    <div class="clarification-question">{{ clarification.question|linebreaksbr }}</div>
-    {% if clarification.answer %}
-      <div class="clarification-answer">{{ clarification.answer|safe|linebreaksbr }}</div>
-    {% endif %}
-    {% if user.is_staff %}
-      <a class="lerna-button button" href="{% url 'admin:core_clarification_change' clarification.id %}" target="_blank">
-        {% if clarification.answer %}
-          Исправить
-        {% else %}
-          Ответить
-        {% endif %}
-      </a>
-    {% endif %}
-  </div>
-{% endfor %}
+  {% if contest.is_training or time_info.started %}
+    <h5>Задать вопрос:</h5>
+    <form method="post" action="">
+      {% csrf_token %}
+      {{ form.question }}
+      <input class="button lerna-button" type="submit" value="Задать" />
+    </form>
+  {% else %}
+    <p>После начала соревнования на этой странице можно будет задать вопросы жюри.</p>
+  {% endif %}
 
+  {% for clarification in clarifications %}
+    <hr/>
+    <div class="clarification">
+      {% if user.is_staff %}
+        <div class="clarification-user">{{ clarification.user }}:</div>
+      {% endif %}
+      <div class="clarification-question">{{ clarification.question|linebreaksbr }}</div>
+      {% if clarification.answer %}
+        <div class="clarification-answer">{{ clarification.answer|safe|linebreaksbr }}</div>
+      {% endif %}
+      {% if user.is_staff %}
+        <a class="lerna-button button" href="{% url 'admin:core_clarification_change' clarification.id %}" target="_blank">
+          {% if clarification.answer %}
+            Исправить
+          {% else %}
+            Ответить
+          {% endif %}
+        </a>
+      {% endif %}
+    </div>
+  {% endfor %}
 {% endblock %}

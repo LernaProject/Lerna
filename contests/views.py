@@ -147,7 +147,7 @@ class ProblemView(TrainingView):
     # FIXME(nickolas): A lot of unused info is fetched.
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        problem_number = self.kwargs['problem_number']
+        problem_number = int(self.kwargs['problem_number'])
         problem = context['pics'].get(number=problem_number).problem
         context.update(problem=problem, problem_number=problem_number)
         return context

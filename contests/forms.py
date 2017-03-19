@@ -24,7 +24,7 @@ class ModelListChoiceField(forms.ChoiceField):
         except (StopIteration, ValueError, KeyError):
             raise ValidationError(
                 self.error_messages['invalid_choice'],
-                params={ 'value': value },
+                params={'value': value},
                 code='invalid',
             )
 
@@ -34,7 +34,7 @@ class ModelListChoiceField(forms.ChoiceField):
 
 class PICChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, pic):
-        return '{0.number}. {0.problem.name}'.format(pic)
+        return '{0.letter}. {0.problem.name}'.format(pic)
 
 
 class BytesMaxLengthValidator(MaxLengthValidator):

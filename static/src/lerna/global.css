@@ -23,15 +23,11 @@ body, html {
 }
 
 .lerna-main-menu ul.horizontal > li > a {
-    color: #DDEEDD;
+    color: white;
 }
 
 .lerna-main-menu ul.horizontal > li > a::after {
     border-color: #DDEEDD transparent transparent !important;
-}
-
-.lerna-main-menu ul.horizontal > li > a:hover {
-    color: white;
 }
 
 .news_nav_section         ul.horizontal li > a.news_toplink,
