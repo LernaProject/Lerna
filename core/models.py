@@ -71,6 +71,10 @@ class Contest(md.Model):
         get_latest_by = 'created_at'
 
     @property
+    def is_information_available(self):
+        return self.is_training or self.start_time >= timezone.now()
+
+    @property
     def finish_time(self):
         return self.start_time + timezone.timedelta(minutes=self.duration)
 

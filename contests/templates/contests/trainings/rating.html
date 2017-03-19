@@ -1,0 +1,32 @@
+{% extends 'contests/base.html' %}
+
+{% block contest_page_content %}
+
+<table>
+<tr>
+  <th>Ранг</th>
+  <th>Имя</th>
+  {% for problem in problems %}
+    <th><span title="{{ problem.problem.name }}">{{ problem.number }}</span></th>
+  {% endfor %}
+  <th>Задач<br />(из {{ problems|length }})</th>
+</tr>
+{% for user in user_list %}
+  <tr>
+    <td>{{ user.rank }}</td>
+    <td>{{ user.username }}</td>
+      {% for status in user.problems_status %}
+        <td>{{ status }}</td>
+      {% endfor %}
+    <td>{{ user.problems_solved }}</td>
+  </tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+
+{% block pagination %}
+  {% with page_link='contests:rating' page_param=contest.id %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}

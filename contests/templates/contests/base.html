@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 
-{% load staticfiles %}
-
-
-{% block title %}{{ block.super }} :: {{ contest.name }}{% endblock %}
-
 
 {% block current_nav_section %}
   {% if contest.is_training %} trainings_nav_section {% else %} competitions_nav_section {% endif %}
 {% endblock %}
+
+
+
+
+
+
 
 
 {% block local_title %}

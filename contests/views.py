@@ -8,13 +8,13 @@ from   xml.sax import saxutils
 from django.contrib.auth.mixins   import LoginRequiredMixin
 from django.core.exceptions       import PermissionDenied
 from django.db                    import connection
-from django.db.models             import F, Q, Func, BigIntegerField
+from django.db.models             import F, Q, BigIntegerField
 from django.db.models.expressions import RawSQL
 from django.db.models.functions   import Cast
 from django.http                  import HttpResponse, Http404
 from django.shortcuts             import render, redirect
 from django.utils                 import timezone
-from django.views.generic         import TemplateView, ListView, FormView, View
+from django.views.generic         import TemplateView, ListView, View
 from django.views.generic.edit    import FormView
 import pygments.formatters
 import pygments.lexers.special
@@ -50,7 +50,7 @@ class SelectContestMixin:
 
 
 class ContestIndexView(TemplateView):
-    template_name = 'contests/contests.html'
+    template_name = 'contests/list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -73,7 +73,7 @@ class ContestIndexView(TemplateView):
 
 
 class TrainingIndexView(TemplateView):
-    template_name = 'contests/trainings.html'
+    template_name = 'contests/trainings/list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -119,7 +119,7 @@ class TrainingIndexView(TemplateView):
 
 
 class TrainingView(SelectContestMixin, NotificationListMixin, TemplateView):
-    template_name = 'contests/training.html'
+    template_name = 'contests/trainings/problems_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -284,7 +284,7 @@ class AttemptDetailsView(LoginRequiredMixin, NotificationListMixin, TemplateView
 
 
 class RatingView(SelectContestMixin, NotificationListMixin, ListView):
-    template_name = 'contests/rating.html'
+    template_name = 'contests/trainings/rating.html'
     context_object_name = 'user_list'
     allow_empty = True
     paginate_by = 25
@@ -393,7 +393,7 @@ class UnfrozenStandingsDueTimeMixin:
 
 class BaseStandingsView(
         StandingsDueTimeMixinABC, SelectContestMixin, NotificationListMixin, TemplateView):
-    template_name = 'contests/standings.html'
+    template_name = 'contests/rating.html'
 
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
