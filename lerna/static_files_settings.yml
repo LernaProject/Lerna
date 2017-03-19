@@ -28,9 +28,9 @@ PIPELINE:
       output_filename: jquery.piped.min.js
     foundation:
       source_filenames:
-      - foundation/what-input.js
       - foundation/foundation.js
       - foundation/foundation-launch.js
+      - foundation/what-input.js
       output_filename: foundation.piped.min.js
 
   STYLESHEETS:
@@ -45,9 +45,10 @@ PIPELINE:
       output_filename: foundation.piped.min.css
     lerna:
       source_filenames:
-      - lerna/global.css
-      - lerna/controls.css
       - lerna/contests.css
+      - lerna/controls.css
+      - lerna/global.css
+      - lerna/news.css
       output_filename: lerna.piped.min.css
 
   JS_COMPRESSOR: pipeline.compressors.NoopCompressor

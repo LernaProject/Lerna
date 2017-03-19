@@ -1,0 +1,31 @@
+{% extends 'news/base.html' %}
+
+{% block content %}
+  {% if news_list %}
+    {% for news in news_list %}
+      <div class="lerna-news-list-item">
+        <h5 class="lerna-news-list-title"><a href="{{ news.get_absolute_url }}">
+          {{ news.title }}
+        </a></h5>
+        <div class="lerna-news-meta">
+          {{ news.user }} {{ news.updated_at|date:"j b Y в H:i" }}
+        </div>
+        <div class="lerna-news-list-content row large-10 columns">
+          {{ news.short_description|safe }}
+        </div>
+        {% if news.has_long_description %}
+          <a class="lerna-news-list-more" href="{{ news.get_absolute_url }}">Подробнее...</a>
+        {% endif %}
+
+      </div>
+    {% endfor %}
+  {% else %}
+    <div>Нет новостей для отображения</div>
+  {% endif %}
+{% endblock %}
+
+{% block pagination %}
+{% with page_link='news:index' %}
+{{ block.super }}
+{% endwith %}
+{% endblock %}

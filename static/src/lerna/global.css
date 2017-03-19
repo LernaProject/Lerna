@@ -23,17 +23,17 @@ body, html {
 }
 
 .lerna-main-menu ul.horizontal > li > a {
-    color: #dddddd;
+    color: #ded;
 }
 
 .lerna-main-menu ul.horizontal > li > a:hover {
     color: #ffffff;
 }
 
-.news_nav_section         .news_toplink,
-.competitions_nav_section .competitions_toplink,
-.trainings_nav_section    .trainings_toplink,
-.rating_nav_section       .rating_toplink
+.news_nav_section         ul.horizontal li > a.news_toplink,
+.competitions_nav_section ul.horizontal li > a.competitions_toplink,
+.trainings_nav_section    ul.horizontal li > a.trainings_toplink,
+.rating_nav_section       ul.horizontal li > a.rating_toplink
 {
     border-bottom: 1px solid #ffffff;
     background: inherit;
@@ -46,7 +46,7 @@ body, html {
 }
 
 .lerna-main-menu .lerna-topbar-logo {
-    padding: 0 25px 0 0;
+    padding: 0 25px 0 10px;
 }
 
 .lerna-main-menu .lerna-topbar-logo a {
@@ -56,6 +56,6 @@ body, html {
 
 /* Main page content */
 .main-content {
-    padding: 25px 0 15px 0;
+    padding: 25px 10px 15px 10px;
     border: 0;
 }

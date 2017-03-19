@@ -1,0 +1,9 @@
+{% extends 'news/base.html' %}
+
+{% block title %} {{ block.super }} :: {{ news.title }} {% endblock %}
+
+{% block content %}
+  <h3 class="lerna-news-item-title">{{ news.title }}</h3>
+  <div class="lerna-news-meta">{{ news.user }} {{ news.updated_at|date:"j b Y в H:i" }}</div>
+  <div class="lerna-news-item-content">{{ news.description|safe }}</div>
+{% endblock %}

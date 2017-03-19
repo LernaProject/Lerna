@@ -20,6 +20,10 @@ class News(md.Model):
     def short_description(self):
         return self.description.partition('<more>')[0]
 
+    @property
+    def has_long_description(self):
+        return '<more>' in self.description
+
     def __str__(self):
         return self.title
 
