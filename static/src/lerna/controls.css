@@ -2,17 +2,16 @@
 .lerna-small-button,
 .lerna-small-button:visited {
     background: inherit;
-    margin: 0 0 0 5px;
+    margin: 3px;
     padding: 2px;
-    width: 21px;
-    height: 21px;
-    border: solid 1px #118c4e;
-    border-radius: 1px;
+    width: 25px;
+    height: 25px;
 }
 
 .lerna-small-button:hover,
 .lerna-small-button:focus {
-    background-color: #d5f0e0;
+    background-color: #D5F0E0;
+    border: 1px solid #A9D9BC;
 }
 
 .lerna-small-button > img {
@@ -23,10 +22,10 @@
 
 .lerna-button,
 .lerna-button:visited {
-    background: #118c4e;
+    background: #118C4E;
 }
 
 .lerna-button:hover,
 .lerna-button:focus {
-    background: #0a6035;
+    background: #0A6035;
 }

@@ -23,11 +23,15 @@ body, html {
 }
 
 .lerna-main-menu ul.horizontal > li > a {
-    color: #ded;
+    color: #DDEEDD;
+}
+
+.lerna-main-menu ul.horizontal > li > a::after {
+    border-color: #DDEEDD transparent transparent !important;
 }
 
 .lerna-main-menu ul.horizontal > li > a:hover {
-    color: #ffffff;
+    color: white;
 }
 
 .news_nav_section         ul.horizontal li > a.news_toplink,
@@ -35,9 +39,9 @@ body, html {
 .trainings_nav_section    ul.horizontal li > a.trainings_toplink,
 .rating_nav_section       ul.horizontal li > a.rating_toplink
 {
-    border-bottom: 1px solid #ffffff;
+    border-bottom: 1px solid white;
     background: inherit;
-    color: #ffffff;
+    color: white;
 }
 
 .lerna-main-menu .lerna-topbar-logo img{
