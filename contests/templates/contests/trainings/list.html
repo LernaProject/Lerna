@@ -1,27 +1,32 @@
 {% extends 'contests/base.html' %}
 
+
+{% block current_nav_section %}
+  trainings_nav_section
+{% endblock %}
+
+
 {% block title %} {{ block.super }} :: Список тренировок {% endblock %}
 
+
 {% block content %}
+  {% for t in trainings %}
+    <div>
+      <span>
+        {% for i in t.tab %}
+          &nbsp;&nbsp;&nbsp;&nbsp;
+        {% endfor %}
 
-{% for t in trainings %}
-  <div>
-    <span>
-      {% for i in t.tab %}
-        &nbsp;&nbsp;&nbsp;&nbsp;
-      {% endfor %}
-
-      {% if t.is_terminal %}
-        <a href="{% url 'contests:training' contest_id=t.id %}">
-          {{ t.name }}
-        </a>
-      {% else %}
-          {{ t.name }}
-      {% endif %}
-    </span>
-  </div>
-{% empty %}
-  <p>Пока нет заведённых тренировок</p>
-{% endfor %}
-
+        {% if t.is_terminal %}
+          <a href="{% url 'contests:training' contest_id=t.id %}">
+            {{ t.name }}
+          </a>
+        {% else %}
+            {{ t.name }}
+        {% endif %}
+      </span>
+    </div>
+  {% empty %}
+    <p>Пока нет заведённых тренировок</p>
+  {% endfor %}
 {% endblock %}

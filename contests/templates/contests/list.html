@@ -1,68 +1,79 @@
 {% extends 'contests/base.html' %}
 
 
+{% load staticfiles %}
+
+
+{% block current_nav_section %}
+  competitions_nav_section
+{% endblock %}
+
+
 {% block title %}{{ block.super }} :: Список соревнований {% endblock %}
 
+
 {% block content %}
+  {% if not actual_contest_list and not wait_contest_list %}
+    {% if not past_contest_list %}
+      <div>Нет соревнований для отображения</div>
+    {% else %}
+      <div>В данный момент нет актуальных или ожидаемых олимпиад</div>
+      <hr/>
+    {% endif %}
+  {% endif %}
 
-<h2>Актуальные соревнования</h2>
+  {% if actual_contest_list %}
+    <h4>Соревнования, идущие прямо сейчас:</h4>
+    {% for contest in actual_contest_list %}
+      <div class="lerna-contests-list-item">
+        <div class="lcli-title"><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></div>
+        <div class="lcli-meta">
+          {% if contest.is_school %}
+            <div>Подсчёт результатов по количеству пройденных тестов.</div>
+          {% else %}
+            <div>Контест по стандартным правилам ACM</div>
+          {% endif %}
+          <div> Время начала: {{ contest.start_time|date:"d E (D) в G:i"|lower }} </div>
+          <div> Время окончания: {{ contest.finish_time|date:"d E (D) в G:i"|lower }}</div>
+          <div> Длительность: {{ contest.duration_str }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
 
-{% if actual_contest_list or wait_contest_list %}
-  <ul>
-  {% for contest in actual_contest_list %}
-    <li>
-      <h2><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></h2>
-      <p>
-        {% if contest.is_school %}
-          Подсчёт результатов: по количеству пройденных тестов
-        {% else %}
-          Подсчёт результатов: по стандартным правилам ACM
-        {% endif %}
-      </p>
-      <p>Время начала: {{ contest.start_time }}</p>
-      <p>Продолжительность: {{ contest.duration_str }}</p>
-    </li>
-  {% endfor %}
-  {% for contest in wait_contest_list %}
-    <li>
-      <h2><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></h2>
-      <p>
-        {% if contest.is_school %}
-          Подсчёт результатов: по количеству пройденных тестов
-        {% else %}
-          Подсчёт результатов: по стандартным правилам ACM
-        {% endif %}
-      </p>
-      <p>Время начала: {{ contest.start_time }}</p>
-      <p>Продолжительность: {{ contest.duration_str }}</p>
-    </li>
-  {% endfor %}
-  </ul>
-{% else %}
-  <p>В данный момент нет активных или ожидаемых олимпиад.</p>
-{% endif %}
+  {% if wait_contest_list %}
+    <h4>Ожидаемые соревнования:</h4>
+    {% for contest in wait_contest_list %}
+      <div class="lerna-contests-list-item">
+        <div class="lcli-title"><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></div>
+        <div class="lcli-meta">
+          {% if contest.is_school %}
+            <div>Подсчёт результатов по количеству пройденных тестов.</div>
+          {% else %}
+            <div>Контест по стандартным правилам ACM</div>
+          {% endif %}
+          <div> Время начала: {{ contest.start_time|date:"d E (D) в G:i"|lower }} </div>
+          <div> Длительность: {{ contest.duration_str }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
 
-<h2>Прошедшие соревнования</h2>
-
-{% if past_contest_list %}
-  <ul>
-  {% for contest in past_contest_list %}
-    <li>
-      <h2><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></h2>
-      <p>
-        {% if contest.is_school %}
-          Подсчёт результатов: по количеству пройденных тестов
-        {% else %}
-          Подсчёт результатов: по стандартным правилам ACM
-        {% endif %}
-      </p>
-      <p>Время начала: {{ contest.start_time }}</p>
-      <p>Продолжительность: {{ contest.duration_str }}</p>
-    </li>
-  {% endfor %}
-  </ul>
-{% else %}
-  <p>Пока нет прошедших олимпиад</p>
-{% endif %}
-
+  {% if past_contest_list %}
+    <h4>Прошедшие соревнования:</h4>
+    {% for contest in past_contest_list %}
+      <div class="lerna-contests-list-item">
+        <div class="lcli-title"><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></div>
+        <div class="lcli-meta">
+          {% if contest.is_school %}
+            <div>Подсчёт результатов по количеству пройденных тестов.</div>
+          {% else %}
+            <div>Контест по стандартным правилам ACM</div>
+          {% endif %}
+          <div> Время начала: {{ contest.start_time|date:"d E Y в G:i"|lower }} </div>
+          <div> Время окончания: {{ contest.finish_time|date:"d E Y в G:i"|lower }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
 {% endblock %}
