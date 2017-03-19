@@ -1,22 +1,28 @@
 {% extends "base.html" %}
 
+{% block title %} {{ block.super }} :: Вход {% endblock %}
+
 {% block content %}
-
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
-
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-
-<div>{{ form.login.label_tag }}</div>
-<div>{{ form.login }}</div>
-
-<div>{{ form.password.label_tag }}</div>
-<div>{{ form.password }}</div>
-
-<input type="submit" value="Войти" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
-
+  <div class="lerna-users-form large-offset-4 large-4 medium-offset-3 medium-6 small-12 columns">
+    <h5>Войдите в свой аккаунт</h5>
+    <div class="lerna-users-altlink">
+      Ещё нет аккаунта? <a href="{% url 'registration' %}"> Регистрация </a>
+    </div>
+    {% if form.errors %}
+      <div class="lerna-users-error">Введённые данные не верны.</div>
+    {% endif %}
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <label>
+        {{ form.login.label_tag }}
+        {{ form.login }}
+      </label>
+      <label>
+        {{ form.password.label_tag }}
+        {{ form.password }}
+      </label>
+      <input type="submit" class="button lerna-button" value="Войти" />
+      <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+  </div>
 {% endblock %}

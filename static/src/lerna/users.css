@@ -1,0 +1,23 @@
+.lerna-users-form {
+    border: 1px solid #bbb;
+    box-shadow: 2px 2px 10px #777;
+}
+
+.lerna-users-form > h5 {
+    margin: 20px 0 0 0;
+}
+
+.lerna-users-form .lerna-users-altlink {
+    color: #444;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.lerna-users-form .lerna-users-error {
+    color: #a33;
+    margin: 0;
+}
+
+.lerna-users-form .button {
+    margin-top: 20px;
+}
