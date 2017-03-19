@@ -6,7 +6,14 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="shortcut icon" type="image/gif" href="{% static 'lerna/logo/logo.png' %}"/>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'lerna/logo/favicon/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'lerna/logo/favicon/favicon-32x32.png' %}" sizes="32x32">
+  <link rel="icon" type="image/png" href="{% static 'lerna/logo/favicon/favicon-16x16.png' %}" sizes="16x16">
+  <link rel="manifest" href="{% static 'lerna/logo/favicon/manifest.json' %}">
+  <link rel="mask-icon" href="{% static 'lerna/logo/favicon/safari-pinned-tab.svg' %}" color="#118c4e">
+  <link rel="shortcut icon" href="{% static 'lerna/logo/favicon/favicon.ico' %}">
+  <meta name="theme-color" content="#118c4e">
 
   <title>
     {% block title %}Lerna{% endblock %}
@@ -27,8 +34,8 @@
     {# Navigation links in top site menu bar #}
     <div class="top-bar-left">
       <ul class="horizontal menu">
-        <li class="menu-text"><a href="{% url 'index' %}">
-          Lerna
+        <li class="lerna-topbar-logo"><a href="{% url 'index' %}">
+          <img src="{% static 'lerna/logo/logo_white.svg' %}" title="Lerna"/>
         </a></li>
         <li><a class="news_toplink"         href="{% url 'news:index' %}">Новости</a></li>
         <li><a class="competitions_toplink" href="{% url 'contests:contests' %}">Соревнования</a></li>
