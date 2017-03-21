@@ -26,6 +26,21 @@ class ProblemInContestInline(ajax_select.admin.AjaxSelectAdminTabularInline):
         return super().get_queryset(request).select_related('problem', 'contest')
 
 
+class UserInContestInline(ajax_select.admin.AjaxSelectAdminTabularInline):
+    model = models.UserInContest
+    form = ajax_select.make_ajax_form(
+        model, {
+            'user': 'users',
+        }
+    )
+    fields = ('user', 'contest')
+    ordering = ['user']
+    extra = 0
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user', 'contest')
+
+
 @admin.register(models.Contest)
 class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
     def get_fields(self, request, obj=None):
@@ -42,7 +57,7 @@ class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
         return fields
 
     readonly_fields = ('created_at', 'updated_at')
-    inlines = [ProblemInContestInline]
+    inlines = [ProblemInContestInline, UserInContestInline]
     list_display = (
         'id', 'name', 'problem_count', 'duration', 'freezing_time', 'start_time',
         'is_school', 'is_admin', 'is_training', 'is_registration_required',
