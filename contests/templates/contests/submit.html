@@ -4,7 +4,10 @@
 {% block content %}
   {{ block.super }}
 
-  {% if not contest.is_full_information_available %}
+  {% if not available %}
+    <div>Это соревнование требует отдельной регистрации на него. Только зарегистрированные на участние в соревновании
+    пользователи могут отправлять свои решения</div>
+  {% elif not contest.is_full_information_available %}
     <div>Форма отправки решений будет доступна на этой странице сразу после начала соревнования.</div>
   {% elif not contest.is_training and time_info.finished %}
     <div>Соревнование завершилось, возможность посылать решения заблокирована.</div>

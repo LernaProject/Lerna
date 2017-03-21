@@ -52,17 +52,19 @@ class ContestQuerySet(md.QuerySet):
 
 
 class Contest(md.Model):
-    name          = md.CharField(max_length=255)
-    description   = md.TextField(blank=True)
-    start_time    = md.DateTimeField(blank=True, null=True)
-    duration      = md.PositiveIntegerField(blank=True, null=True)
-    freezing_time = md.IntegerField(blank=True, null=True)
-    is_school     = md.BooleanField()
-    is_admin      = md.BooleanField()
-    is_training   = md.BooleanField()
-    created_at    = md.DateTimeField(auto_now_add=True)
-    updated_at    = md.DateTimeField(auto_now=True)
-    problems      = md.ManyToManyField(Problem, through='ProblemInContest')
+    name                     = md.CharField(max_length=255)
+    description              = md.TextField(blank=True)
+    start_time               = md.DateTimeField(blank=True, null=True)
+    duration                 = md.PositiveIntegerField(blank=True, null=True)
+    freezing_time            = md.IntegerField(blank=True, null=True)
+    is_school                = md.BooleanField()
+    is_admin                 = md.BooleanField()
+    is_training              = md.BooleanField()
+    created_at               = md.DateTimeField(auto_now_add=True)
+    updated_at               = md.DateTimeField(auto_now=True)
+    problems                 = md.ManyToManyField(Problem, through='ProblemInContest')
+    is_registration_required = md.BooleanField(default=False)
+    registered_users         = md.ManyToManyField(User, through='UserInContest')
 
     objects = ContestQuerySet.as_manager()
 
@@ -96,6 +98,9 @@ class Contest(md.Model):
     def is_frozen_at(self, moment):
         freezing_moment = self.start_time + timezone.timedelta(minutes=self.freezing_time)
         return freezing_moment <= moment < self.finish_time
+
+    def is_available_for(self, user):
+        return not self.is_registration_required or user.is_staff or user in self.registered_users.all()
 
     @classmethod
     def three_way_split(cls, contests, threshold_time):
@@ -158,6 +163,22 @@ class ProblemInContest(md.Model):
     @property
     def letter(self):
         return chr(ord('A') + (self.number - 1))
+
+
+class UserInContest(md.Model):
+    user       = md.ForeignKey(User, md.CASCADE)
+    contest    = md.ForeignKey(Contest, md.CASCADE)
+    created_at = md.DateTimeField(auto_now_add=True)
+    updated_at = md.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table             = 'user_in_contests'
+        default_related_name = 'user_in_contest_set'
+        verbose_name_plural  = 'users in contest'
+        get_latest_by        = 'created_at'
+
+    def __str__(self):
+        return '{0.user.username} ({0.user.login}) in {0.contest.id}'.format(self)
 
 
 class ClarificationQuerySet(md.QuerySet):

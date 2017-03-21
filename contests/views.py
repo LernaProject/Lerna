@@ -184,10 +184,11 @@ class SubmitView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, 
     def handle(self, request):
         contest = self.select_contest()
         time_info = get_relative_time_info(contest)
+        available_for_user = contest.is_available_for(request.user)
         if request.method == 'POST':
             available = time_info is None or (time_info.started and not time_info.finished)
             form = self._create_form(contest, request.POST)
-            if available and form.is_valid():
+            if available and available_for_user and form.is_valid():
                 form.submit(request.user)
                 return redirect('contests:attempts', contest.id)
         else:
@@ -197,6 +198,7 @@ class SubmitView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, 
             'form': form,
             'contest': contest,
             'time_info': time_info,
+            'available': available_for_user,
             'notifications': self.get_notifications(contest),
         })
 
@@ -391,8 +393,7 @@ class UnfrozenStandingsDueTimeMixin:
         return min(contest.finish_time, timezone.now())
 
 
-class BaseStandingsView(
-        StandingsDueTimeMixinABC, SelectContestMixin, NotificationListMixin, TemplateView):
+class BaseStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, NotificationListMixin, TemplateView):
     template_name = 'contests/rating.html'
 
     def get_context_data(self, **kwargs):
@@ -501,6 +502,7 @@ class BaseStandingsView(
         context.update(
             contest=contest,
             time_info=time_info,
+            available=contest.is_available_for(self.request.user),
             problems=problems,
             notifications=self.get_notifications(contest),
             standings=standings,

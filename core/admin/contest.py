@@ -33,7 +33,7 @@ class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
             'name', 'description',
             ('duration', 'freezing_time'),
             'start_time',
-            ('is_school', 'is_admin', 'is_training'),
+            ('is_school', 'is_admin', 'is_training', 'is_registration_required'),
         )
         if obj is not None:
             fields += (
@@ -45,11 +45,11 @@ class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
     inlines = [ProblemInContestInline]
     list_display = (
         'id', 'name', 'problem_count', 'duration', 'freezing_time', 'start_time',
-        'is_school', 'is_admin', 'is_training',
+        'is_school', 'is_admin', 'is_training', 'is_registration_required',
     )
     list_display_links = ('id', 'name')
     list_per_page = 30
-    list_filter = ('is_school', 'is_admin', 'is_training')
+    list_filter = ('is_school', 'is_admin', 'is_training', 'is_registration_required')
     date_hierarchy = 'start_time'
     search_fields = ('name', 'problems__name')
 
