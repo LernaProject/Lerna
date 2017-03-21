@@ -63,7 +63,11 @@ class ContestIndexView(TemplateView):
             .order_by('-start_time')
         )
 
+        for contest in contests:
+            contest.available = contest.is_available_for(self.request.user)
+
         actual, awaiting, past = Contest.three_way_split(contests, timezone.now())
+
         context.update(
             actual_contest_list=actual,
             wait_contest_list=awaiting,

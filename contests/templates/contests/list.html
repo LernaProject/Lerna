@@ -26,7 +26,16 @@
     <h4>Соревнования, идущие прямо сейчас:</h4>
     {% for contest in actual_contest_list %}
       <div class="lerna-contests-list-item">
-        <div class="lcli-title"><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></div>
+        <div class="lcli-title">
+          {% if contest.is_registration_required %}
+            {% if contest.awailable %}
+                lock_open.jpg
+            {% else %}
+                lock_close.jpg
+            {% endif %}
+          {% endif %}
+          <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
+        </div>
         <div class="lcli-meta">
           {% if contest.is_school %}
             <div>Подсчёт результатов по количеству пройденных тестов.</div>
@@ -45,7 +54,16 @@
     <h4>Ожидаемые соревнования:</h4>
     {% for contest in wait_contest_list %}
       <div class="lerna-contests-list-item">
-        <div class="lcli-title"><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></div>
+        <div class="lcli-title">
+          {% if contest.is_registration_required %}
+            {% if contest.awailable %}
+                lock_open.jpg
+            {% else %}
+                lock_close.jpg
+            {% endif %}
+          {% endif %}
+          <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
+        </div>
         <div class="lcli-meta">
           {% if contest.is_school %}
             <div>Подсчёт результатов по количеству пройденных тестов.</div>
