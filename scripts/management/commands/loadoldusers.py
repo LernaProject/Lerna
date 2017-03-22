@@ -16,7 +16,6 @@ def instantiate_users(data):
             rights=0x0,
         )
         user.set_password(password)
-        user.full_clean()
         yield user
 
 

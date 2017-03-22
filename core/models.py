@@ -100,7 +100,8 @@ class Contest(md.Model):
         return freezing_moment <= moment < self.finish_time
 
     def is_available_for(self, user):
-        return not self.is_registration_required or user.is_staff or user in self.registered_users.all()
+        public = not self.is_registration_required
+        return public or user.is_staff or self.registered_users.filter(user=user).exists()
 
     @classmethod
     def three_way_split(cls, contests, threshold_time):
@@ -178,7 +179,7 @@ class UserInContest(md.Model):
         get_latest_by        = 'created_at'
 
     def __str__(self):
-        return '{0.user.username} ({0.user.login}) in {0.contest.id}'.format(self)
+        return '{0.user} in {0.contest.id:03}'.format(self)
 
 
 class ClarificationQuerySet(md.QuerySet):
