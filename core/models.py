@@ -105,7 +105,7 @@ class Contest(md.Model):
     def is_available_for(self, user):
         public = not self.is_registration_required
         return public or user.is_staff or (
-            user.is_authenticated and self.registered_users.filter(id=user).exists()
+            user.is_authenticated and self.registered_users.filter(id=user.id).exists()
         )
 
     @classmethod
