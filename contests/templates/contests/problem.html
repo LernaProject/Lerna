@@ -19,7 +19,11 @@
     {% else %}
       <div class="large-9 columns lcp-content">
         <h4>
-          {{ problem_number|to_ordering_letter }}: {{ problem.name }}
+          {% if contest.is_training %}
+            {{ problem_number }}. {{ problem.name }}
+          {% else %}
+            {{ problem_number|to_ordering_letter }}. {{ problem.name }}
+          {% endif %}
           <button class="button lerna-small-button" type="button" data-toggle="contest-problem-dropdown-menu">
             <img src="{% static 'lerna/icons/item_menu.svg' %}"/>
           </button>
@@ -86,7 +90,7 @@
           {% if pics %}
             {% for pic in pics %}
               <li class="{% if problem_number == pic.number %} active {% endif %}">
-                <a href="{{ pic.get_absolute_url }}">{{ pic.letter }}: {{ pic.problem.name }}</a>
+                <a href="{{ pic.get_absolute_url }}">{{ pic.ordering_id }}. {{ pic.problem.name }}</a>
               </li>
             {% endfor %}
           {% endif %}

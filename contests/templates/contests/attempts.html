@@ -20,7 +20,7 @@
         <td>{{ attempt.created_at }}</td>
         <td>
           <a href="{{ attempt.problem_in_contest.get_absolute_url }}">
-            {{ attempt.problem_in_contest.number }}. {{ attempt.problem_in_contest.problem.name }}
+            {{ attempt.problem_in_contest.ordering_id }}. {{ attempt.problem_in_contest.problem.name }}
           </a>
         </td>
         <td>{{ attempt.compiler.name }}</td>

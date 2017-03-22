@@ -9,7 +9,7 @@
     {% if pics %}
       <ul>
       {% for pic in pics %}
-        <li><a href="{{ pic.get_absolute_url }}">{{ pic.number }}. {{ pic.problem.name }}</a></li>
+        <li><a href="{{ pic.get_absolute_url }}">{{ pic.ordering_id }}. {{ pic.problem.name }}</a></li>
       {% endfor %}
       </ul>
     {% else %}

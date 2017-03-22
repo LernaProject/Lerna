@@ -34,7 +34,7 @@ class ModelListChoiceField(forms.ChoiceField):
 
 class PICChoiceField(ModelListChoiceField):
     def label_from_instance(self, pic):
-        return '{0.letter}. {0.problem.name}'.format(pic)
+        return '{0.ordering_id}. {0.problem.name}'.format(pic)
 
 
 class BytesMaxLengthValidator(MaxLengthValidator):

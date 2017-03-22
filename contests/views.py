@@ -420,9 +420,8 @@ class BaseStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, Notificati
             ProblemInContest
             .objects
             .filter(contest=contest)
-            .annotate_with_number_char()
             .order_by('number')
-            .values('number_char', 'problem__name')
+            .values('number', 'problem__name')
         )
 
         result = collections.namedtuple('Result', 'status time')

@@ -5,4 +5,5 @@ register = template.Library()
 
 @register.filter(name='to_ordering_letter')
 def to_ordering_letter(number):
-    return chr(ord('A') + (number - 1))
+    # ord('A') - 1 == 64
+    return chr(number + 64)

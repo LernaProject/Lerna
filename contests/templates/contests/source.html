@@ -1,16 +1,19 @@
 {% extends 'contests/item_base.html' %}
 
-{% block contest_page_content %}
-  <h4><a href="{{ attempt.problem_in_contest.get_absolute_url }}">
-    {{ attempt.problem_in_contest.number }}. {{ attempt.problem_in_contest.problem.name }}
-  </a></h4>
+{% block content %}
+  {{ block.super }}
+  <div>
+    Задача:
+    <a href="{{ attempt.problem_in_contest.get_absolute_url }}">
+      {{ attempt.problem_in_contest.ordering_id }}. {{ attempt.problem_in_contest.problem.name }}
+    </a>
+  </div>
 
-  <p>{{ attempt.verdict|default:'Waiting' }}</p>
+  <div>Вердикт: {{ attempt.verdict|default:'Waiting' }}</div>
 
   {% if attempt.error_message %}
     <pre>{{ attempt.error_message }}</pre>
   {% endif %}
-
   <style>{{ highlighting_styles|safe }}</style>
   {{ highlighted_source|safe }}
 {% endblock %}

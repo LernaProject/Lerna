@@ -8,7 +8,7 @@
     <th>Ранг</th>
     <th>Имя</th>
     {% for problem in problems %}
-      <th><span title="{{ problem.problem.name }}">{{ problem.number }}</span></th>
+      <th><span title="{{ problem.problem.name }}">{{ problem.ordering_id }}</span></th>
     {% endfor %}
     <th>Задач<br />(из {{ problems|length }})</th>
   </tr>

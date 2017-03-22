@@ -129,16 +129,6 @@ class Contest(md.Model):
 
 
 class PICQuerySet(md.QuerySet):
-    def annotate_with_number_char(self):
-        return self.annotate(
-            number_char=md.Func(
-                # ord('A') - 1 == 64
-                md.F('number') + 64,
-                function='chr',
-                output_field=md.CharField(),
-            ),
-        )
-
     def is_visible(self, problem):
         return self.filter(problem=problem, contest__is_admin=False).exists()
 
@@ -167,8 +157,9 @@ class ProblemInContest(md.Model):
         return reverse('contests:problem', args=[self.contest_id, self.number])
 
     @property
-    def letter(self):
-        return chr(ord('A') + (self.number - 1))
+    def ordering_id(self):
+        # ord('A') - 1 == 64
+        return str(self.number) if self.contest.is_training else chr(self.number + 64)
 
 
 class UserInContest(md.Model):
