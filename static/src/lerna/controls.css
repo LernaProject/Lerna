@@ -24,3 +24,8 @@
 .lerna-button:focus {
     background: #0A6035;
 }
+
+.lerna-indicator-image {
+    height: 1em;
+    width: 1em;
+}

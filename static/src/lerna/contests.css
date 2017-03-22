@@ -14,12 +14,6 @@
 }
 
 /* =================================== */
-
-.lerna-contest-heading > h4 > img {
-    width: 28px;
-    height: 28px;
-}
-
 .lerna-contest-heading .lch-timestamp,
 .lerna-contest-problem .lcpc-meta > div {
     color: #777;

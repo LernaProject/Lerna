@@ -29,9 +29,9 @@
         <div class="lcli-title">
           {% if contest.is_registration_required %}
             {% if contest.available %}
-                lock_open.jpg
+                <img class="lerna-indicator-image" src="{% static 'lerna/icons/unlocked.svg' %}" title="Вы допущены к участию"/>
             {% else %}
-                lock_close.jpg
+                <img class="lerna-indicator-image" src="{% static 'lerna/icons/locked.svg' %}" title="Доступ к участию закрыт"/>
             {% endif %}
           {% endif %}
           <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
