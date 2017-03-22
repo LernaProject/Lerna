@@ -11,6 +11,10 @@
     width: 200px;
 }
 
+.dropdown-pane > ul {
+    box-shadow: 0 1px 3px #DDDDDD;
+}
+
 .menu hr,
 .dropdown-pane hr {
     margin: 7px 10px;

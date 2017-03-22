@@ -11,7 +11,7 @@ body, html {
     background-color: #0B5E35;
     background: linear-gradient(to top, #0B5E35, #0E7340);
     padding: 4px 0;
-    box-shadow: 0 -2px 10px #000000;
+    box-shadow: 0 0px 4px #999999;
 }
 
 .lerna-main-menu > .row {
