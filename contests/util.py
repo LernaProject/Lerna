@@ -30,8 +30,8 @@ def get_relative_time_info(contest):
     frozen = False
     freezing_time_str = None
     if started and contest.freezing_time is not None:
-        if finished:
-            freezing_time_str = 'Соревнование завершилось, таблица результатов разморожена'
+        if contest.is_unfrozen:
+            freezing_time_str = 'Таблица результатов разморожена'
         else:
             freezing_time = contest.start_time + timezone.timedelta(minutes=contest.freezing_time)
             frozen = now > freezing_time

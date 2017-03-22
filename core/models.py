@@ -65,6 +65,7 @@ class Contest(md.Model):
     problems                 = md.ManyToManyField(Problem, through='ProblemInContest')
     is_registration_required = md.BooleanField(default=False)
     registered_users         = md.ManyToManyField(User, through='UserInContest')
+    is_unfrozen              = md.BooleanField(default=False)
 
     objects = ContestQuerySet.as_manager()
 
@@ -96,8 +97,10 @@ class Contest(md.Model):
         return reverse('contests:problem', args=[self.id, 1])
 
     def is_frozen_at(self, moment):
+        if self.freezing_time is None:
+            return False
         freezing_moment = self.start_time + timezone.timedelta(minutes=self.freezing_time)
-        return freezing_moment <= moment < self.finish_time
+        return freezing_moment <= moment and not self.is_unfrozen
 
     def is_available_for(self, user):
         public = not self.is_registration_required
