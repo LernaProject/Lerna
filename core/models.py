@@ -104,7 +104,9 @@ class Contest(md.Model):
 
     def is_available_for(self, user):
         public = not self.is_registration_required
-        return public or user.is_staff or self.registered_users.filter(user=user).exists()
+        return public or user.is_staff or (
+            user.is_authenticated and self.registered_users.filter(id=user).exists()
+        )
 
     @classmethod
     def three_way_split(cls, contests, threshold_time):
