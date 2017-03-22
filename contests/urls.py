@@ -16,6 +16,7 @@ urlpatterns = (
     _url(r'^trainings/?$', TrainingIndexView, 'trainings'),
     _url(r'^training/(?P<contest_id>\d+)/?$', TrainingView, 'training'),
     _url(r'^(?P<contest_id>\d+)/(?P<problem_number>\d+)/?$', ProblemView, 'problem'),
+    _url(r'^(?P<contest_id>\d+)/(?P<problem_number>\d+)/submit/?$', SubmitView, 'submit'),
     _url(r'^(?P<contest_id>\d+)/submit/?$', SubmitView, 'submit'),
     _url(r'^(?P<contest_id>\d+)/attempts/?$', AttemptsView, 'attempts'),
     _url(r'^(?P<contest_id>\d+)/attempts/(?P<page>\d+)/?$', AttemptsView, 'attempts'),

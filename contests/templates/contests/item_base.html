@@ -17,7 +17,7 @@
   <div class="lerna-contest-heading">
     <h4>
       {% if time_info.frozen %}
-        <img src="{% static 'lerna/icons/snowflake.svg' %}" title="Таблица результатов заморожена"/>
+        <img alt="❄" src="{% static 'lerna/icons/snowflake.svg' %}" title="Таблица результатов заморожена"/>
       {% endif %}
 
       {{ contest.name }}
@@ -43,17 +43,22 @@
     {% endif %}
     <hr/>
 
+    {% if problem_number %}
+      {% url 'contests:submit' contest.id problem_number as submit_url %}
+    {% else %}
+      {% url 'contests:submit' contest.id as submit_url %}
+    {% endif %}
+    {% if contest.is_training %}
+      {% url 'contests:rating' contest.id as standings_url %}
+    {% else %}
+      {% url 'contests:standings' contest.id as standings_url %}
+    {% endif %}
     <ul class="menu">
       <li><a href="{{ contest.get_absolute_url }}">Задачи</a></li>
-      <li><a href="{% url 'contests:submit' contest.id %}">Послать</a></li>
+      <li><a href="{{ submit_url }}">Послать</a></li>
       <li><a href="{% url 'contests:attempts' contest.id %}">Попытки</a></li>
-      {% if contest.is_training %}
-        <li><a href="{% url 'contests:rating' contest.id %}">Рейтинг</a></li>
-      {% else %}
-        <li><a href="{% url 'contests:standings' contest.id %}">Рейтинг</a></li>
-      {% endif %}
+      <li><a href="{{ standings_url }}">Рейтинг</a></li>
       <li><a href="{% url 'contests:clarifications' contest.id %}">Вопросы</a></li>
     </ul>
   </div>
 {% endblock %}
-

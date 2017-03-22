@@ -16,7 +16,6 @@
   <div class="lerna-contest-problem row">
     {% if not contest.is_full_information_available %}
       <div>Задачи недоступны</div>
-
     {% else %}
       <div class="large-9 columns lcp-content">
         <h4>
@@ -26,7 +25,7 @@
           </button>
           <div class="dropdown-pane" id="contest-problem-dropdown-menu" data-dropdown>
             <ul class="menu vertical">
-              <li><a href="{% url 'contests:submit' contest.id %}">Послать решение</a></li>
+              <li><a href="{% url 'contests:submit' contest.id problem_number %}">Послать решение</a></li>
               <li><a href="{% url 'global_statistics:best_time' problem.id %}">Статистика</a></li>
               <li><a href="{% url 'global_statistics:problem_in_trainings' problem.id %}">Найти в тренировках</a></li>
               {% if user.is_staff %}

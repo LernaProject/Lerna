@@ -32,7 +32,7 @@ class ModelListChoiceField(forms.ChoiceField):
         super().validate(None if value is None else value.pk)
 
 
-class PICChoiceField(forms.ModelChoiceField):
+class PICChoiceField(ModelListChoiceField):
     def label_from_instance(self, pic):
         return '{0.letter}. {0.problem.name}'.format(pic)
 
@@ -43,7 +43,7 @@ class BytesMaxLengthValidator(MaxLengthValidator):
 
 
 class SubmitForm(forms.Form):
-    def __init__(self, compilers, pics, initial_compiler, *args, **kwargs):
+    def __init__(self, compilers, pics, initial_compiler, initial_pic, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields.update([
@@ -52,7 +52,7 @@ class SubmitForm(forms.Form):
                 initial=initial_compiler,
                 label='Компилятор',
             )),
-            ('problem', PICChoiceField(queryset=pics, empty_label=None, label='Задача')),
+            ('problem', PICChoiceField(pics, initial=initial_pic, label='Задача')),
             ('source', forms.CharField(
                 max_length=65536,
                 validators=[BytesMaxLengthValidator(65536)],
