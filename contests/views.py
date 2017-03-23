@@ -1,5 +1,6 @@
 import abc
 import collections
+import datetime
 import io
 import os
 import uuid
@@ -8,7 +9,7 @@ from   xml.sax import saxutils
 from django.contrib.auth.mixins   import LoginRequiredMixin
 from django.core.exceptions       import PermissionDenied
 from django.db                    import connection
-from django.db.models             import F, Q, BigIntegerField
+from django.db.models             import F, Q, Func, CharField, BigIntegerField
 from django.db.models.expressions import RawSQL
 from django.db.models.functions   import Cast
 from django.http                  import HttpResponse, Http404
@@ -339,11 +340,9 @@ class RatingView(SelectContestMixin, NotificationListMixin, ListView):
             Attempt
             .objects
             .filter(problem_in_contest__contest=contest_id)
-            .exclude(
-                Q(result__in=['', 'Queued', 'Compiling...', 'Compilation error', 'Ignored']) |
-                Q(result__startswith='System error') |
-                Q(result__startswith='Testing')
-            )
+            .exclude(result__in=['', 'Queued', 'Compiling...', 'Compilation error', 'Ignored'])
+            .exclude(result__startswith='Testing')
+            .exclude(result__startswith='System error')
             .annotate(succeeded=RawSQL(
                 "result = 'Accepted' OR (result = 'Tested' AND attempts.score > 99.99)",
                 (),
@@ -424,12 +423,12 @@ class BaseStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, Notificati
             .values('number', 'problem__name')
         )
 
-        result = collections.namedtuple('Result', 'status time')
+        Result = collections.namedtuple('Result', 'status time')
         standings = collections.defaultdict(lambda: {
             # 'username': None,
             'score': 0,
             'penalty': 0,
-            'results': [result('.', None)] * len(problems),
+            'results': [Result('.', None)] * len(problems),
         })
 
         statistics = []
@@ -438,12 +437,21 @@ class BaseStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, Notificati
                 'total_runs': 0,
                 'accepted': 0,
                 'rejected': 0,
-                'first_accept': None,
-                'first_accept_str': '',
-                'last_accept': None,
-                'last_accept_str': '',
+                'first_accepted': 1 << 63,
+                'first_accepted_str': '',
+                'last_accepted': -1 << 63,
+                'last_accepted_str': '',
             })
 
+        last_accepted = {
+            # 'user_id': None,
+            # 'number': None,
+            'time': datetime.datetime(1970, 1, 1, tzinfo=timezone.get_default_timezone()),
+            # 'username': None,
+            # 'problem_name': None,
+            # 'time_str': None,
+        }
+        # Create the table.
         with connection.cursor() as cursor:
             cursor.execute("""
                 WITH all_attempts AS (
@@ -481,21 +489,70 @@ class BaseStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, Notificati
                     accepted_time = int((succeeded_at - contest.start_time).total_seconds() / 60)
                     time_str = '%d:%02d' % divmod(accepted_time, 60)
                     status = '+' if attempt_count == 1 else '+%d' % (attempt_count - 1)
+
                     user_info['score'] += 1
                     user_info['penalty'] += accepted_time + (attempt_count - 1) * 20
-                    user_info['results'][problem_number] = result(status, time_str)
+                    user_info['results'][problem_number] = Result(status, time_str)
+
                     statistic['accepted'] += 1
                     statistic['rejected'] += attempt_count - 1
-                    if statistic['first_accept'] is None or statistic['first_accept'] > accepted_time:
-                        statistic['first_accept'] = accepted_time
-                        statistic['first_accept_str'] = time_str
-                    if statistic['last_accept'] is None or statistic['last_accept'] < accepted_time:
-                        statistic['last_accept'] = accepted_time
-                        statistic['last_accept_str'] = time_str
+                    if accepted_time < statistic['first_accepted']:
+                        statistic['first_accepted'] = accepted_time
+                        statistic['first_accepted_str'] = time_str
+                    if accepted_time > statistic['last_accepted']:
+                        statistic['last_accepted'] = accepted_time
+                        statistic['last_accepted_str'] = time_str
+                    if succeeded_at > last_accepted['time']:
+                        last_accepted = {
+                            'user_id': user_id,
+                            'number': problem_number,
+                            'time': succeeded_at,
+                            # 'username': None,
+                            # 'problem_name': None,
+                            # 'time_str': None,
+                        }
                 else:
-                    user_info['results'][problem_number] = result('-%d' % attempt_count, None)
+                    user_info['results'][problem_number] = Result('-%d' % attempt_count, None)
                     statistic['rejected'] += attempt_count
 
+        # Calculate the last accepted and last submitted attempts.
+        if 'number' in last_accepted:
+            time = int((last_accepted['time'] - contest.start_time).total_seconds() / 60)
+            last_accepted['problem_name'] = problems[last_accepted['number']]['problem__name']
+            last_accepted['number'] += 1
+            last_accepted['time_str'] = '%d:%02d' % divmod(time, 60)
+            last_accepted_user_id = last_accepted['user_id']
+        else:
+            last_accepted = last_accepted_user_id = None
+        try:
+            last_submitted = (
+                Attempt
+                .objects
+                .filter(problem_in_contest__contest=contest, time__lt=due_time)
+                .exclude(result__in=['', 'Queued', 'Compiling...', 'Compilation error', 'Ignored'])
+                .exclude(result__startswith='Testing')
+                .exclude(result__startswith='System error')
+                .select_related('user', 'problem_in_contest__problem')
+                .only(
+                    'time', 'user__username',
+                    'problem_in_contest__number', 'problem_in_contest__problem__name',
+                )
+                .latest()
+            )
+        except Attempt.DoesNotExist:
+            last_submitted = None
+        else:
+            time = int((last_submitted.time - contest.start_time).total_seconds() / 60)
+            last_submitted = {
+                'user_id': last_submitted.user.id,
+                'number': last_submitted.problem_in_contest.number,
+                'time': last_submitted.time,
+                'username': last_submitted.user.username,
+                'problem_name': last_submitted.problem_in_contest.problem.name,
+                'time_str': '%d:%02d' % divmod(time, 60),
+            }
+
+        # Populate data with user names.
         names = (
             User
             .objects
@@ -504,8 +561,10 @@ class BaseStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, Notificati
         )
         for user_id, username in names:
             standings[user_id]['username'] = username
+            if user_id == last_accepted_user_id:
+                last_accepted['username'] = username
 
-        # TODO: Last submit time.
+        # Sort the table and assign ranks.
         standings = sorted(standings.values(), key=lambda info: (-info['score'], info['penalty']))
         for rank, user_info in enumerate(standings, 1):
             user_info['rank'] = rank
@@ -519,6 +578,7 @@ class BaseStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, Notificati
             notifications=self.get_notifications(contest),
             standings=standings,
             statistics=statistics,
+            last_attempts=(last_accepted, last_submitted),
         )
         return context
 
@@ -550,19 +610,24 @@ class BaseXMLStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, View):
         contest = self.select_contest()
         if contest.is_training:
             raise Http404
-        pics = (
+        pics = list(
             ProblemInContest
             .objects
             .filter(contest=contest_id)
-            .annotate_with_number_char()
+            .annotate(letter=Func(
+                # ord('A') - 1 == 64
+                F('number') + 64,
+                function='chr',
+                output_field=CharField(),
+            ))
             .order_by('number')
-            .values_list('id', 'number_char', 'problem__name')
+            .values_list('id', 'letter', 'problem__name')
         )
         attempts = (
             Attempt
             .objects
             .filter(
-                problem_in_contest__in=[pic_id for pic_id, number_char, name in pics],
+                problem_in_contest__in=[pic_id for pic_id, letter, name in pics],
                 time__lt=self.get_due_time(contest),
             )
             .annotate(
@@ -616,9 +681,9 @@ class BaseXMLStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, View):
         for user_id, username in users.items():
             r.write(b'<user id="%d" name=%s/>' % (user_id, saxutils.quoteattr(username).encode()))
         r.write(b'</users><problems>')
-        for pic_id, number_char, name in pics:
+        for pic_id, letter, name in pics:
             r.write(b'<problem id="%d" short_name="%c" long_name=%s/>' % (
-                pic_id, number_char.encode(), saxutils.quoteattr(name).encode(),
+                pic_id, letter.encode(), saxutils.quoteattr(name).encode(),
             ))
         r.write(b'</problems><languages>')
         for compiler_id, (codename, name) in compilers.items():

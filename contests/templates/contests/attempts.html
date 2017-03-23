@@ -1,6 +1,7 @@
 {% extends 'contests/item_base.html' %}
 
 {% block content %}
+{% spaceless %}{# Better than nothing, given that we don't have Pipeline any more. #}
   {{ block.super }}
   {% if not contest.is_full_information_available %}
     <p>Очередь ваших посылок будет доступна на этой странице сразу после начала соревнования.</p>
@@ -38,6 +39,7 @@
     {% endfor %}
     </table>
   {% endif %}
+{% endspaceless %}
 {% endblock %}
 
 {% block pagination %}

@@ -3,6 +3,9 @@ from django.utils import timezone
 import collections
 
 
+TimeInfo = collections.namedtuple('TimeInfo', 'started finished frozen time_str freezing_time_str')
+
+
 def get_relative_time_info(contest):
     def seconds_to_str(seconds):
         hours, seconds = divmod(seconds, 3600)
@@ -13,7 +16,6 @@ def get_relative_time_info(contest):
 
     if contest.is_training:
         return None
-    time_info = collections.namedtuple('TimeInfo', 'started finished frozen time_str freezing_time_str')
     now = timezone.now()
     started = now >= contest.start_time
     finished = now >= contest.finish_time
@@ -41,4 +43,4 @@ def get_relative_time_info(contest):
                 seconds_till_freezing = int((freezing_time - now).total_seconds())
                 freezing_time_str = 'До заморозки таблицы результатов осталось ' + seconds_to_str(seconds_till_freezing)
 
-    return time_info(started, finished, frozen, time_str, freezing_time_str)
+    return TimeInfo(started, finished, frozen, time_str, freezing_time_str)

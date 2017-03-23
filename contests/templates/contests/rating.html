@@ -5,10 +5,13 @@
 
 
 {% block content %}
+{% spaceless %}{# Better than nothing, given that we don't have Pipeline any more. #}
   {{ block.super }}
   {% if not available %}
-    <div>Это соревнование требует отдельной регистрации на него. Только зарегистрированные на участие в соревновании
-    пользователи могут просматривать его рейтинг.</div>
+    <p>
+      Это соревнование требует отдельной регистрации на него. Только зарегистрированные
+      на участие в соревновании пользователи могут просматривать его рейтинг.
+    </p>
   {% elif contest.is_school %}
     <p>На сайте временно не поддерживается отображение рейтинга соревнований, проведённых с подсчётом процента пройденных тестов</p>
   {% elif not contest.is_training and not time_info.started %}
@@ -17,12 +20,20 @@
     {% if time_info.freezing_time_str %}
       <div>{{ time_info.freezing_time_str }}</div>
     {% endif %}
+    {% for attempt_info in last_attempts %}
+      <div>
+        Последняя {% cycle 'сдача' 'попытка' %}: {{ attempt_info.username }},
+        "{{ attempt_info.number|to_ordering_letter }}. {{ attempt_info.problem_name }}",
+        {{ attempt_info.time_str }}
+      </div>
+    {% endfor %}
+
     <table>
     <tr>
       <th>Ранг</th>
       <th>Имя</th>
-      {% for problem in problems %}
-          <th><span title="{{ problem.problem__name }}">{{ problem.number|to_ordering_letter }}</span></th>
+      {% for pic in problems %}
+        <th><span title="{{ pic.problem__name }}">{{ pic.number|to_ordering_letter }}</span></th>
       {% endfor %}
       <th>Задач<br />(из&nbsp;{{ problems|length }})</th>
       <th>Время</th>
@@ -32,7 +43,7 @@
          <td>{{ user_info.rank }}</td>
          <td>{{ user_info.username }}</td>
          {% for result in user_info.results %}
-           <td>{{ result.status }}{% if result.time %}<br />{{ result.time }}{% endif %}</td>
+           <td>{{ result.status }}{% if result.time %}<br/>{{ result.time }}{% endif %}</td>
          {% endfor %}
          <td>{{ user_info.score }}</td>
          <td>{{ user_info.penalty }}</td>
@@ -70,7 +81,7 @@
         <td></td>
         <td>Первая сдача</td>
         {% for statistic in statistics %}
-          <td>{{ statistic.first_accept_str }}</td>
+          <td>{{ statistic.first_accepted_str }}</td>
         {% endfor %}
         <td></td>
         <td></td>
@@ -79,7 +90,7 @@
         <td></td>
         <td>Последняя сдача</td>
         {% for statistic in statistics %}
-          <td>{{ statistic.last_accept_str }}</td>
+          <td>{{ statistic.last_accepted_str }}</td>
         {% endfor %}
         <td></td>
         <td></td>
@@ -87,4 +98,5 @@
     {% endif %}
     </table>
   {% endif %}
+{% endspaceless %}
 {% endblock %}
