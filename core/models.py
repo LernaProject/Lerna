@@ -100,7 +100,7 @@ class Contest(md.Model):
         if self.freezing_time is None:
             return False
         freezing_moment = self.start_time + timezone.timedelta(minutes=self.freezing_time)
-        return freezing_moment <= moment and not self.is_unfrozen
+        return freezing_moment <= moment and (moment < self.finish_time or not self.is_unfrozen)
 
     def is_available_for(self, user):
         public = not self.is_registration_required
