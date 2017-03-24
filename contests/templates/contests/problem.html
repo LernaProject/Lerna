@@ -25,7 +25,7 @@
             {{ problem_number|to_ordering_letter }}. {{ problem.name }}
           {% endif %}
           <button class="button lerna-small-button" type="button" data-toggle="contest-problem-dropdown-menu">
-            <img src="{% static 'lerna/icons/item_menu.svg' %}"/>
+            <img alt="⋮" src="{% static 'lerna/icons/item_menu.svg' %}"/>
           </button>
           <div class="dropdown-pane" id="contest-problem-dropdown-menu" data-dropdown>
             <ul class="menu vertical">

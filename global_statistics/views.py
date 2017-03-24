@@ -1,10 +1,16 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models           import F, Q, Count
-from django.http                import Http404
-from django.views.generic       import ListView
+from django.contrib.auth.mixins   import LoginRequiredMixin
+from django.db.models             import F, Q, Count
+from django.db.models.expressions import RawSQL
+from django.http                  import Http404
+from django.utils                 import timezone
+from django.views.generic         import ListView
 
 from core.models  import Attempt, Problem, Contest, ProblemInContest
 from users.models import User, rank_users
+
+
+def _to_minutes(expression):
+    return expression * RawSQL("interval '1 minute'", ())
 
 
 class RatingIndexView(ListView):
@@ -29,6 +35,10 @@ class RatingIndexView(ListView):
                         JOIN problem_in_contests pic ON pic.id = a.problem_in_contest_id
                         JOIN contests c ON c.id = pic.contest_id
                         WHERE NOT c.is_admin
+                        AND (c.is_training OR (
+                            c.is_unfrozen AND
+                            now() >= c.start_time + c.duration * interval '1 minute'
+                        ))
                         AND (a.result = 'Accepted' OR (a.result = 'Tested' AND a.score > 99.99))
                         GROUP BY u.id, pic.problem_id
                     ) subq
@@ -83,10 +93,18 @@ class BestTimeView(ListView):
     paginate_orphans = 1
 
     def get_queryset(self):
+        now = timezone.now()
         users = list(
             User
             .objects
             .filter(
+                Q(attempt__problem_in_contest__contest__is_training=True) | Q(
+                    attempt__problem_in_contest__contest__is_unfrozen=True,
+                    # start_time <= now() - duration * interval '1 minute'
+                    attempt__problem_in_contest__contest__start_time__lte=(
+                        now - _to_minutes(F('attempt__problem_in_contest__contest__duration'))
+                    ),
+                ),
                 Q(attempt__result='Accepted') | Q(
                     attempt__result='Tested',
                     attempt__score__gt=99.99,
@@ -121,6 +139,7 @@ class BestTimeView(ListView):
 class ProblemInTrainingsView(ListView):
     template_name = 'global_statistics/problem_in_trainings.html'
     context_object_name = 'training_list'
+    allow_empty = True
 
     get_queryset = lambda self: (
         Contest

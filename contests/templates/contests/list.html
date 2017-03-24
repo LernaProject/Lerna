@@ -29,9 +29,9 @@
         <div class="lcli-title">
           {% if contest.is_registration_required %}
             {% if contest.available %}
-                <img class="lerna-indicator-image" src="{% static 'lerna/icons/unlocked.svg' %}" title="Вы допущены к участию"/>
+              <img alt="🔓" class="lerna-indicator-image" src="{% static 'lerna/icons/unlocked.svg' %}" title="Вы допущены к участию"/>
             {% else %}
-                <img class="lerna-indicator-image" src="{% static 'lerna/icons/locked.svg' %}" title="Доступ к участию закрыт"/>
+              <img alt="🔒" class="lerna-indicator-image" src="{% static 'lerna/icons/locked.svg' %}" title="Доступ к участию закрыт"/>
             {% endif %}
           {% endif %}
           <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
@@ -42,9 +42,9 @@
           {% else %}
             <div>Контест по стандартным правилам ACM</div>
           {% endif %}
-          <div> Время начала: {{ contest.start_time|date:"d E (D) в G:i"|lower }} </div>
-          <div> Время окончания: {{ contest.finish_time|date:"d E (D) в G:i"|lower }}</div>
-          <div> Длительность: {{ contest.duration_str }}</div>
+          <div>Время начала: {{ contest.start_time|date:"d E (D) в G:i"|lower }}</div>
+          <div>Время окончания: {{ contest.finish_time|date:"d E (D) в G:i"|lower }}</div>
+          <div>Длительность: {{ contest.duration_str }}</div>
         </div>
       </div>
     {% endfor %}
@@ -57,9 +57,9 @@
         <div class="lcli-title">
           {% if contest.is_registration_required %}
             {% if contest.available %}
-                lock_open.jpg
+              <img alt="🔓" class="lerna-indicator-image" src="{% static 'lerna/icons/unlocked.svg' %}" title="Вы допущены к участию"/>
             {% else %}
-                lock_close.jpg
+              <img alt="🔒" class="lerna-indicator-image" src="{% static 'lerna/icons/locked.svg' %}" title="Доступ к участию закрыт"/>
             {% endif %}
           {% endif %}
           <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
@@ -70,8 +70,8 @@
           {% else %}
             <div>Контест по стандартным правилам ACM</div>
           {% endif %}
-          <div> Время начала: {{ contest.start_time|date:"d E (D) в G:i"|lower }} </div>
-          <div> Длительность: {{ contest.duration_str }}</div>
+          <div>Время начала: {{ contest.start_time|date:"d E (D) в G:i"|lower }}</div>
+          <div>Длительность: {{ contest.duration_str }}</div>
         </div>
       </div>
     {% endfor %}
@@ -88,8 +88,8 @@
           {% else %}
             <div>Контест по стандартным правилам ACM</div>
           {% endif %}
-          <div> Время начала: {{ contest.start_time|date:"d E Y в G:i"|lower }} </div>
-          <div> Время окончания: {{ contest.finish_time|date:"d E Y в G:i"|lower }}</div>
+          <div>Время начала: {{ contest.start_time|date:"d E Y в G:i"|lower }}</div>
+          <div>Время окончания: {{ contest.finish_time|date:"d E Y в G:i"|lower }}</div>
         </div>
       </div>
     {% endfor %}

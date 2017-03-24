@@ -130,7 +130,11 @@ class Contest(md.Model):
 
 class PICQuerySet(md.QuerySet):
     def is_visible(self, problem):
-        return self.filter(problem=problem, contest__is_admin=False).exists()
+        return self.filter(
+            problem=problem,
+            contest__is_admin=False,
+            contest__start_time__lte=timezone.now(),
+        ).exists()
 
 
 class ProblemInContest(md.Model):
