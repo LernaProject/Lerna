@@ -3,7 +3,10 @@ from django import template
 register = template.Library()
 
 
-@register.filter(name='to_ordering_letter')
+@register.filter
 def to_ordering_letter(number):
-    # ord('A') - 1 == 64
-    return chr(number + 64)
+    try:
+        # ord('A') - 1 == 64
+        return chr(int(number) + 64)
+    except ValueError:
+        return ''

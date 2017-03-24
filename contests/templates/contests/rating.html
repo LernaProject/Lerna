@@ -22,9 +22,12 @@
     {% endif %}
     {% for attempt_info in last_attempts %}
       <div>
-        Последняя {% cycle 'сдача' 'попытка' %}: {{ attempt_info.username }},
-        "{{ attempt_info.number|to_ordering_letter }}. {{ attempt_info.problem_name }}",
-        {{ attempt_info.time_str }}
+        Последняя {% cycle 'сдача' 'попытка' %}:
+        {% if attempt_info %}
+          {{ attempt_info.username }},
+          "{{ attempt_info.number|to_ordering_letter }}. {{ attempt_info.problem_name }}",
+          {{ attempt_info.time_str }}
+        {% endif %}
       </div>
     {% endfor %}
 
