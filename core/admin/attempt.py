@@ -64,13 +64,14 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
             fieldsets += (
                 (
                     _('Statistics'), {
-                        'fields': [self.readonly_fields],
+                        'fields': [self.readonly_object_fields],
                     }
                 ),
             )
         return fieldsets
 
     readonly_fields = ('time', 'updated_at', 'pretty_source')
+    readonly_object_fields = readonly_fields[:-1]
 
     def get_inline_instances(self, request, attempt=None):
         if attempt is None or attempt.score is not None:
