@@ -17,12 +17,11 @@ from django.shortcuts             import render, redirect
 from django.utils                 import timezone
 from django.views.generic         import TemplateView, ListView, View
 from django.views.generic.edit    import FormView
-import pygments.formatters
-import pygments.lexers.special
 
 from contests.forms import SubmitForm, ClarificationForm
 from contests.util  import get_relative_time_info
 from core.models    import Contest, ProblemInContest, Notification, Clarification, Attempt, Compiler
+from core.util      import highlight_source
 from users.models   import User, rank_users
 
 
@@ -258,14 +257,6 @@ class AttemptsView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin
 class AttemptDetailsView(LoginRequiredMixin, NotificationListMixin, TemplateView):
     template_name = 'contests/source.html'
 
-    @staticmethod
-    def _find_lexer(name, **kwargs):
-        try:
-            return pygments.lexers.get_lexer_by_name(name, **kwargs)
-        except pygments.util.ClassNotFound:
-            # TODO: Log that.
-            return pygments.lexers.special.TextLexer(**kwargs)
-
     def get_context_data(self, **kwargs):
         attempt_id = self.kwargs['attempt_id']
         context = super().get_context_data(**kwargs)
@@ -289,14 +280,13 @@ class AttemptDetailsView(LoginRequiredMixin, NotificationListMixin, TemplateView
         if user.id != attempt.user_id and not user.is_staff:
             raise PermissionDenied('Вы не можете просматривать исходный код чужих посылок.')
 
-        lexer = AttemptDetailsView._find_lexer(attempt.compiler.highlighter, tabsize=4)
-        formatter = pygments.formatters.HtmlFormatter(linenos='table', style='tango')
+        source, styles = highlight_source(attempt.source, attempt.compiler.highlighter)
         context.update(
             contest=attempt.problem_in_contest.contest,
             attempt=attempt,
             notifications=self.get_notifications(attempt.problem_in_contest.contest),
-            highlighted_source=pygments.highlight(attempt.source, lexer, formatter),
-            highlighting_styles=formatter.get_style_defs('.highlight'),
+            highlighted_source=source,
+            highlighting_styles=styles,
         )
         return context
 

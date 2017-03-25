@@ -1,7 +1,9 @@
-from   ajax_select       import register, LookupChannel
-from   django.db.models  import Q
-from   django.utils.html import escape
+import contextlib
 import re
+
+from ajax_select       import register, LookupChannel
+from django.db.models  import Q
+from django.utils.html import escape
 
 from . import models
 
@@ -12,10 +14,8 @@ class ProblemLookup(LookupChannel):
 
     def get_query(self, q, request):
         query = Q(name__icontains=q) | Q(path__icontains=q)
-        try:
+        with contextlib.suppress(ValueError):
             query |= Q(id=int(q))
-        except ValueError:
-            pass
         return (
             self.model
             .objects
@@ -36,10 +36,8 @@ class ContestLookup(LookupChannel):
 
     def get_query(self, q, request):
         query = Q(name__icontains=q)
-        try:
+        with contextlib.suppress(ValueError):
             query |= Q(id=int(q))
-        except ValueError:
-            pass
         return (
             self.model
             .objects
@@ -66,12 +64,9 @@ class ProblemInContestLookup(LookupChannel):
 
         # By contest name.
         query = Q(contest__name__icontains=contest)
-
         # By contest id.
-        try:
+        with contextlib.suppress(ValueError):
             query |= Q(contest__id=int(contest))
-        except ValueError:
-            pass
 
         if problem:
             # By problem name and path.
@@ -83,7 +78,8 @@ class ProblemInContestLookup(LookupChannel):
             except ValueError:
                 # By problem letter.
                 if len(problem) == 1 and problem.isalpha():
-                    number = ord(problem.upper()) - ord('A') + 1
+                    # ord('A') - 1 == 64
+                    number = ord(problem.upper()) - 64
                     if 1 <= number <= 26:
                         problem_query |= Q(number=number)
             else:

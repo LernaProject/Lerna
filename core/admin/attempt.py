@@ -2,10 +2,11 @@ from ajax_select              import make_ajax_form
 from django                   import db, forms
 from django.contrib           import admin
 from django.utils.translation import ugettext as _
+from django.utils.safestring  import mark_safe
 
 from jquery_model_admin import JQueryModelAdmin
 
-from .. import models
+from core import models, util
 
 
 class TestInfoInline(admin.TabularInline):
@@ -27,7 +28,7 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
         }
     )
 
-    def get_fieldsets(self, request, obj=None):
+    def get_fieldsets(self, request, attempt=None):
         fieldsets = (
             (
                 None, {
@@ -35,7 +36,7 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
                 }
             ), (
                 _('Source'), {
-                    'fields': ('source', 'error_message'),
+                    'fields': ('error_message', 'pretty_source'),
                     'classes': ['collapse'],
                 }
             ), (
@@ -48,13 +49,18 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
                     ),
                 }
             ), (
+                _('Raw source'), {
+                    'fields': ['source'],
+                    'classes': ['collapse'],
+                }
+            ), (
                 _('Rails trash'), {
                     'fields': ['lock_version'],
                     'classes': ['collapse'],
                 }
             ),
         )
-        if obj is not None:
+        if attempt is not None:
             fieldsets += (
                 (
                     _('Statistics'), {
@@ -64,10 +70,10 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
             )
         return fieldsets
 
-    readonly_fields = ('time', 'updated_at')
+    readonly_fields = ('time', 'updated_at', 'pretty_source')
 
-    def get_inline_instances(self, request, obj=None):
-        if obj is None or obj.score is not None:
+    def get_inline_instances(self, request, attempt=None):
+        if attempt is None or attempt.score is not None:
             return [TestInfoInline(self.model, self.admin_site)]
         else:
             return ()
@@ -82,6 +88,8 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
     # actions = ()
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related(
-            'user', 'problem_in_contest__problem', 'problem_in_contest__contest',
-        )
+        return super().get_queryset(request).select_related('compiler')
+
+    def pretty_source(self, attempt):
+        source, styles = util.highlight_source(attempt.source, attempt.compiler.highlighter)
+        return mark_safe('<style>%s</style>%s' % (styles, source))

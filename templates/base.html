@@ -41,6 +41,9 @@
         <li><a class="competitions_toplink" href="{% url 'contests:contests' %}">Соревнования</a></li>
         <li><a class="trainings_toplink"    href="{% url 'contests:trainings' %}">Тренировки</a></li>
         <li><a class="rating_toplink"       href="{% url 'global_statistics:rating' %}">Рейтинг</a></li>
+        {% if user.is_staff %}
+          <li><a class="admin_toplink"      href="{% url 'admin:index' %}">Админка</a></li>
+        {% endif %}
       </ul>
     </div>
 
