@@ -71,6 +71,7 @@
             <div>Контест по стандартным правилам ACM</div>
           {% endif %}
           <div>Время начала: {{ contest.start_time|date:"d E (D) в G:i"|lower }}</div>
+          <div>Время окончания: {{ contest.finish_time|date:"d E (D) в G:i"|lower }}</div>
           <div>Длительность: {{ contest.duration_str }}</div>
         </div>
       </div>
