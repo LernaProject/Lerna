@@ -64,7 +64,9 @@ class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
     )
     list_display_links = ('id', 'name')
     list_per_page = 30
-    list_filter = ('is_school', 'is_admin', 'is_training', 'is_registration_required', 'is_unfrozen')
+    list_filter = (
+        'is_school', 'is_admin', 'is_training', 'is_registration_required', 'is_unfrozen',
+    )
     date_hierarchy = 'start_time'
     search_fields = ('name', 'problems__name')
 
@@ -73,6 +75,3 @@ class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
         form.base_fields['duration'].initial = '300'
         form.base_fields['freezing_time'].initial = '240'
         return form
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('problem_in_contest_set')
