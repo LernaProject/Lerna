@@ -4,7 +4,7 @@
   {% if news_list %}
     {% for news in news_list %}
       <div class="lerna-news-list-item">
-        <h5 class="lerna-news-list-title"><a href="{{ news.get_absolute_url }}">
+        <h5 class="lerna-news-list-title"><a href="{% url 'news:show' news.id %}">
           {{ news.title }}
         </a></h5>
         <div class="lerna-news-meta">
@@ -14,7 +14,7 @@
           {{ news.short_description|safe }}
         </div>
         {% if news.has_long_description %}
-          <a class="lerna-news-list-more" href="{{ news.get_absolute_url }}">Подробнее...</a>
+          <a class="lerna-news-list-more" href="{% url 'news:show' news.id %}">Подробнее...</a>
         {% endif %}
 
       </div>

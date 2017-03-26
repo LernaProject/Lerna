@@ -7,13 +7,12 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'lerna/logo/favicon/apple-touch-icon.png' %}">
-  <link rel="icon" type="image/png" href="{% static 'lerna/logo/favicon/favicon-32x32.png' %}" sizes="32x32">
-  <link rel="icon" type="image/png" href="{% static 'lerna/logo/favicon/favicon-16x16.png' %}" sizes="16x16">
-  <link rel="manifest" href="{% static 'lerna/logo/favicon/manifest.json' %}">
-  <link rel="mask-icon" href="{% static 'lerna/logo/favicon/safari-pinned-tab.svg' %}" color="#118c4e">
-  <link rel="shortcut icon" href="{% static 'lerna/logo/favicon/favicon.ico' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'lerna/logo/favicon/apple_touch.png' %}"/>
+  <link rel="icon" type="image/png" href="{% static 'lerna/logo/favicon/favicon-32x32.png' %}" sizes="32x32"/>
+  <link rel="icon" type="image/png" href="{% static 'lerna/logo/favicon/favicon-16x16.png' %}" sizes="16x16"/>
+  <link rel="shortcut icon" href="{% static 'lerna/logo/favicon/favicon.ico' %}"/>
   <meta name="theme-color" content="#118c4e">
+  <meta name="yandex-tableau-widget" content="logo={{ request.scheme }}://{{ request.get_host }}{% static 'lerna/logo/favicon/tablo_logo.png' %}, color=#118C4E"/>
 
   <title>
     {% block title %}Lerna{% endblock %}
