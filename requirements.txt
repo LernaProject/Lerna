@@ -13,3 +13,7 @@ Pygments
 PyYAML
 pytz
 pip
+
+# Production only
+slimit==0.8.1
+# csstidy (installed in Dockerfile)
