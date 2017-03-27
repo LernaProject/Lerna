@@ -1,19 +1,15 @@
 #!/usr/bin/env bash
 
-# Importing names
-CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PREVIOUS_DIR=`pwd`
+CURRENT_DIR=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${CURRENT_DIR}
-source ./data/config.sh
+source ./config.sh
+echo ">> Launching docker container ${DOCKER_CONTAINER_ID} based on ${DOCKER_IMAGE_ID} image..."
 
-# Remove old containers
-docker ps -a | grep 'Exited' | awk '{print $1}' | xargs --no-run-if-empty docker rm -f
+echo "- remove previous ${DOCKER_CONTAINER_ID} container"
+docker ps -a | grep ${DOCKER_CONTAINER_ID} | awk '{print $1}' | xargs --no-run-if-empty docker rm -f
 
-echo "Checking if ${DOCKER_CONTAINER_ID} is already running..."
-if [ `docker inspect -f {{.State.Running}} ${DOCKER_CONTAINER_ID}` ]; then
-    echo "Server is already running"
-    exit 0
-fi
-
+echo "- launch new container"
 # run docker container from image ${DOCKER_IMAGE_ID}
 # -d                        - detach right after container was started
 # --name <name>             - docker container uid
@@ -26,3 +22,6 @@ docker run \
        --net="host" \
        --volume ${PROJECT_DIR}:/lerna \
        ${DOCKER_IMAGE_ID}
+
+echo "<< Docker container launched."
+cd ${PREVIOUS_DIR}
