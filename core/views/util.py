@@ -1,6 +1,10 @@
+import abc
+import collections
+
+from django.http  import Http404
 from django.utils import timezone
 
-import collections
+from core.models import Contest, Notification
 
 
 TimeInfo = collections.namedtuple('TimeInfo', 'started finished frozen time_str freezing_time_str')
@@ -43,3 +47,49 @@ def get_relative_time_info(contest):
             freezing_time_str = 'До заморозки таблицы результатов осталось ' + seconds_to_str(seconds_till_freezing)
 
     return TimeInfo(started, finished, frozen, time_str, freezing_time_str)
+
+
+class NotificationListMixin:
+    def get_notifications(self, contest):
+        return (
+            Notification
+            .objects
+            .privileged(self.request.user)
+            .filter(contest=contest)
+            .order_by('-created_at')
+        )
+
+
+class SelectContestMixin:
+    def select_contest(self):
+        try:
+            return (
+                Contest
+                .objects
+                .privileged(self.request.user)
+                .get(id=self.kwargs['contest_id'])
+            )
+        except Contest.DoesNotExist:
+            raise Http404('Не существует тренировки с запрошенным id.')
+
+
+class StandingsDueTimeMixinABC(abc.ABC):
+    @abc.abstractmethod
+    def get_due_time(self, contest):
+        pass
+
+
+class StandingsDueTimeMixin:
+    @staticmethod
+    def get_due_time(contest):
+        now = timezone.now()
+        if contest.is_frozen_at(now):
+            return contest.start_time + timezone.timedelta(minutes=contest.freezing_time)
+        else:
+            return min(contest.finish_time, now)
+
+
+class UnfrozenStandingsDueTimeMixin:
+    @staticmethod
+    def get_due_time(contest):
+        return min(contest.finish_time, timezone.now())

@@ -49,7 +49,6 @@ INSTALLED_APPS:
 - core
 - users
 - news
-- contests
 - global_statistics
 - dbtrash
 
