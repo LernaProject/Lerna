@@ -20,6 +20,9 @@ DEBUG_TOOLBAR_CONFIG:
 PIPELINE:
   PIPELINE_ENABLED: true
 
+  COMPILERS:
+    - 'lerna.static.sass.SassCompiler'
+
   JAVASCRIPT:
     jquery:
       source_filenames:
@@ -47,7 +50,7 @@ PIPELINE:
       source_filenames:
       - lerna/contests.css
       - lerna/controls.css
-      - lerna/global.css
+      - lerna/global.scss
       - lerna/news.css
       - lerna/users.css
       output_filename: lerna.piped.min.css

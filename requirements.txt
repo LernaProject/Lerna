@@ -3,6 +3,7 @@ Django==1.10.2
 django-ajax-selects==1.5.2
 django-debug-toolbar==1.6
 django-pipeline==1.6.9
+libsass==0.12.3
 
 # PostgreSQL connector
 psycopg2==2.6.2
