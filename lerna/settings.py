@@ -40,5 +40,31 @@ def _init_settings():
                 else:
                     globals()[yml_key] = yml_data
 
+    # TODO: Log every failure.
+    try:
+        import pypandoc as pd
+    except ImportError:
+        pass
+    else:
+        try:
+            pd.get_pandoc_version()
+        except OSError:
+            pass
+        else:
+            output = pd.convert_text('', 'html', format='latex')
+            if output not in ('', '\n'):
+                raise Exception('pandoc is found, but has not passed a sample test (%r)' % output)
+
+            def check_filter(f):
+                try:
+                    pd.convert_text('', 'html', format='latex', filters=[f])
+                    return True
+                except RuntimeError:
+                    return False
+
+            global PANDOC_REQUIRED, PANDOC_FILTERS
+            PANDOC_REQUIRED = True
+            PANDOC_FILTERS = [f for f in PANDOC_FILTERS if check_filter(f)]
+
 
 _init_settings()

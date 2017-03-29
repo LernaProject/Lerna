@@ -95,6 +95,11 @@ PYGMENTS:
     linenos: table
   STYLE_SELECTORS: .highlight
 
+PANDOC_REQUIRED: false
+PANDOC_EXTRA_ARGS: [--katex, --highlight-style=tango]
+PANDOC_FILTERS:
+- pandoc-anglequotes # https://github.com/SirNickolas/pandoc-anglequotes
+
 LOGGING_CONFIG: lerna.settings.init_logging
 
 # Authorizing
