@@ -17,11 +17,13 @@ AJAX_SELECT_BOOTSTRAP: false
 DEBUG_TOOLBAR_CONFIG:
   JQUERY_URL: /static/jquery/jquery.min.js
 
+HTML_MINIFY: true
+
 PIPELINE:
   PIPELINE_ENABLED: true
 
   COMPILERS:
-    - 'lerna.static.sass.SassCompiler'
+    - lerna.static.sass.SassCompiler
 
   JAVASCRIPT:
     jquery:
@@ -55,5 +57,10 @@ PIPELINE:
       - lerna/users.css
       output_filename: lerna.piped.min.css
 
-  JS_COMPRESSOR: pipeline.compressors.slimit.SlimItCompressor
-  CSS_COMPRESSOR: pipeline.compressors.csstidy.CSSTidyCompressor
+  JS_COMPRESSOR: pipeline.compressors.jsmin.JSMinCompressor
+  CSS_COMPRESSOR: lerna.static.csscompressor.CSSCompressor
+
+APPEND:
+  MIDDLEWARE_CLASSES:
+    - htmlmin.middleware.HtmlMinifyMiddleware
+    - htmlmin.middleware.MarkRequestMiddleware

@@ -6,7 +6,6 @@ class SassCompiler(CompilerBase):
     output_extension = 'css'
 
     def match_file(self, filename):
-        print('Checked: ' + filename)
         return filename.endswith('.scss')
 
     def compile_file(self, infile, outfile, outdated=False, force=False):

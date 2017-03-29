@@ -14,6 +14,7 @@ PyYAML
 pytz
 pip
 
-# Production only
-slimit==0.8.1
-# csstidy (installed in Dockerfile)
+# Production-only minifiers
+django-htmlmin==0.10.0
+csscompressor==0.9.4
+jsmin==2.2.1
