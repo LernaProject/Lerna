@@ -87,6 +87,14 @@ USE_I18N: true
 USE_L10N: true
 USE_TZ: true
 
+PYGMENTS:
+  LEXER:
+    tabsize: 4
+  FORMATTER:
+    style: tango
+    linenos: table
+  STYLE_SELECTORS: .highlight
+
 LOGGING_CONFIG: lerna.settings.init_logging
 
 # Authorizing
