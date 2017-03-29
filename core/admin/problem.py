@@ -23,6 +23,7 @@ class ProblemAdmin(admin.ModelAdmin):
             ), (
                 _('Description'), {
                     'fields': (
+                        'statements_format',
                         'description',
                         'input_specification', 'output_specification',
                         'samples', 'explanations',

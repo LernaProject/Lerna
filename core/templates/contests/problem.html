@@ -57,31 +57,31 @@
         <div>Ограничение по времени: {{ problem.time_limit_in_secs }} с.</div>
         <div>Ограничение по памяти: {{ problem.memory_limit }} МБ</div>
 
-        <div>{{ problem.description|safe }}</div>
+        <div>{{ problem.description_html|safe }}</div>
 
         {% if problem.input_specification %}
-            <b>Входные данные:</b>
-            <div>{{ problem.input_specification|safe }}</div>
+          <b>Входные данные</b>
+          <div>{{ problem.input_specification_html|safe }}</div>
         {% endif %}
 
         {% if problem.output_specification %}
-            <b>Выходные данные:</b>
-            <div>{{ problem.output_specification|safe }}</div>
+          <b>Выходные данные</b>
+          <div>{{ problem.output_specification_html|safe }}</div>
         {% endif %}
 
         {% if problem.samples %}
-            <b>Примеры</b>
-            <div class="lcpc-examples-table">{{ problem.samples|safe }}</div>
+          <b>Примеры</b>
+          <div class="lcpc-examples-table">{{ problem.samples_html|safe }}</div>
         {% endif %}
 
         {% if problem.explanations %}
-            <b>Пояснения к примерам:</b>
-            <div>{{ problem.explanations|safe }}</div>
+          <b>Пояснения к примерам</b>
+          <div>{{ problem.explanations_html|safe }}</div>
         {% endif %}
 
         {% if problem.notes %}
-            <b>Примечания:</b>
-            <div>{{ problem.notes|safe }}</div>
+          <b>Примечания</b>
+          <div>{{ problem.notes_html|safe }}</div>
         {% endif %}
       </div>
 
@@ -98,7 +98,7 @@
         {% if notifications %}
           {% for notification in notifications %}
             <hr/>
-            <div>{{ notification.description|safe|linebreaksbr }}</div>
+            <div>{{ notification.description_html|safe }}</div>
           {% endfor %}
         {% endif %}
       </div>

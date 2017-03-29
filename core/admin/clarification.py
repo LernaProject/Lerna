@@ -37,7 +37,7 @@ class ClarificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
     )
 
     def get_fields(self, request, obj=None):
-        fields = ('contest', 'user', 'question', 'answer')
+        fields = ('contest', 'user', 'question', 'answer', 'format')
         if obj is not None:
             fields += (
                 self.readonly_fields,
@@ -49,4 +49,4 @@ class ClarificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
     list_filter = [ClarificationAnswerFilter]
     list_per_page = 30
     date_hierarchy = 'created_at'
-    search_fields = ('contest__name', 'question', 'user__username', 'user__login')
+    search_fields = ('contest__id', 'contest__name', 'question', 'user__username', 'user__login')

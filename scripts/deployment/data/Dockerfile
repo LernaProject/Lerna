@@ -1,30 +1,43 @@
 FROM python:3.5
 MAINTAINER Chernousov Ivan <krusnik.viers@gmail.com>
 
-# Moving entry script to image and setting it as entry point
+# 1. Moving entry script to the image and setting it as an entry point.
 COPY docker_run.sh /
-ENTRYPOINT ./docker_run.sh
+ENTRYPOINT ["/docker_run.sh"]
 
-# Preparing directory for lerna sources
-RUN mkdir /lerna
+# 2. Preparing directory for Lerna sources.
+# 3. Updating available packages.
+# 4. Installing nginx and Supervisor.
+# 5. Cleaning package lists.
+# 6. Installing Pandoc.
+# 7. Setting up nginx.
+RUN set -ux                                    && \
+    readonly PANDOC_VERSION=1.19.2.1           && \
+    mkdir /lerna                               && \
+    apt-get update                             && \
+    apt-get install -y nginx supervisor        && \
+    apt-get clean                              && \
+    curl -fSLO https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-amd64.deb && \
+    dpkg -i pandoc-$PANDOC_VERSION-1-amd64.deb && \
+    echo 'daemon off;' >>/etc/nginx/nginx.conf && \
+    rm -f pandoc-$PANDOC_VERSION-1-amd64.deb /etc/nginx/sites-enabled/* /etc/nginx/sites-available/*
 
-# Updating available packages
-RUN apt-get update
+COPY lerna.nginx /etc/nginx/sites-enabled/
 
-# Installing pip requirements
+# 8. Setting up Supervisor.
+COPY supervisord.conf /etc/supervisor/conf.d/
+
+# 9. Installing pip requirements.
+# 10. Installing gUnicorn.
+# 11. Installing a Pandoc extension.
 COPY requirements.txt.tmp /
-RUN pip install -r requirements.txt.tmp --upgrade
-
-# Setting up nginx
-RUN apt-get install -y nginx
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-RUN rm /etc/nginx/sites-enabled/*
-RUN rm /etc/nginx/sites-available/*
-COPY lerna.nginx /etc/nginx/sites-enabled
-
-# Setting up gUnicorn
-RUN pip install gunicorn
-
-# Setting up supervisor
-RUN apt-get install -y supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN set -ux                                                       && \
+    pip3 install --no-cache-dir --upgrade -r requirements.txt.tmp && \
+    pip3 install --no-cache-dir gunicorn                          && \
+    cd /tmp                                                       && \
+    git clone git://github.com/SirNickolas/pandoc-anglequotes     && \
+    cd pandoc-anglequotes                                         && \
+    pip install --no-cache-dir --upgrade -r requirements.txt      && \
+    make install-python                                           && \
+    cd /                                                          && \
+    rm -rf /tmp/pandoc-anglequotes /requirements.txt.tmp

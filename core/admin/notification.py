@@ -16,7 +16,7 @@ class NotificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
     )
 
     def get_fields(self, request, obj=None):
-        fields = ('contest', 'description', 'visible')
+        fields = ('contest', 'description', 'format', 'visible')
         if obj is not None:
             fields += (
                 self.readonly_fields,
@@ -28,4 +28,4 @@ class NotificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
     list_display_links = ('contest', '__str__')
     list_per_page = 30
     date_hierarchy = 'created_at'
-    search_fields = ('contest__name', 'description')
+    search_fields = ('contest__id', 'contest__name', 'description')

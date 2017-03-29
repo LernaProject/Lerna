@@ -1,32 +1,46 @@
+from django.core  import validators as val
 from django.db    import models as md
 from django.urls  import reverse
 from django.utils import timezone
 
+from misc         import pandoc
 from users.models import User
 
 
 class Problem(md.Model):
-    name                 = md.CharField(max_length=80)
-    path                 = md.CharField(max_length=255)
-    author               = md.CharField(max_length=64, blank=True, db_index=True)
-    developer            = md.CharField(max_length=64, blank=True, db_index=True)
-    origin               = md.CharField(max_length=128, blank=True, db_index=True)
-    description          = md.TextField()
-    input_specification  = md.TextField(blank=True)
-    output_specification = md.TextField(blank=True)
-    samples              = md.TextField(blank=True)
-    explanations         = md.TextField(blank=True)
-    notes                = md.TextField(blank=True)
-    input_file           = md.CharField(max_length=16, blank=True)
-    output_file          = md.CharField(max_length=16, blank=True)
-    time_limit           = md.PositiveIntegerField()
-    memory_limit         = md.PositiveIntegerField()
-    checker              = md.CharField(max_length=100)
-    mask_in              = md.CharField(max_length=32)
-    mask_out             = md.CharField(max_length=32, blank=True)
-    analysis             = md.TextField(blank=True)
-    created_at           = md.DateTimeField(auto_now_add=True)
-    updated_at           = md.DateTimeField(auto_now=True)
+    name                      = md.CharField(max_length=80)
+    path                      = md.CharField(max_length=255)
+    author                    = md.CharField(max_length=64, blank=True, db_index=True)
+    developer                 = md.CharField(max_length=64, blank=True, db_index=True)
+    origin                    = md.CharField(max_length=128, blank=True, db_index=True)
+
+    statements_format         = md.CharField(max_length=255,
+        default='latex,latex,latex,textile,latex,latex,latex',
+        validators=[val.RegexValidator(r'^([^\s,]+,){6}[^\s,]+$')])
+    description               = md.TextField()
+    input_specification       = md.TextField(blank=True)
+    output_specification      = md.TextField(blank=True)
+    samples                   = md.TextField(blank=True)
+    explanations              = md.TextField(blank=True)
+    notes                     = md.TextField(blank=True)
+    analysis                  = md.TextField(blank=True)
+    description_html          = md.TextField(editable=False)
+    input_specification_html  = md.TextField(blank=True, editable=False)
+    output_specification_html = md.TextField(blank=True, editable=False)
+    samples_html              = md.TextField(blank=True, editable=False)
+    explanations_html         = md.TextField(blank=True, editable=False)
+    notes_html                = md.TextField(blank=True, editable=False)
+    analysis_html             = md.TextField(blank=True, editable=False)
+
+    input_file                = md.CharField(max_length=16, blank=True)
+    output_file               = md.CharField(max_length=16, blank=True)
+    time_limit                = md.PositiveIntegerField()
+    memory_limit              = md.PositiveIntegerField()
+    checker                   = md.CharField(max_length=100)
+    mask_in                   = md.CharField(max_length=32)
+    mask_out                  = md.CharField(max_length=32, blank=True)
+    created_at                = md.DateTimeField(auto_now_add=True)
+    updated_at                = md.DateTimeField(auto_now=True)
 
     class Meta:
         db_table      = 'problems'
@@ -45,6 +59,17 @@ class Problem(md.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        fields = (
+            'description', 'input_specification', 'output_specification',
+            'samples', 'explanations', 'notes', 'analysis',
+        )
+        for field, fmt in zip(fields, self.statements_format.split(',')):
+            value = getattr(self, field)
+            if value:
+                value = pandoc.convert(value, fmt, to='html')
+            setattr(self, field + '_html', value)
 
 
 class ContestQuerySet(md.QuerySet):
@@ -190,12 +215,16 @@ class ClarificationQuerySet(md.QuerySet):
 
 class Clarification(md.Model):
     # TODO: Replace contest with problem_in_contest.
-    contest    = md.ForeignKey(Contest, md.CASCADE, db_index=False)
-    user       = md.ForeignKey(User, md.CASCADE, db_index=False)
-    question   = md.TextField()
-    answer     = md.TextField(blank=True)
-    created_at = md.DateTimeField(auto_now_add=True)
-    updated_at = md.DateTimeField(auto_now=True)
+    contest     = md.ForeignKey(Contest, md.CASCADE, db_index=False)
+    user        = md.ForeignKey(User, md.CASCADE, db_index=False)
+    question    = md.TextField()
+    format      = md.CharField(max_length=40,
+        default='markdown',
+        validators=[val.RegexValidator(r'^[^\s,]+$')])
+    answer      = md.TextField(blank=True)
+    answer_html = md.TextField(blank=True, editable=False)
+    created_at  = md.DateTimeField(auto_now_add=True)
+    updated_at  = md.DateTimeField(auto_now=True)
 
     objects = ClarificationQuerySet.as_manager()
 
@@ -211,6 +240,12 @@ class Clarification(md.Model):
     def __str__(self):
         return self.question if len(self.question) <= 70 else self.question[:67] + '...'
 
+    def clean(self):
+        if self.has_answer():
+            self.answer_html = pandoc.convert(self.answer, self.format, to='html')
+        else:
+            self.answer_html = ''
+
 
 class NotificationQuerySet(md.QuerySet):
     def privileged(self, user):
@@ -218,11 +253,15 @@ class NotificationQuerySet(md.QuerySet):
 
 
 class Notification(md.Model):
-    contest     = md.ForeignKey(Contest, md.CASCADE)
-    description = md.TextField()
-    visible     = md.BooleanField(default=True)
-    created_at  = md.DateTimeField(auto_now_add=True)
-    updated_at  = md.DateTimeField(auto_now=True)
+    contest          = md.ForeignKey(Contest, md.CASCADE)
+    format           = md.CharField(max_length=40,
+        default='markdown',
+        validators=[val.RegexValidator(r'^[^\s,]+$')])
+    description      = md.TextField()
+    description_html = md.TextField(editable=False)
+    visible          = md.BooleanField(default=True)
+    created_at       = md.DateTimeField(auto_now_add=True)
+    updated_at       = md.DateTimeField(auto_now=True)
 
     objects = NotificationQuerySet.as_manager()
 
@@ -232,6 +271,12 @@ class Notification(md.Model):
 
     def __str__(self):
         return self.description if len(self.description) <= 70 else self.description[:67] + '...'
+
+    def clean(self):
+        if self.description:
+            self.description_html = pandoc.convert(self.description, self.format, to='html')
+        else:
+            self.description_html = ''
 
 
 class Compiler(md.Model):

@@ -40,7 +40,7 @@ body, html {
     color: white;
 }
 
-.lerna-main-menu .lerna-topbar-logo img{
+.lerna-main-menu .lerna-topbar-logo img {
     width: 25px;
     height: 25px;
 }
@@ -58,4 +58,9 @@ body, html {
 .main-content {
     padding: 25px 10px 15px 10px;
     border: 0;
+}
+
+.math.display {
+    display: block;
+    text-align: center;
 }

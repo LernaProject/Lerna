@@ -33,8 +33,14 @@
     margin-bottom: 15px;
 }
 
+.lerna-contest-problem .lcpc-examples-table th {
+    width: 50%;
+    text-align: center;
+}
+
 .lerna-contest-problem .lcpc-examples-table td {
     font-family: monospace;
+    vertical-align: top;
 }
 
 .lerna-contest-problem > .lcp-sidebar {
