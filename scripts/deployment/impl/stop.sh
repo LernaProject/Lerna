@@ -10,4 +10,3 @@ docker stop ${DOCKER_CONTAINER_ID} &>/dev/null
 
 echo "<< Docker container stopped."
 cd ${PREVIOUS_DIR}
-
