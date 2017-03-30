@@ -6,7 +6,7 @@
 PREVIOUS_DIR=`pwd`
 CURRENT_DIR=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${CURRENT_DIR}
-source ./config.sh
+source ./impl/config.sh
 
 ./impl/stop.sh
 
