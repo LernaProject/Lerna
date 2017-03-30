@@ -37,6 +37,11 @@ PIPELINE:
       - foundation/foundation-launch.js
       - foundation/what-input.js
       output_filename: foundation.piped.min.js
+    katex:
+      source_filenames:
+      - katex/katex.min.js
+      - katex/katex-process.js
+      output_filename: katex.piped.min.js
 
   STYLESHEETS:
     jquery:
@@ -48,6 +53,10 @@ PIPELINE:
       - foundation/foundation.css
       - foundation/foundation-overrides.css
       output_filename: foundation.piped.min.css
+    katex:
+      source_filenames:
+      - katex/katex.min.css
+      output_filename: katex.piped.min.css
     lerna:
       source_filenames:
       - lerna/contests.css
