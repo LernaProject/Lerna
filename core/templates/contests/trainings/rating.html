@@ -10,7 +10,7 @@
     {% for problem in problems %}
       <th><span title="{{ problem.problem.name }}">{{ problem.ordering_id }}</span></th>
     {% endfor %}
-    <th>Задач<br />(из {{ problems|length }})</th>
+    <th>Задач<br/>(из {{ problems|length }})</th>
   </tr>
   {% for user in user_list %}
     <tr>

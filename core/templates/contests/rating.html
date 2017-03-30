@@ -11,8 +11,6 @@
       Это соревнование требует отдельной регистрации на него. Только зарегистрированные
       на участие в соревновании пользователи могут просматривать его рейтинг.
     </p>
-  {% elif contest.is_school %}
-    <p>На сайте временно не поддерживается отображение рейтинга соревнований, проведённых с подсчётом процента пройденных тестов</p>
   {% elif not contest.is_training and not time_info.started %}
     <p>Текущий рейтинг будет доступен на этой странице сразу после начала соревнования.</p>
   {% else %}
@@ -37,7 +35,7 @@
       {% for pic in problems %}
         <th><span title="{{ pic.problem__name }}">{{ pic.number|to_ordering_letter }}</span></th>
       {% endfor %}
-      <th>Задач<br />(из&nbsp;{{ problems|length }})</th>
+      <th>{% if contest.is_school %}Баллов{% else %}Задач<br/>(из&nbsp;{{ problems|length }}){% endif %}</th>
       <th>Время</th>
     </tr>
     {% for user_info in standings %}
@@ -45,9 +43,9 @@
          <td>{{ user_info.rank }}</td>
          <td>{{ user_info.username }}</td>
          {% for result in user_info.results %}
-           <td>{{ result.status }}{% if result.time %}<br/>{{ result.time }}{% endif %}</td>
+           <td>{{ result.status|linebreaksbr }}{% if result.time %}<br/>{{ result.time }}{% endif %}</td>
          {% endfor %}
-         <td>{{ user_info.score }}</td>
+         <td>{{ user_info.score|floatformat:-3 }}</td>
          <td>{{ user_info.penalty }}</td>
       </tr>
     {% endfor %}
@@ -63,7 +61,7 @@
       </tr>
       <tr>
         <td></td>
-        <td>Успешных</td>
+        <td>{% if contest.is_school %}Полных решений{% else %}Успешных{% endif %}</td>
         {% for statistic in statistics %}
           <td>{{ statistic.accepted }}</td>
         {% endfor %}
@@ -72,9 +70,9 @@
       </tr>
       <tr>
         <td></td>
-        <td>Неудачных</td>
+        <td>{% if contest.is_school %}Включая частичные{% else %}Неудачных{% endif %}</td>
         {% for statistic in statistics %}
-          <td>{{ statistic.rejected }}</td>
+          <td>{% if contest.is_school %}{{ statistic.score_sum|floatformat }}{% else %}{{ statistic.rejected }}{% endif %}</td>
         {% endfor %}
         <td></td>
         <td></td>

@@ -8,11 +8,11 @@ from users.models import User
 
 
 class Problem(md.Model):
-    name                      = md.CharField(max_length=80)
-    path                      = md.CharField(max_length=255)
-    author                    = md.CharField(max_length=64, blank=True, db_index=True)
-    developer                 = md.CharField(max_length=64, blank=True, db_index=True)
-    origin                    = md.CharField(max_length=128, blank=True, db_index=True)
+    name      = md.CharField(max_length=80)
+    path      = md.CharField(max_length=255)
+    author    = md.CharField(max_length=64, blank=True, db_index=True)
+    developer = md.CharField(max_length=64, blank=True, db_index=True)
+    origin    = md.CharField(max_length=128, blank=True, db_index=True)
 
     statements_format         = md.CharField(max_length=255,
         default='latex,latex,latex,textile,latex,latex,latex',
@@ -32,15 +32,15 @@ class Problem(md.Model):
     notes_html                = md.TextField(blank=True, editable=False)
     analysis_html             = md.TextField(blank=True, editable=False)
 
-    input_file                = md.CharField(max_length=16, blank=True)
-    output_file               = md.CharField(max_length=16, blank=True)
-    time_limit                = md.PositiveIntegerField()
-    memory_limit              = md.PositiveIntegerField()
-    checker                   = md.CharField(max_length=100)
-    mask_in                   = md.CharField(max_length=32)
-    mask_out                  = md.CharField(max_length=32, blank=True)
-    created_at                = md.DateTimeField(auto_now_add=True)
-    updated_at                = md.DateTimeField(auto_now=True)
+    input_file   = md.CharField(max_length=16, blank=True)
+    output_file  = md.CharField(max_length=16, blank=True)
+    time_limit   = md.PositiveIntegerField()
+    memory_limit = md.PositiveIntegerField()
+    checker      = md.CharField(max_length=100)
+    mask_in      = md.CharField(max_length=32)
+    mask_out     = md.CharField(max_length=32, blank=True)
+    created_at   = md.DateTimeField(auto_now_add=True)
+    updated_at   = md.DateTimeField(auto_now=True)
 
     class Meta:
         db_table      = 'problems'
@@ -86,12 +86,12 @@ class Contest(md.Model):
     is_school                = md.BooleanField()
     is_admin                 = md.BooleanField()
     is_training              = md.BooleanField()
+    is_registration_required = md.BooleanField(default=False)
+    is_unfrozen              = md.BooleanField(default=False)
     created_at               = md.DateTimeField(auto_now_add=True)
     updated_at               = md.DateTimeField(auto_now=True)
     problems                 = md.ManyToManyField(Problem, through='ProblemInContest')
-    is_registration_required = md.BooleanField(default=False)
     registered_users         = md.ManyToManyField(User, through='UserInContest')
-    is_unfrozen              = md.BooleanField(default=False)
 
     objects = ContestQuerySet.as_manager()
 
@@ -273,10 +273,7 @@ class Notification(md.Model):
         return self.description if len(self.description) <= 70 else self.description[:67] + '...'
 
     def clean(self):
-        if self.description:
-            self.description_html = pandoc.convert(self.description, self.format, to='html')
-        else:
-            self.description_html = ''
+        self.description_html = pandoc.convert(self.description, self.format, to='html')
 
 
 class Compiler(md.Model):
