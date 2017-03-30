@@ -5,7 +5,6 @@
 
 
 {% block content %}
-{% spaceless %}{# Better than nothing, given that we don't have Pipeline any more. #}
   {{ block.super }}
   {% if not available %}
     <p>
@@ -101,5 +100,4 @@
     {% endif %}
     </table>
   {% endif %}
-{% endspaceless %}
 {% endblock %}

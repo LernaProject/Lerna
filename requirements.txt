@@ -3,6 +3,7 @@ Django==1.10.2
 django-ajax-selects==1.5.2
 django-debug-toolbar==1.6
 django-pipeline==1.6.9
+libsass==0.12.3
 
 # PostgreSQL connector
 psycopg2==2.6.2
@@ -15,3 +16,8 @@ Pygments
 PyYAML
 pytz
 pip
+
+# Production-only minifiers
+django-htmlmin==0.10.0
+csscompressor==0.9.4
+jsmin==2.2.1

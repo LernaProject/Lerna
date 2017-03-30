@@ -29,6 +29,9 @@ OVERRIDE:
   PIPELINE:
     PIPELINE_ENABLED: false
 
+OVERRIDE:
+  HTML_MINIFY: false
+
 # LOGGING:
 #   version: 1
 #   disable_existing_loggers: false

@@ -1,5 +1,4 @@
 FROM python:3.5
-MAINTAINER Chernousov Ivan <krusnik.viers@gmail.com>
 
 # 1. Moving entry script to the image and setting it as an entry point.
 COPY docker_run.sh /

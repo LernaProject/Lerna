@@ -1,5 +1,5 @@
 ###########################################################
-# Local settings, must be overridden in local_settings.yml
+# Local settings, must be defined in local_settings.yml
 ###########################################################
 
 SECRET_KEY:
@@ -22,11 +22,6 @@ DATABASES:
 LOGGING:
   version: 1
   disable_existing_loggers: false
-  # filters:
-  # formatters:
-  # handlers:
-  # loggers:
-  #   django:
 
 ###########################################################
 # Global settings
@@ -61,8 +56,6 @@ MIDDLEWARE_CLASSES:
 - django.contrib.messages.middleware.MessageMiddleware
 - django.middleware.clickjacking.XFrameOptionsMiddleware
 - django.middleware.security.SecurityMiddleware
-# Disabled until it can work properly with 'contests:source' page.
-# - pipeline.middleware.MinifyHTMLMiddleware
 
 ROOT_URLCONF: lerna.urls
 
