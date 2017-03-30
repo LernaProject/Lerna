@@ -59,11 +59,11 @@ PIPELINE:
       output_filename: katex.piped.min.css
     lerna:
       source_filenames:
-      - lerna/contests.css
-      - lerna/controls.css
+      - lerna/contests.scss
+      - lerna/controls.scss
       - lerna/global.scss
-      - lerna/news.css
-      - lerna/users.css
+      - lerna/news.scss
+      - lerna/users.scss
       output_filename: lerna.piped.min.css
 
   JS_COMPRESSOR: pipeline.compressors.jsmin.JSMinCompressor
