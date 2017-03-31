@@ -11,6 +11,8 @@ ALLOWED_HOSTS:
 - '[::1]'
 - .example.com
 
+TIME_ZONE: Asia/Novosibirsk
+
 DATABASES:
   default:
     ENGINE:   django.db.backends.postgresql_psycopg2

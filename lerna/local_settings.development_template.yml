@@ -8,6 +8,8 @@ SECRET_KEY: development_secret_key
 
 INTERNAL_IPS: [127.0.0.1]
 
+TIME_ZONE: Asia/Novosibirsk
+
 DATABASES:
   default:
     ENGINE:   django.db.backends.postgresql_psycopg2
