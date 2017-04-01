@@ -1,30 +1,28 @@
 {% extends 'contests/item_base.html' %}
 
+{% load static %}
+{% load contest_filters %}
 
 {% with current_contest_problem=problem_number %}
   {% block contest_sidebar %} {{ block.super }} {% endblock %}
 {% endwith %}
 
 
-{% load static %}
-{% load contest_filters %}
-
-
 {% block content %}
   {{ block.super }}
 
-  <div class="lerna-contest-problem row">
+  <div class="row lerna-contest-problem">
     {% if not contest.is_full_information_available %}
       <div>Задачи недоступны</div>
     {% else %}
-      <div class="large-9 columns lcp-content">
+      <div class="large-9 columns lerna-contest-problem__content">
         <h4>
           {% if contest.is_training %}
             {{ problem_number }}. {{ problem.name }}
           {% else %}
             {{ problem_number|to_ordering_letter }}. {{ problem.name }}
           {% endif %}
-          <button class="button lerna-small-button" type="button" data-toggle="contest-problem-dropdown-menu">
+          <button class="button lerna-button--small" type="button" data-toggle="contest-problem-dropdown-menu">
             <img alt="⋮" src="{% static 'lerna/icons/item_menu.svg' %}"/>
           </button>
           <div class="dropdown-pane" id="contest-problem-dropdown-menu" data-dropdown>
@@ -41,7 +39,7 @@
         </h4>
 
         {% if problem.author or problem.developer or problem.origin %}
-          <div class="lcpc-meta">
+          <div class="lerna-contest-problem__meta">
             {% if problem.author %}
               <div>Автор задачи: {{ problem.author }}</div>
             {% endif %}
@@ -71,7 +69,7 @@
 
         {% if problem.samples %}
           <b>Примеры</b>
-          <div class="lcpc-examples-table">{{ problem.samples_html|safe }}</div>
+          <div class="lerna-contest-problem__examples">{{ problem.samples_html|safe }}</div>
         {% endif %}
 
         {% if problem.explanations %}
@@ -85,7 +83,7 @@
         {% endif %}
       </div>
 
-      <div class="large-3 columns lcp-sidebar">
+      <div class="large-3 columns lerna-contest-problem__sidebar">
         <ul class="vertical menu">
           {% if pics %}
             {% for pic in pics %}

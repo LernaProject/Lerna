@@ -5,11 +5,11 @@
 {% block content %}
   <div class="lerna-users-form large-offset-4 large-4 medium-offset-3 medium-6 small-12 columns">
     <h5>Регистрация нового пользователя</h5>
-    <div class="lerna-users-altlink">
+    <div class="lerna-users-form__altlink">
       Уже есть аккаунт? <a href="{% url 'login' %}"> Вход </a>
     </div>
     {% if form.errors %}
-      <div class="lerna-users-error">Введённые данные не корректны.</div>
+      <div class="lerna-users-form__error">Введённые данные не корректны.</div>
     {% endif %}
     <form method="post" action="{% url 'registration' %}">
       {% csrf_token %}

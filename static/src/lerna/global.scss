@@ -1,66 +1,47 @@
-/* Global layout */
+@import 'definitions';
+
+
 body, html {
-    margin: 0;
-    padding: 0;
-    border: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 
 
-/* Top menu bar */
-.lerna-main-menu {
-    background-color: #0B5E35;
-    background: linear-gradient(to top, #0B5E35, #0E7340);
-    padding: 4px 0;
-    box-shadow: 0 0px 4px #999999;
-
-    .row {
-        padding-left: 2;
-    }
-}
-
-.lerna-main-menu > .row > div > ul {
-    background: inherit;
-}
-
-.lerna-main-menu ul.horizontal > li > a {
-    color: white;
-}
-
-.lerna-main-menu ul.horizontal > li > a::after {
-    border-color: #DDEEDD transparent transparent !important;
-}
-
-.news_nav_section         ul.horizontal li > a.news_toplink,
-.competitions_nav_section ul.horizontal li > a.competitions_toplink,
-.trainings_nav_section    ul.horizontal li > a.trainings_toplink,
-.rating_nav_section       ul.horizontal li > a.rating_toplink
-{
-    border-bottom: 1px solid white;
-    background: inherit;
-    color: white;
-}
-
-.lerna-main-menu .lerna-topbar-logo img {
-    width: 25px;
-    height: 25px;
-}
-
-.lerna-main-menu .lerna-topbar-logo {
-    padding: 0 25px 0 10px;
-}
-
-.lerna-main-menu .lerna-topbar-logo a {
-    padding: 0;
-}
-
-
-/* Main page content */
-.main-content {
+.lerna-main-content {
     padding: 25px 10px 15px 10px;
     border: 0;
 }
 
-.math.display {
-    display: block;
-    text-align: center;
+
+.lerna-main-menu {
+  background-color: darken($theme-color, 20%);
+  background: linear-gradient(to top, darken($theme-color, 8%), darken($theme-color, 5%));
+  padding: 4px 0;
+
+  > .row {
+    padding-left: 2;
+    > div > ul { background: inherit; }
+    > div > ul.horizontal > li > a {
+      color: white;
+      &::after { border-color: white transparent transparent !important; }
+    }
+  }
+
+  .lerna-main-menu__logo {
+    padding: 0 25px 0 10px;
+    a { padding: 0; }
+    img {
+      width: 25px;
+      height: 25px;
+    }
+  }
+
+  > .lerna-main-menu__row--news         ul.horizontal li > a.lerna-main-menu__news,
+  > .lerna-main-menu__row--competitions ul.horizontal li > a.lerna-main-menu__competitions,
+  > .lerna-main-menu__row--trainings    ul.horizontal li > a.lerna-main-menu__trainings,
+  > .lerna-main-menu__row--rating       ul.horizontal li > a.lerna-main-menu__rating {
+    border-bottom: 1px solid white;
+    background: inherit;
+  }
 }

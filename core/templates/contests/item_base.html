@@ -1,46 +1,45 @@
 {% extends 'contests/base.html' %}
 
-
 {% load staticfiles %}
 
-
 {% block current_nav_section %}
-  {% if contest.is_training %} trainings_nav_section {% else %} competitions_nav_section {% endif %}
+  {% if contest.is_training %} lerna-main-menu__row--trainings {% else %} lerna-main-menu__row--competitions {% endif %}
 {% endblock %}
 
-
-{% block title %}{{ block.super }} :: {{ contest.name }}{% endblock %}
-
+{% block title %} {{ block.super }} :: {{ contest.name }} {% endblock %}
 
 
 {% block content %}
-  <div class="lerna-contest-heading">
+  <div class="lerna-contest-header">
     <h4>
       {% if time_info.frozen %}
-        <img class="lerna-indicator-image" alt="❄" src="{% static 'lerna/icons/snowflake.svg' %}" title="Таблица результатов заморожена"/>
+        <img class="lerna-indicator" alt="❄" src="{% static 'lerna/icons/snowflake.svg' %}"
+             title="Таблица результатов заморожена"/>
       {% endif %}
-
       {{ contest.name }}
-
       {% if user.is_staff %}
-        <button class="button lerna-small-button" type="button" data-toggle="contest-dropdown-menu">
+        <button class="button lerna-button--small" type="button" data-toggle="contest-dropdown-menu">
           <img alt="⋮" src="{% static 'lerna/icons/item_menu.svg' %}"/>
         </button>
         <div class="dropdown-pane right" id="contest-dropdown-menu" data-dropdown>
           <ul class="menu vertical">
-            <li><a href="{% url 'admin:core_notification_add' %}?contest={{ contest.id }}" target="_blank">
-              Сделать объявление
-            </a></li>
-            <li><a href="{% url 'admin:core_contest_change' contest.id %}" target="_blank">
-              Изменить
-            </a></li>
+            <li>
+              <a href="{% url 'admin:core_notification_add' %}?contest={{ contest.id }}" target="_blank">
+                Сделать объявление
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'admin:core_contest_change' contest.id %}" target="_blank">
+                Изменить
+              </a>
+            </li>
           </ul>
         </div>
       {% endif %}
     </h4>
 
     {% if not contest.is_training %}
-      <div class="lch-timestamp">
+      <div class="lerna-contest-header__time">
         {{ time_info.time_str }}
       </div>
     {% endif %}

@@ -6,13 +6,14 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'lerna/logo/favicon/apple_touch.png' %}"/>
   <link rel="icon" type="image/png" href="{% static 'lerna/logo/favicon/favicon-32x32.png' %}" sizes="32x32"/>
   <link rel="icon" type="image/png" href="{% static 'lerna/logo/favicon/favicon-16x16.png' %}" sizes="16x16"/>
   <link rel="shortcut icon" href="{% static 'lerna/logo/favicon/favicon.ico' %}"/>
   <meta name="theme-color" content="#118c4e">
-  <meta name="yandex-tableau-widget" content="logo={{ request.scheme }}://{{ request.get_host }}{% static 'lerna/logo/favicon/tablo_logo.png' %}, color=#118C4E"/>
+  <meta name="yandex-tableau-widget"
+        content="logo={{ request.scheme }}://{{ request.get_host }}{% static 'lerna/logo/favicon/tablo_logo.png' %},\
+                 color=#118C4E"/>
 
   <title>
     {% block title %}Lerna{% endblock %}
@@ -27,104 +28,96 @@
 </head>
 
 <body>
+  <div class="top-bar lerna-main-menu">
+    <div class="row small-12 columns {% block current_nav_section %}{% endblock %}">
+      <div class="top-bar-left">
+        <ul class="horizontal menu">
+          <li class="lerna-main-menu__logo">
+            <a href="{% url 'index' %}">
+              <img alt="Lerna" src="{% static 'lerna/logo/logo_white.svg' %}" title="Lerna"/>
+            </a>
+          </li>
+          <li><a class="lerna-main-menu__news"         href="{% url 'news:index' %}">Новости</a></li>
+          <li><a class="lerna-main-menu__competitions" href="{% url 'contests:contests' %}">Соревнования</a></li>
+          <li><a class="lerna-main-menu__trainings"    href="{% url 'contests:trainings' %}">Тренировки</a></li>
+          <li><a class="lerna-main-menu__rating"       href="{% url 'global_statistics:rating' %}">Рейтинг</a></li>
+          {% if user.is_staff %}
+            <li><a href="{% url 'admin:index' %}">Админка</a></li>
+          {% endif %}
+        </ul>
+      </div>
 
-<div class="top-bar lerna-main-menu {% block current_nav_section %}{% endblock %}">
-  <div class="row small-12 columns">
-
-    {# Navigation links in top site menu bar #}
-    <div class="top-bar-left">
-      <ul class="horizontal menu">
-        <li class="lerna-topbar-logo"><a href="{% url 'index' %}">
-          <img alt="Lerna" src="{% static 'lerna/logo/logo_white.svg' %}" title="Lerna"/>
-        </a></li>
-        <li><a class="news_toplink"         href="{% url 'news:index' %}">Новости</a></li>
-        <li><a class="competitions_toplink" href="{% url 'contests:contests' %}">Соревнования</a></li>
-        <li><a class="trainings_toplink"    href="{% url 'contests:trainings' %}">Тренировки</a></li>
-        <li><a class="rating_toplink"       href="{% url 'global_statistics:rating' %}">Рейтинг</a></li>
-        {% if user.is_staff %}
-          <li><a class="admin_toplink"      href="{% url 'admin:index' %}">Админка</a></li>
-        {% endif %}
-      </ul>
+      <div class="top-bar-right">
+        <ul class="horizontal dropdown menu" data-dropdown-menu>
+          {% if user.is_authenticated %}
+            <li>
+              <a href="{% url 'global_statistics:attempts' %}">{{ user.username }}</a>
+              <ul class="menu vertical">
+                <li><a href="{% url 'global_statistics:attempts' %}">Попытки</a></li>
+                <li><a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a></li>
+              </ul>
+            </li>
+          {% else %}
+            <li><a href="{% url 'registration' %}?back={{ request.path }}">Регистрация</a></li>
+            <li><a href="{% url 'login' %}?next={{ request.path }}">Вход</a></li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
-
-    {# User-related links in top site menu bar #}
-    <div class="top-bar-right">
-      <ul class="horizontal dropdown menu" data-dropdown-menu>
-
-        {% if user.is_authenticated %}
-        <li>
-          <a href="{% url 'global_statistics:attempts' %}">{{ user.username }}</a>
-          <ul class="menu vertical">
-            <li><a href="{% url 'global_statistics:attempts' %}">Попытки</a></li>
-            <li><a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a></li>
-          </ul>
-        </li>
-
-        {% else %}
-        <li><a href="{% url 'registration' %}?back={{ request.path }}">Регистрация</a></li>
-        <li><a href="{% url 'login' %}?next={{ request.path }}">Вход</a></li>
-        {% endif %}
-
-      </ul>
-    </div>
-
   </div>
-</div>
 
-{# Main page content #}
-<div class="row main-content">
-  {% block content %}{% endblock %}
-</div>
+  <div class="row lerna-main-content">
+    {% block content %}{% endblock %}
+  </div>
 
-{# Pagination #}
-{% block pagination %}
-  {% if is_paginated and page_link %}
-    <ul class="pagination text-center">
-      {% if page_obj.number == 1 %}
-        <li class="pagination-previous disabled">Назад</li>
-      {% else %}
-        {% if page_param %}
-          <li class="pagination-previous"><a href="{% url page_link page_param page_obj.number|add:'-1' %}">Назад</a></li>
-        {% else %}
-          <li class="pagination-previous"><a href="{% url page_link page_obj.number|add:'-1' %}">Назад</a></li>
-        {% endif %}
-      {% endif %}
-
-      {% for i in paginator.page_range %}
-        {% if page_obj.number > i|add:4 and i != 1 %}
-          {% if i == 2 %}<li class="ellipsis"></li>{% endif %}
-        {% elif i > page_obj.number|add:4 and i != paginator.num_pages %}
-          {% if i|add:1 == paginator.num_pages %}<li class="ellipsis"></li>{% endif %}
-        {% elif i == page_obj.number %}
-          <li class="current">{{ i }}</li>
+  {# Pagination #}
+  {% block pagination %}
+    {% if is_paginated and page_link %}
+      <ul class="pagination text-center">
+        {% if page_obj.number == 1 %}
+          <li class="pagination-previous disabled">Назад</li>
         {% else %}
           {% if page_param %}
-            <li><a href="{% url page_link page_param i %}">{{ i }}</a></li>
+            <li class="pagination-previous"><a href="{% url page_link page_param page_obj.number|add:'-1' %}">Назад</a></li>
           {% else %}
-            <li><a href="{% url page_link i %}">{{ i }}</a></li>
+            <li class="pagination-previous"><a href="{% url page_link page_obj.number|add:'-1' %}">Назад</a></li>
           {% endif %}
         {% endif %}
-      {% endfor %}
 
-      {% if page_obj.number == paginator.num_pages %}
-        <li class="pagination-next disabled">Вперёд</li>
-      {% else %}
-        {% if page_param %}
-          <li class="pagination-next"><a href="{% url page_link page_param page_obj.number|add:'1' %}">Вперёд</a></li>
+        {% for i in paginator.page_range %}
+          {% if page_obj.number > i|add:4 and i != 1 %}
+            {% if i == 2 %}<li class="ellipsis"></li>{% endif %}
+          {% elif i > page_obj.number|add:4 and i != paginator.num_pages %}
+            {% if i|add:1 == paginator.num_pages %}<li class="ellipsis"></li>{% endif %}
+          {% elif i == page_obj.number %}
+            <li class="current">{{ i }}</li>
+          {% else %}
+            {% if page_param %}
+              <li><a href="{% url page_link page_param i %}">{{ i }}</a></li>
+            {% else %}
+              <li><a href="{% url page_link i %}">{{ i }}</a></li>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.number == paginator.num_pages %}
+          <li class="pagination-next disabled">Вперёд</li>
         {% else %}
-          <li class="pagination-next"><a href="{% url page_link page_obj.number|add:'1' %}">Вперёд</a></li>
+          {% if page_param %}
+            <li class="pagination-next"><a href="{% url page_link page_param page_obj.number|add:'1' %}">Вперёд</a></li>
+          {% else %}
+            <li class="pagination-next"><a href="{% url page_link page_obj.number|add:'1' %}">Вперёд</a></li>
+          {% endif %}
         {% endif %}
-      {% endif %}
-    </ul>
-  {% endif %}
-{% endblock %}
+      </ul>
+    {% endif %}
+  {% endblock %}
 
-{% block javascript_links %}
-{% javascript 'jquery' %}
-{% javascript 'foundation' %}
-{% javascript 'katex' %}
-{% endblock javascript_links %}
+  {% block javascript_links %}
+  {% javascript 'jquery' %}
+  {% javascript 'foundation' %}
+  {% javascript 'katex' %}
+  {% endblock javascript_links %}
 
 </body>
-
 </html>

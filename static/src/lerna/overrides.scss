@@ -1,0 +1,29 @@
+@import 'definitions';
+
+
+.pagination .current {
+  background-color: $theme-color;
+}
+
+.menu > li > a {
+  padding: 0.7rem 0.7rem;
+}
+
+ul.is-dropdown-submenu {
+  background-color: $bg-gray;
+}
+
+.dropdown-pane {
+  padding: 0;
+  width: 200px;
+}
+
+.menu hr,
+.dropdown-pane hr {
+  margin: 7px 10px;
+}
+
+.math.display {
+  display: block;
+  text-align: center;
+}

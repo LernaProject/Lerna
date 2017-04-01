@@ -1,31 +1,26 @@
-/* Buttons */
-.lerna-small-button,
-.lerna-small-button:visited,
-.lerna-small-button:hover,
-.lerna-small-button:focus {
-    background: inherit;
-    margin: 3px;
-    padding: 2px;
-    height: inherit;
-}
-
-.lerna-small-button > img {
-    width: 15px;
-    height: 15px;
-}
+@import 'definitions';
 
 
 .lerna-button,
-.lerna-button:visited {
-    background: #118C4E;
+.lerna-button,{
+  &, &:visited { background: $theme-color; }
+  &:focus, &:hover { background: darken($theme-color, 3%); }
 }
 
-.lerna-button:hover,
-.lerna-button:focus {
-    background: #0A6035;
+.lerna-button--small {
+  &, &:focus, &:hover, &:visited {
+    background: inherit;
+    height: inherit;
+    margin: 3px;
+    padding: 2px;
+    img {
+      width: 15px;
+      height: 15px;
+    }
+  }
 }
 
-.lerna-indicator-image {
+.lerna-indicator {
     height: 1em;
     width: 1em;
 }

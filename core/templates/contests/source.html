@@ -2,6 +2,7 @@
 
 {% block content %}
   {{ block.super }}
+
   <div>
     Задача:
     <a href="{{ attempt.problem_in_contest.get_absolute_url }}">
@@ -14,6 +15,6 @@
   {% if attempt.error_message %}
     <pre>{{ attempt.error_message }}</pre>
   {% endif %}
-  <style>{{ highlighting_styles|safe }}</style>
+    <style>{{ highlighting_styles|safe }}</style>
   {{ highlighted_source|safe }}
 {% endblock %}

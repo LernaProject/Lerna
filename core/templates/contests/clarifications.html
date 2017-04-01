@@ -1,6 +1,5 @@
 {% extends 'contests/item_base.html' %}
 
-
 {% block content %}
   {{ block.super }}
 
@@ -17,16 +16,17 @@
 
   {% for clarification in clarifications %}
     <hr/>
-    <div class="clarification">
+    <div class="lerna-c11n">
       {% if user.is_staff %}
-        <div class="clarification-user">{{ clarification.user }}:</div>
+        <div class="lerna-c11n__user">{{ clarification.user }}:</div>
       {% endif %}
-      <div class="clarification-question">{{ clarification.question|linebreaksbr }}</div>
+      <div class="lerna-c11n__question">{{ clarification.question|linebreaksbr }}</div>
       {% if clarification.answer %}
-        <div class="clarification-answer">{{ clarification.answer_html|safe }}</div>
+        <div class="lerna-c11n__answer">{{ clarification.answer_html|safe }}</div>
       {% endif %}
       {% if user.is_staff %}
-        <a class="lerna-button button" href="{% url 'admin:core_clarification_change' clarification.id %}" target="_blank">
+        <a class="button lerna-button" href="{% url 'admin:core_clarification_change' clarification.id %}"
+           target="_blank">
           {% if clarification.answer %}
             Исправить
           {% else %}

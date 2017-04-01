@@ -1,66 +1,63 @@
-/* Page content */
-.clarification-user {
+@import 'definitions';
+
+
+.lerna-c11n {
+  .lerna-c11n__user {
+    color: $txt-gray;
     font-style: italic;
-    color: #777;
-}
-
-.clarification-question {
-    color: #777;
+  }
+  .lerna-c11n__question {
+    color: $txt-gray;
     margin-bottom: 10px;
-}
-
-.clarification-answer {
+  }
+  .lerna-c11n__answer {
     margin-bottom: 10px;
+  }
 }
 
-/* =================================== */
-.lerna-contest-heading .lch-timestamp,
-.lerna-contest-problem .lcpc-meta > div {
-    color: #777;
-    font-size: 14px;
+.lerna-contest-header {
+  > hr { margin: 5px 0; }
+  .lerna-contest-header__time {
+    color: $txt-gray;
+    font-size: $txt-small;
     margin-top: -3px;
+  }
 }
 
-.lerna-contest-heading > hr {
-    margin: 5px 0;
-}
 
-.lerna-contest-problem > .lcp-content {
-    margin-top: 25px;
-}
-
-.lerna-contest-problem .lcpc-meta {
-    margin-bottom: 15px;
-}
-
-.lerna-contest-problem .lcpc-examples-table th {
-    width: 50%;
-    text-align: center;
-}
-
-.lerna-contest-problem .lcpc-examples-table td {
-    font-family: monospace;
-    vertical-align: top;
-}
-
-.lerna-contest-problem > .lcp-sidebar {
+.lerna-contest-problem {
+  > .lerna-contest-problem__content { margin-top: 25px; }
+  > .lerna-contest-problem__sidebar {
     margin-top: 35px;
+    .active > a { background-color: $theme-color; }
+  }
+  .lerna-contest-problem__meta {
+    margin-bottom: 15px;
+    > div {
+      color: $txt-gray;
+      font-size: $txt-small;
+      margin-top: -3px;
+    }
+  }
+  .lerna-contest-problem__examples {
+    th {
+      text-align: center;
+      width: 50%;
+    }
+    td {
+      font-family: monospace;
+      vertical-align: top;
+    }
+  }
 }
 
-.lerna-contest-problem > .lcp-sidebar .active > a {
-    background-color: #118C4E;
-}
 
-/* Contest lists */
-.lerna-contests-list-item {
-    margin: 10px 0 30px 0;
-}
-
-.lerna-contests-list-item .lcli-title {
-    font-size: 20px;
-}
-
-.lerna-contests-list-item .lcli-meta {
-    font-size: 14px;
-    color: #333333;
+.lerna-contests-listed {
+  margin: 10px 0 30px 0;
+  > .lerna-contests-listed__title { font-size: 20px; }
+  > .lerna-contests-listed__meta {
+    color: $txt-gray;
+    font-size: $txt-small;
+    margin-top: -3px;
+  }
 }

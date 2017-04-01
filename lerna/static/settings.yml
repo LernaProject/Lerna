@@ -51,7 +51,6 @@ PIPELINE:
     foundation:
       source_filenames:
       - foundation/foundation.css
-      - foundation/foundation-overrides.css
       output_filename: foundation.piped.min.css
     katex:
       source_filenames:
@@ -59,6 +58,7 @@ PIPELINE:
       output_filename: katex.piped.min.css
     lerna:
       source_filenames:
+      - lerna/overrides.scss
       - lerna/contests.scss
       - lerna/controls.scss
       - lerna/global.scss

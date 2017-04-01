@@ -2,20 +2,18 @@
 
 {% block title %} {{ block.super }} :: Поиск в тренировках {% endblock %}
 
-{% block current_nav_section %} trainings_nav_section {% endblock %}
+{% block current_nav_section %} lerna-main-menu__row--trainings {% endblock %}
+
 
 {% block content %}
-
 <h2>Тренировки, в которых можно сдать задачу «{{ problem.name }}»:</h2>
-
-{% if training_list %}
-  {% for training in training_list %}
-    <a href="{% url 'contests:problem' training.id training.problem_number %}">
-      <p>{{ training.name }}</p>
-    </a>
-  {% endfor %}
-{% else %}
-  <p>-</p>
-{% endif %}
-
+  {% if training_list %}
+    {% for training in training_list %}
+      <a href="{% url 'contests:problem' training.id training.problem_number %}">
+        <p>{{ training.name }}</p>
+      </a>
+    {% endfor %}
+  {% else %}
+    <p>-</p>
+  {% endif %}
 {% endblock %}

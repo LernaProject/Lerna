@@ -1,23 +1,17 @@
+@import 'definitions';
+
+
 .lerna-users-form {
-    border: 1px solid #bbb;
-    box-shadow: 0 1px 3px #DDDDDD;
-}
-
-.lerna-users-form > h5 {
-    margin: 20px 0 0 0;
-}
-
-.lerna-users-form .lerna-users-altlink {
-    color: #444;
-    font-size: 14px;
-    margin-bottom: 20px;
-}
-
-.lerna-users-form .lerna-users-error {
-    color: #a33;
-    margin: 0;
-}
-
-.lerna-users-form .button {
-    margin-top: 20px;
+    border: 1px solid #aaaaaa;
+    > h5 { margin: 20px 0 0 0; }
+    > .lerna-users-form__altlink {
+      color: $txt-gray;
+      font-size: $txt-small;
+      margin-bottom: 20px;
+    }
+    > .lerna-users-form__error {
+      color: #aa3333;
+      margin: 0;
+    }
+    .button { margin-top: 20px; }
 }

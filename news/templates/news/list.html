@@ -3,20 +3,19 @@
 {% block content %}
   {% if news_list %}
     {% for news in news_list %}
-      <div class="lerna-news-list-item">
-        <h5 class="lerna-news-list-title"><a href="{% url 'news:show' news.id %}">
+      <div class="lerna-news-listed">
+        <h5 class="lerna-news-listed__title"><a href="{% url 'news:show' news.id %}">
           {{ news.title }}
         </a></h5>
-        <div class="lerna-news-meta">
+        <div class="lerna-news-listed__meta">
           {{ news.user }} {{ news.updated_at|date:"j b Y в H:i" }}
         </div>
-        <div class="lerna-news-list-content row large-10 columns">
+        <div class="row large-10 columns lerna-news-listed__content">
           {{ news.short_description|safe }}
         </div>
         {% if news.has_long_description %}
-          <a class="lerna-news-list-more" href="{% url 'news:show' news.id %}">Подробнее...</a>
+          <a class="lerna-news-listed__more" href="{% url 'news:show' news.id %}">Подробнее...</a>
         {% endif %}
-
       </div>
     {% endfor %}
   {% else %}
@@ -25,7 +24,7 @@
 {% endblock %}
 
 {% block pagination %}
-{% with page_link='news:index' %}
-{{ block.super }}
-{% endwith %}
+  {% with page_link='news:index' %}
+    {{ block.super }}
+  {% endwith %}
 {% endblock %}

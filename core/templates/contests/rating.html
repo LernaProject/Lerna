@@ -1,11 +1,11 @@
 {% extends 'contests/item_base.html' %}
 
-
 {% load contest_filters %}
 
 
 {% block content %}
   {{ block.super }}
+
   {% if not available %}
     <p>
       Это соревнование требует отдельной регистрации на него. Только зарегистрированные
@@ -72,7 +72,9 @@
         <td></td>
         <td>{% if contest.is_school %}Включая частичные{% else %}Неудачных{% endif %}</td>
         {% for statistic in statistics %}
-          <td>{% if contest.is_school %}{{ statistic.score_sum|floatformat }}{% else %}{{ statistic.rejected }}{% endif %}</td>
+          <td>
+            {% if contest.is_school %}{{ statistic.score_sum|floatformat }}{% else %}{{ statistic.rejected }}{% endif %}
+          </td>
         {% endfor %}
         <td></td>
         <td></td>

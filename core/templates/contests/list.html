@@ -1,15 +1,10 @@
 {% extends 'contests/base.html' %}
 
-
 {% load staticfiles %}
 
+{% block current_nav_section %} lerna-main-menu__row--competitions {% endblock %}
 
-{% block current_nav_section %}
-  competitions_nav_section
-{% endblock %}
-
-
-{% block title %}{{ block.super }} :: Список соревнований {% endblock %}
+{% block title %} {{ block.super }} :: Список соревнований {% endblock %}
 
 
 {% block content %}
@@ -25,18 +20,20 @@
   {% if actual_contest_list %}
     <h4>Соревнования, идущие прямо сейчас:</h4>
     {% for contest in actual_contest_list %}
-      <div class="lerna-contests-list-item">
-        <div class="lcli-title">
+      <div class="lerna-contests-listed">
+        <div class="lerna-contests-listed__title">
           {% if contest.is_registration_required %}
             {% if contest.available %}
-              <img alt="🔓" class="lerna-indicator-image" src="{% static 'lerna/icons/unlocked.svg' %}" title="Вы допущены к участию"/>
+              <img alt="🔓" class="lerna-indicator" src="{% static 'lerna/icons/unlocked.svg' %}"
+                   title="Вы допущены к участию"/>
             {% else %}
-              <img alt="🔒" class="lerna-indicator-image" src="{% static 'lerna/icons/locked.svg' %}" title="Доступ к участию закрыт"/>
+              <img alt="🔒" class="lerna-indicator" src="{% static 'lerna/icons/locked.svg' %}"
+                   title="Доступ к участию закрыт"/>
             {% endif %}
           {% endif %}
           <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
         </div>
-        <div class="lcli-meta">
+        <div class="lerna-contests-listed__meta">
           {% if contest.is_school %}
             <div>Подсчёт результатов по количеству пройденных тестов.</div>
           {% else %}
@@ -53,18 +50,20 @@
   {% if wait_contest_list %}
     <h4>Ожидаемые соревнования:</h4>
     {% for contest in wait_contest_list %}
-      <div class="lerna-contests-list-item">
-        <div class="lcli-title">
+      <div class="lerna-contests-listed">
+        <div class="lerna-contests-listed__title">
           {% if contest.is_registration_required %}
             {% if contest.available %}
-              <img alt="🔓" class="lerna-indicator-image" src="{% static 'lerna/icons/unlocked.svg' %}" title="Вы допущены к участию"/>
+              <img alt="🔓" class="lerna-indicator" src="{% static 'lerna/icons/unlocked.svg' %}"
+                   title="Вы допущены к участию"/>
             {% else %}
-              <img alt="🔒" class="lerna-indicator-image" src="{% static 'lerna/icons/locked.svg' %}" title="Доступ к участию закрыт"/>
+              <img alt="🔒" class="lerna-indicator" src="{% static 'lerna/icons/locked.svg' %}"
+                   title="Доступ к участию закрыт"/>
             {% endif %}
           {% endif %}
           <a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a>
         </div>
-        <div class="lcli-meta">
+        <div class="lerna-contests-listed__meta">
           {% if contest.is_school %}
             <div>Подсчёт результатов по количеству пройденных тестов.</div>
           {% else %}
@@ -81,9 +80,9 @@
   {% if past_contest_list %}
     <h4>Прошедшие соревнования:</h4>
     {% for contest in past_contest_list %}
-      <div class="lerna-contests-list-item">
-        <div class="lcli-title"><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></div>
-        <div class="lcli-meta">
+      <div class="lerna-contests-listed">
+        <div class="lerna-contests-listed__title"><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></div>
+        <div class="lerna-contests-listed__meta">
           {% if contest.is_school %}
             <div>Подсчёт результатов по количеству пройденных тестов.</div>
           {% else %}

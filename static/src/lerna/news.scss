@@ -1,29 +1,26 @@
-.lerna-news-list-item {
-    margin: 0 0 35px 0;
+@import 'definitions';
+
+
+.lerna-news {
+  > .lerna-news__meta {
+    color: $txt-gray;
+    font-size: $txt-small;
+    margin-top: -3px;
+  }
+  > .lerna-news__content { margin-top: 20px; }
 }
 
-.lerna-news-list-title {
+.lerna-news-listed {
+  margin: 0 0 35px 0;
+  > .lerna-news-listed__title {
     margin: 0;
-}
-
-.lerna-news-list-title > a {
-    color: #0a0a0a;
-}
-
-.lerna-news-meta {
-    color: #777;
-    font-size: 12px;
-}
-
-.lerna-news-list-content {
-    font-size: 15px;
-}
-
-.lerna-news-list-more {
-    font-size: 15px;
-    margin-left: 5px;
-}
-
-.lerna-news-item-content {
-    margin: 20px 0;
+    > a { color: black }
+  }
+  > .lerna-news-listed__meta {
+    color: $txt-gray;
+    font-size: $txt-small;
+    margin-top: -3px;
+  }
+  > .lerna-news-listed__content { margin-top: 3px; }
+  > .lerna-news-listed__more { margin-left: 5px; }
 }
