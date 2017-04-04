@@ -10,11 +10,10 @@ source ./impl/config.sh
 
 ./impl/stop.sh
 
-if docker images | grep -q ${DOCKER_IMAGE_ID}
-then
-   echo "using existing image ${DOCKER_IMAGE_ID}";
+if docker images | grep -q ${DOCKER_IMAGE_ID}; then
+    echo "using existing image ${DOCKER_IMAGE_ID}"
 else
-   ./impl/build.sh
+    ./impl/build.sh
 fi
 
 ./impl/run.sh

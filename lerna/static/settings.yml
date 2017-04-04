@@ -23,7 +23,7 @@ PIPELINE:
   PIPELINE_ENABLED: true
 
   COMPILERS:
-    - lerna.static.sass.SassCompiler
+  - lerna.static.sass.SassCompiler
 
   JAVASCRIPT:
     jquery:
@@ -71,5 +71,5 @@ PIPELINE:
 
 APPEND:
   MIDDLEWARE_CLASSES:
-    - htmlmin.middleware.HtmlMinifyMiddleware
-    - htmlmin.middleware.MarkRequestMiddleware
+  - htmlmin.middleware.HtmlMinifyMiddleware
+  - htmlmin.middleware.MarkRequestMiddleware

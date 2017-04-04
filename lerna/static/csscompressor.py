@@ -1,7 +1,7 @@
-from pipeline.compressors import CompressorBase
 import csscompressor
+from   pipeline.compressors import CompressorBase
 
 
 class CSSCompressor(CompressorBase):
-  def compress_css(self, css):
-    return csscompressor.compress(css)
+    def compress_css(self, css):
+        return csscompressor.compress(css)

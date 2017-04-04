@@ -31,8 +31,7 @@ OVERRIDE:
   PIPELINE:
     PIPELINE_ENABLED: false
 
-OVERRIDE:
-  HTML_MINIFY: false
+HTML_MINIFY: false
 
 # LOGGING:
 #   version: 1
