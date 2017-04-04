@@ -15,6 +15,7 @@
   {% if attempt.error_message %}
     <pre>{{ attempt.error_message }}</pre>
   {% endif %}
-    <style>{{ highlighting_styles|safe }}</style>
+
+  <style>{{ highlighting_styles|safe }}</style>
   {{ highlighted_source|safe }}
 {% endblock %}

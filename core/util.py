@@ -5,7 +5,10 @@ import pygments.lexers.special
 
 
 def format_time(minutes):
-    return '%d:%02d' % divmod(minutes, 60) if minutes >= 0 else '-%d:%02d' % divmod(-minutes, 60)
+    if minutes >= 0:
+        return '%d:%02d' % divmod(minutes, 60)
+    else:
+        return '\u2012%d:%02d' % divmod(-minutes, 60)
 
 
 def _find_lexer(name, **kwargs):

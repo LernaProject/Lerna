@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 
 from core.standings.builders import (
     AcmStandingsBuilder, AcmTrainingStandingsBuilder,
-    KirovStandingsBuilder, # TODO: KirovTrainingStandingsBuilder.
+    KirovStandingsBuilder, KirovTrainingStandingsBuilder,
 )
 from .util import NotificationListMixin, SelectContestMixin, get_relative_time_info
 
@@ -15,13 +15,13 @@ class StandingsView(SelectContestMixin, NotificationListMixin, TemplateView):
     def get_context_data(self, **kwargs):
         contest = self.select_contest()
         time_info = get_relative_time_info(contest)
-        if contest.is_school:
-            if contest.is_training:
-                raise NotImplementedError
+        if contest.is_training:
+            if contest.is_school:
+                builder = KirovTrainingStandingsBuilder(contest)
             else:
-                builder = KirovStandingsBuilder(contest, self.unfrozen)
-        elif contest.is_training:
-            builder = AcmTrainingStandingsBuilder(contest)
+                builder = AcmTrainingStandingsBuilder(contest)
+        elif contest.is_school:
+            builder = KirovStandingsBuilder(contest, self.unfrozen)
         else:
             builder = AcmStandingsBuilder(contest, self.unfrozen)
 
