@@ -2,8 +2,8 @@ from django.conf.urls import url
 
 from .views import (
     ContestIndexView, TrainingIndexView, TrainingView, ProblemView, AttemptsView,
-    AttemptDetailsView, SubmitView, RatingView, StandingsView, UnfrozenStandingsView,
-    XMLStandingsView, UnfrozenXMLStandingsView, ClarificationsView,
+    AttemptDetailsView, SubmitView, StandingsView, UnfrozenStandingsView, XMLStandingsView,
+    UnfrozenXMLStandingsView, ClarificationsView,
 )
 
 
@@ -21,8 +21,6 @@ urlpatterns = (
     _url(r'^(?P<contest_id>\d+)/attempts/?$', AttemptsView, 'attempts'),
     _url(r'^(?P<contest_id>\d+)/attempts/(?P<page>\d+)/?$', AttemptsView, 'attempts'),
     _url(r'^attempt/(?P<attempt_id>\d+)/?$', AttemptDetailsView, 'attempt'),
-    _url(r'^(?P<contest_id>\d+)/rating/?$', RatingView, 'rating'),
-    _url(r'^(?P<contest_id>\d+)/rating/(?P<page>\d+)/?$', RatingView, 'rating'),
     _url(r'^(?P<contest_id>\d+)/standings/?$', StandingsView, 'standings'),
     _url(r'^(?P<contest_id>\d+)/standings\.xml/?$', XMLStandingsView, 'standings-xml'),
     _url(r'^(?P<contest_id>\d+)/unfrozen-standings/?$', UnfrozenStandingsView, 'standings-unfrozen'),

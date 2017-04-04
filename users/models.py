@@ -1,8 +1,9 @@
+import operator
+
 from django.contrib import auth
 from django.db      import models as md
 
-import itertools
-import operator
+from misc.itertools import indexed_groupby
 
 
 class UserManager(auth.models.BaseUserManager):
@@ -71,16 +72,13 @@ class User(auth.models.AbstractBaseUser):
 
 
 def rank_users(users, field_name, start=1):
-    for k, g in itertools.groupby(users, key=operator.attrgetter(field_name)):
-        g = list(g)
-        if len(g) == 1:
-            g[0].rank = str(start)
+    for i, j, k, g in indexed_groupby(users, operator.attrgetter(field_name), start=start):
+        if i + 1 == j:
+            g[0].rank = str(i)
         else:
-            rank = '%d-%d' % (start, start + len(g) - 1)
+            rank = '%d-%d' % (i, j - 1)
             for user in g:
                 user.rank = rank
-
-        start += len(g)
 
 
 class Achievement(md.Model):

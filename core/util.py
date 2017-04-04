@@ -4,6 +4,10 @@ import pygments.formatters
 import pygments.lexers.special
 
 
+def format_time(minutes):
+    return '%d:%02d' % divmod(minutes, 60) if minutes >= 0 else '-%d:%02d' % divmod(-minutes, 60)
+
+
 def _find_lexer(name, **kwargs):
     try:
         return pygments.lexers.get_lexer_by_name(name, **kwargs)

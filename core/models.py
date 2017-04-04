@@ -128,6 +128,13 @@ class Contest(md.Model):
         freezing_moment = self.start_time + timezone.timedelta(minutes=self.freezing_time)
         return freezing_moment <= moment and (moment < self.finish_time or not self.is_unfrozen)
 
+    def get_due_time(self, unfrozen):
+        now = timezone.now()
+        if not unfrozen and self.is_frozen_at(now):
+            return self.start_time + timezone.timedelta(minutes=self.freezing_time)
+        else:
+            return min(self.finish_time, now)
+
     def is_available_for(self, user):
         public = not self.is_registration_required
         return public or user.is_staff or (

@@ -17,14 +17,16 @@
     {% if time_info.freezing_time_str %}
       <div>{{ time_info.freezing_time_str }}</div>
     {% endif %}
-    {% for attempt_info in last_attempts %}
+    {% for code, value in summary.items %}
       <div>
-        Последняя {% cycle 'сдача' 'попытка' %}:
-        {% if attempt_info %}
-          {{ attempt_info.username }},
-          "{{ attempt_info.number|to_ordering_letter }}. {{ attempt_info.problem_name }}",
-          {{ attempt_info.time_str }}
-        {% endif %}
+        <span>
+          {% if code == 'last_accepted' %}
+            Последняя сдача:
+          {% elif code == 'last_submitted' %}
+            Последняя попытка:
+          {% endif %}
+        </span>
+        <span>{{ value }}</span>
       </div>
     {% endfor %}
 
@@ -33,71 +35,69 @@
       <th>Ранг</th>
       <th>Имя</th>
       {% for pic in problems %}
-        <th><span title="{{ pic.problem__name }}">{{ pic.number|to_ordering_letter }}</span></th>
+        <th title="{{ pic.problem.name }}">
+          {{ pic.number|to_ordering_letter }}
+          {% if pic.score %}<br/>{{ pic.score }}{% endif %}
+        </th>
       {% endfor %}
-      <th>{% if contest.is_school %}Баллов{% else %}Задач<br/>(из&nbsp;{{ problems|length }}){% endif %}</th>
-      <th>Время</th>
+      {% for code in extras %}
+        <th>
+          {% if code == 'solved' %}
+            Задач<br/>(из&nbsp;{{ problems|length }})
+          {% elif code == 'score' %}
+            Баллы
+          {% elif code == 'penalty' %}
+            Время
+          {% endif %}
+        </th>
+      {% endfor %}
     </tr>
-    {% for user_info in standings %}
+
+    {% for row in standings %}
       <tr>
-         <td>{{ user_info.rank }}</td>
-         <td>{{ user_info.username }}</td>
-         {% for result in user_info.results %}
-           <td>{{ result.status|linebreaksbr }}{% if result.time %}<br/>{{ result.time }}{% endif %}</td>
-         {% endfor %}
-         <td>{{ user_info.score|floatformat:-3 }}</td>
-         <td>{{ user_info.penalty }}</td>
+        <td>{{ row.rank }}</td>
+        <td>{{ row.username }}</td>
+        {% for attempt in row.attempts %}
+          <td>{{ attempt|default_if_none:'.'|linebreaksbr }}</td>
+        {% endfor %}
+        {% for value in row.extras.values %}
+          <td>{{ value|default_if_none:'—' }}</td>
+        {% endfor %}
       </tr>
     {% endfor %}
-    {% if standings %}
+
+    {% for code, stat in statistics.items %}
       <tr>
-        <td></td>
-        <td>Всего попыток</td>
-        {% for statistic in statistics %}
-          <td>{{ statistic.total_runs }}</td>
+        <td>{# rank #}</td>
+        <td>
+          {% if code == 'total_runs' %}
+            Всего попыток
+          {% elif code == 'accepted' %}
+            Успешных
+          {% elif code == 'rejected' %}
+            Неудачных
+          {% elif code == 'full' %}
+            Полных решений
+          {% elif code == 'total_score' %}
+            Включая частичные
+          {% elif code == 'first_accepted' %}
+            Первая сдача
+          {% elif code == 'last_accepted' %}
+            Последняя сдача
+          {% endif %}
+        </td>
+        {% for value in stat %}
+          <td>{{ value|default_if_none:'—' }}</td>
         {% endfor %}
-        <td></td>
-        <td></td>
+        {% if extras %}
+          {% if extras|length == 1 %}
+            <td></td>
+          {% else %}
+            <td colspan="{{ extras|length }}"></td>
+          {% endif %}
+        {% endif %}
       </tr>
-      <tr>
-        <td></td>
-        <td>{% if contest.is_school %}Полных решений{% else %}Успешных{% endif %}</td>
-        {% for statistic in statistics %}
-          <td>{{ statistic.accepted }}</td>
-        {% endfor %}
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>{% if contest.is_school %}Включая частичные{% else %}Неудачных{% endif %}</td>
-        {% for statistic in statistics %}
-          <td>
-            {% if contest.is_school %}{{ statistic.score_sum|floatformat }}{% else %}{{ statistic.rejected }}{% endif %}
-          </td>
-        {% endfor %}
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>Первая сдача</td>
-        {% for statistic in statistics %}
-          <td>{{ statistic.first_accepted_str }}</td>
-        {% endfor %}
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>Последняя сдача</td>
-        {% for statistic in statistics %}
-          <td>{{ statistic.last_accepted_str }}</td>
-        {% endfor %}
-        <td></td>
-        <td></td>
-      </tr>
-    {% endif %}
+    {% endfor %}
     </table>
   {% endif %}
 {% endblock %}
