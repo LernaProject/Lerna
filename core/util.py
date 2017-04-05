@@ -40,7 +40,7 @@ def notify_admins_about_clarification(request, clarification):
     notify_admins(
         request,
         msg_lvl.WARNING_PERSISTENT,
-        '<a href="{}" data-clarification="{}">Задан новый вопрос</a>: "{}"'.format(
+        '<a href="{}" data-clarification="{}">Задан вопрос</a>: "{}"'.format(
             reverse('admin:core_clarification_change', args=[clarification.id]),
             clarification.id,
             html.escape(clarification),
