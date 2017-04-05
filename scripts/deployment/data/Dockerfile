@@ -2,7 +2,7 @@ FROM python:3.5
 
 # 1. Moving entry script to the image and setting it as an entry point.
 COPY docker_run.sh /
-ENTRYPOINT ["/docker_run.sh"]
+CMD ["/docker_run.sh"]
 
 # 2. Preparing directory for Lerna sources.
 # 3. Updating available packages.

@@ -32,7 +32,7 @@ class ClarificationsView(LoginRequiredMixin, SelectContestMixin, NotificationLis
         contest = self.select_contest()
         time_info = get_relative_time_info(contest)
         if time_info is None or time_info.started:
-            notify_admins_about_clarification(request, form.ask(self.request.user, contest))
+            notify_admins_about_clarification(self.request, form.ask(self.request.user, contest))
 
         return super().form_valid(form)
 

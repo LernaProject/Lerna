@@ -17,4 +17,3 @@ source ./impl/config.sh
 ./impl/run.sh
 
 cd ${PREVIOUS_DIR}
-
