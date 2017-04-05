@@ -4,7 +4,7 @@ from django.conf import settings
 def convert(text, from_, to):
     if from_ == to:
         return text
-    elif not settings.PANDOC_REQUIRED:
+    elif not settings.PANDOC['REQUIRED']:
         # TODO: Log that.
         return text
 
@@ -13,6 +13,6 @@ def convert(text, from_, to):
         text,
         to,
         format=from_,
-        filters=settings.PANDOC_FILTERS,
-        extra_args=settings.PANDOC_EXTRA_ARGS,
+        filters=settings.PANDOC['FILTERS'],
+        extra_args=settings.PANDOC['EXTRA_ARGS'],
     )

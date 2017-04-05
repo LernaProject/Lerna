@@ -70,6 +70,6 @@ PIPELINE:
   CSS_COMPRESSOR: lerna.static.csscompressor.CSSCompressor
 
 APPEND:
-  MIDDLEWARE_CLASSES:
+  MIDDLEWARE:
   - htmlmin.middleware.HtmlMinifyMiddleware
   - htmlmin.middleware.MarkRequestMiddleware

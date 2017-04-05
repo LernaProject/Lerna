@@ -20,7 +20,7 @@ DATABASES:
     # PORT:   5432
 
 PREPEND:
-  MIDDLEWARE_CLASSES:
+  MIDDLEWARE:
   - debug_toolbar.middleware.DebugToolbarMiddleware
 
 APPEND:
@@ -41,8 +41,6 @@ HTML_MINIFY: false
 #   handlers:
 #   loggers:
 #     django:
-
-DEBUG_TOOLBAR_PATCH_SETTINGS: false
 
 DEBUG_TOOLBAR_PANELS:
 - debug_toolbar.panels.sql.SQLPanel

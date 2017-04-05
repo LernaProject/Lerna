@@ -1,6 +1,6 @@
-###########################################################
+########################################################
 # Local settings, must be defined in local_settings.yml
-###########################################################
+########################################################
 
 SECRET_KEY:
 
@@ -23,9 +23,9 @@ LOGGING:
   version: 1
   disable_existing_loggers: false
 
-###########################################################
+########################################################
 # Global settings
-###########################################################
+########################################################
 
 DEBUG: false
 
@@ -39,7 +39,7 @@ INSTALLED_APPS:
 - django.contrib.staticfiles
 - ajax_select
 - pipeline
-# Project-local.
+# Project-local:
 - scripts
 - core
 - users
@@ -47,7 +47,7 @@ INSTALLED_APPS:
 - global_statistics
 - dbtrash
 
-MIDDLEWARE_CLASSES:
+MIDDLEWARE:
 - django.contrib.sessions.middleware.SessionMiddleware
 - django.middleware.common.CommonMiddleware
 - django.middleware.csrf.CsrfViewMiddleware
@@ -78,6 +78,7 @@ USE_I18N: true
 USE_L10N: true
 USE_TZ: true
 
+# Source code highlighter
 PYGMENTS:
   LEXER:
     tabsize: 4
@@ -86,10 +87,12 @@ PYGMENTS:
     linenos: table
   STYLE_SELECTORS: .highlight
 
-PANDOC_REQUIRED: false
-PANDOC_EXTRA_ARGS: [--katex, --highlight-style=tango]
-PANDOC_FILTERS:
-- pandoc-anglequotes # https://github.com/SirNickolas/pandoc-anglequotes
+# Universal document converter
+PANDOC:
+  REQUIRED: false
+  EXTRA_ARGS: [--katex, --highlight-style=tango]
+  FILTERS:
+  - pandoc-anglequotes # https://github.com/SirNickolas/pandoc-anglequotes
 
 LOGGING_CONFIG: lerna.settings.init_logging
 

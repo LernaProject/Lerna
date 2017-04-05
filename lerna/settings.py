@@ -62,9 +62,8 @@ def _init_settings():
                 except RuntimeError:
                     return False
 
-            global PANDOC_REQUIRED, PANDOC_FILTERS
-            PANDOC_REQUIRED = True
-            PANDOC_FILTERS = [f for f in PANDOC_FILTERS if check_filter(f)]
+            PANDOC['REQUIRED'] = True
+            PANDOC['FILTERS'] = list(filter(check_filter, PANDOC['FILTERS']))
 
 
 _init_settings()
