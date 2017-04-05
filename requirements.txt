@@ -1,12 +1,12 @@
 # Django and stuff
-Django==1.10.2
+Django==1.11.0
 django-ajax-selects==1.5.2
-django-debug-toolbar==1.6
-django-pipeline==1.6.9
+django-debug-toolbar==1.7
+django-pipeline==1.6.12
 libsass==0.12.3
 
 # PostgreSQL connector
-psycopg2==2.6.2
+psycopg2==2.7.1
 
 # Python bindings to the Pandoc universal document converter
 pypandoc==1.3.3
