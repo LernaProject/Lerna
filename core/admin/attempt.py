@@ -21,12 +21,10 @@ class TestInfoInline(admin.TabularInline):
 
 @admin.register(models.Attempt)
 class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
-    form = make_ajax_form(
-        models.Attempt, {
-            'user': 'users',
-            'problem_in_contest': 'problems_in_contests',
-        }
-    )
+    form = make_ajax_form(models.Attempt, {
+        'user': 'users',
+        'problem_in_contest': 'problems_in_contests',
+    })
 
     def get_fieldsets(self, request, attempt=None):
         fieldsets = (

@@ -7,11 +7,9 @@ from .models import News
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin, JQueryModelAdmin):
-    form = make_ajax_form(
-        News, {
-            'user': 'users',
-        }
-    )
+    form = make_ajax_form(News, {
+        'user': 'users',
+    })
 
     def get_fields(self, request, obj=None):
         fields = ('title', 'description', 'user', 'visible')

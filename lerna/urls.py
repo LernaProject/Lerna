@@ -13,6 +13,7 @@ urlpatterns = (
     url(r'^global_statistics/', include('global_statistics.urls', namespace='global_statistics')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ajax_select/', include(ajax_select_urls)),
+    url(r'^messages/', include('messages_extends.urls')),
 
     url(r'^login/?$', Login.as_view(), name='login'),
     url(r'^logout/?$', Logout.as_view(), name='logout'),

@@ -11,11 +11,9 @@ from .. import models
 # TODO(nickolas): Put a constraint on problem numbers (must be unique, consecutive, and 1-based).
 class ProblemInContestInline(ajax_select.admin.AjaxSelectAdminTabularInline):
     model = models.ProblemInContest
-    form = ajax_select.make_ajax_form(
-        model, {
-            'problem': 'problems',
-        }
-    )
+    form = ajax_select.make_ajax_form(model, {
+        'problem': 'problems',
+    })
     fields = ('number', 'problem', 'score')
     ordering = ['number']
 
@@ -28,11 +26,9 @@ class ProblemInContestInline(ajax_select.admin.AjaxSelectAdminTabularInline):
 
 class UserInContestInline(ajax_select.admin.AjaxSelectAdminTabularInline):
     model = models.UserInContest
-    form = ajax_select.make_ajax_form(
-        model, {
-            'user': 'users',
-        }
-    )
+    form = ajax_select.make_ajax_form(model, {
+        'user': 'users',
+    })
     fields = ('user', 'contest')
     ordering = ['user']
     extra = 0

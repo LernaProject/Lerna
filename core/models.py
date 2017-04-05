@@ -120,7 +120,7 @@ class Contest(md.Model):
 
     def get_absolute_url(self):
         # TODO: Replace with something more appropriate.
-        return reverse('contests:problem', args=[self.id, 1])
+        return reverse('contests:problem', args=(self.id, 1))
 
     def is_frozen_at(self, moment):
         if self.freezing_time is None:
@@ -191,7 +191,7 @@ class ProblemInContest(md.Model):
         return '{0.contest.id:03}#{0.number}: "{0.problem}"'.format(self)
 
     def get_absolute_url(self):
-        return reverse('contests:problem', args=[self.contest_id, self.number])
+        return reverse('contests:problem', args=(self.contest_id, self.number))
 
     @property
     def ordering_id(self):
@@ -246,6 +246,9 @@ class Clarification(md.Model):
 
     def __str__(self):
         return self.question if len(self.question) <= 70 else self.question[:67] + '...'
+
+    def get_absolute_url(self):
+        return reverse('contests:clarifications', args=[self.contest.id])
 
     def clean(self):
         if self.has_answer():

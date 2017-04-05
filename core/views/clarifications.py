@@ -4,6 +4,7 @@ from django.views.generic.edit  import FormView
 from .util       import NotificationListMixin, SelectContestMixin, get_relative_time_info
 from core.forms  import ClarificationForm
 from core.models import Clarification
+from core.util   import notify_admins_about_clarification
 
 
 class ClarificationsView(LoginRequiredMixin, SelectContestMixin, NotificationListMixin, FormView):
@@ -31,7 +32,8 @@ class ClarificationsView(LoginRequiredMixin, SelectContestMixin, NotificationLis
         contest = self.select_contest()
         time_info = get_relative_time_info(contest)
         if time_info is None or time_info.started:
-            form.ask(self.request.user, contest)
+            notify_admins_about_clarification(request, form.ask(self.request.user, contest))
+
         return super().form_valid(form)
 
     def get_success_url(self):

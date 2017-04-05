@@ -5,7 +5,11 @@ from django.utils.translation import ugettext as _
 
 from jquery_model_admin import JQueryModelAdmin
 
-from .. import models
+from core      import models
+from core.util import (
+    notify_admins_about_clarification, notify_user_about_clarification, clear_clarification_messages
+)
+
 
 class ClarificationAnswerFilter(admin.SimpleListFilter):
     title = _('has answer')
@@ -29,12 +33,10 @@ class ClarificationAnswerFilter(admin.SimpleListFilter):
 
 @admin.register(models.Clarification)
 class ClarificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
-    form = make_ajax_form(
-        models.Clarification, {
-            'contest': 'contests',
-            'user': 'users',
-        }
-    )
+    form = make_ajax_form(models.Clarification, {
+        'contest': 'contests',
+        'user': 'users',
+    })
 
     def get_fields(self, request, obj=None):
         fields = ('contest', 'user', 'question', 'answer', 'format')
@@ -50,3 +52,16 @@ class ClarificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
     list_per_page = 30
     date_hierarchy = 'created_at'
     search_fields = ('contest__id', 'contest__name', 'question', 'user__username', 'user__login')
+
+    def save_model(self, request, clarification, form, change):
+        super().save_model(request, clarification, form, change)
+        if not change:
+            # A new clarification has been posted via the admin interface.
+            notify_admins_about_clarification(request, clarification)
+        elif clarification.has_answer():
+            clear_clarification_messages(clarification)
+            notify_user_about_clarification(request, clarification)
+
+    def delete_model(self, request, clarification):
+        clear_clarification_messages(clarification)
+        super().delete_model(request, clarification)

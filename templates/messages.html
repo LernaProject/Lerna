@@ -1,0 +1,16 @@
+{% if messages %}
+  <ul class="messagelist">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.id %}
+          <a class="close" href="{% url 'message_mark_read' message.id %}">×</a>
+        {% endif %}
+        {% if 'safe' in message.extra_tags %}
+          {{ message|safe|capfirst }}
+        {% else %}
+          {{ message|capfirst }}
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

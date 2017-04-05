@@ -9,11 +9,9 @@ from .. import models
 
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
-    form = make_ajax_form(
-        models.Notification, {
-            'contest': 'contests',
-        }
-    )
+    form = make_ajax_form(models.Notification, {
+        'contest': 'contests',
+    })
 
     def get_fields(self, request, obj=None):
         fields = ('contest', 'description', 'format', 'visible')
