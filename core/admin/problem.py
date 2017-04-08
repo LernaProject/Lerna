@@ -55,6 +55,13 @@ class ProblemAdmin(admin.ModelAdmin):
         # Polygon default masks.
         form.base_fields['mask_in'].initial = '%02d'
         form.base_fields['mask_out'].initial = '%02d.a'
+        form.base_fields['samples'].initial = (
+            '|_. Стандартный ввод |_. Стандартный вывод |\n'
+            '|Input_1\n'
+            '|Output_1|\n'
+            '|Input_2\n'
+            '|Output_2|'
+        )
         return form
 
     readonly_fields = ('created_at', 'updated_at')
