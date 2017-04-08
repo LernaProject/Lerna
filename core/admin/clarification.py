@@ -55,12 +55,12 @@ class ClarificationAdmin(admin.ModelAdmin, JQueryModelAdmin):
 
     def save_model(self, request, clarification, form, change):
         super().save_model(request, clarification, form, change)
-        if not change:
-            # A new clarification has been posted via the admin interface.
-            notify_admins_about_clarification(request, clarification)
-        elif clarification.has_answer():
+        if clarification.has_answer():
             clear_clarification_messages(clarification)
             notify_user_about_clarification(request, clarification)
+        elif not change:
+            # A new clarification has been posted via the admin interface.
+            notify_admins_about_clarification(request, clarification)
 
     def delete_model(self, request, clarification):
         clear_clarification_messages(clarification)
