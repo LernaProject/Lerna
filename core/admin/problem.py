@@ -57,10 +57,10 @@ class ProblemAdmin(admin.ModelAdmin):
         form.base_fields['mask_out'].initial = '%02d.a'
         form.base_fields['samples'].initial = (
             '|_. Стандартный ввод |_. Стандартный вывод |\n'
-            '|Input_1\n'
-            '|Output_1|\n'
-            '|Input_2\n'
-            '|Output_2|'
+            '|Input1\n'
+            '|Output1|\n'
+            '|Input2\n'
+            '|Output2|'
         )
         return form
 
