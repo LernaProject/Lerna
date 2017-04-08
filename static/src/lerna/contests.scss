@@ -26,7 +26,14 @@
 
 
 .lerna-contest-problem {
-  > .lerna-contest-problem__content { margin-top: 25px; }
+  > .lerna-contest-problem__content {
+    margin-top: 25px;
+    code {
+      border: 0;
+      background-color: inherit;
+      padding: inherit;
+    }
+  }
   > .lerna-contest-problem__sidebar {
     margin-top: 35px;
     .active > a { background-color: $theme-color; }
