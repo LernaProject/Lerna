@@ -45,3 +45,27 @@ body, html {
     background: inherit;
   }
 }
+
+
+.lerna-user-notifications {
+  $lun-color: desaturate(lighten($theme-color, 65%), 40%);
+  background-color: $lun-color;
+  font-size: $txt-small;
+
+  > .lerna-user-notifications__line {
+    border-bottom: solid 1px darken($lun-color, 20%);
+    padding: 3px 0;
+
+    .lerna-user-notifications__close {
+      &, &:focus, &:hover, &:visited {
+        background: inherit;
+        margin: 0 15px 0 10px;
+        padding: 2px;
+        img {
+          width: 7px;
+          height: 7px;
+        }
+      }
+    }
+  }
+}
