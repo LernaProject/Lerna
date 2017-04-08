@@ -8,7 +8,7 @@
         <div class="{{ message.tags }} row small-12 columns">
           {% if message.id %}
             <a class="lerna-user-notifications__close" href="{% url 'message_mark_read' message.id %}">
-              <img alt="×" title="Hide notification" src="{% static 'lerna/icons/notifications/close.svg' %}"/>
+              <img alt="×" title="Hide notification" src="{% static 'lerna/icons/close.svg' %}"/>
             </a>
             {% if 'safe' in message.extra_tags %}
               {{ message|safe|capfirst }}
