@@ -1,4 +1,5 @@
 from django.contrib           import admin
+from django.db.models         import Count
 from django.utils.translation import ugettext as _
 
 import ajax_select
@@ -37,6 +38,10 @@ class UserInContestInline(ajax_select.admin.AjaxSelectAdminTabularInline):
         return super().get_queryset(request).select_related('user', 'contest')
 
 
+def problem_count(contest):
+    return contest.problem_count_
+
+
 @admin.register(models.Contest)
 class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
     def get_fields(self, request, obj=None):
@@ -55,7 +60,7 @@ class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
     inlines = [ProblemInContestInline, UserInContestInline]
     list_display = (
-        'id', 'name', 'problem_count', 'duration', 'freezing_time', 'start_time',
+        'id', 'name', problem_count, 'duration', 'freezing_time', 'start_time',
         'is_school', 'is_admin', 'is_training', 'is_registration_required', 'is_unfrozen',
     )
     list_display_links = ('id', 'name')
@@ -65,6 +70,13 @@ class ContestAdmin(admin.ModelAdmin, JQueryModelAdmin):
     )
     date_hierarchy = 'start_time'
     search_fields = ('name', 'problems__name')
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(problem_count_=Count('problem_in_contest_set__problem', distinct=True))
+        )
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)

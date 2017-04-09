@@ -87,7 +87,9 @@ class AttemptAdmin(admin.ModelAdmin, JQueryModelAdmin):
     # actions = ()
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('compiler')
+        return super().get_queryset(request).select_related(
+            'compiler', 'user', 'problem_in_contest__problem', 'problem_in_contest__contest',
+        )
 
     def pretty_source(self, attempt):
         source, styles = util.highlight_source(attempt.source, attempt.compiler.highlighter)
