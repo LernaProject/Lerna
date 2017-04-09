@@ -12,6 +12,25 @@
 
   <div>Вердикт: {{ attempt.verdict|default:'Waiting' }}</div>
 
+  {% if test_infos %}
+    <table style="width: 75%; font-size: 14px;">
+      <tr>
+        <th>№</th>
+        <th>Вердикт</th>
+        <th>Используемое<br/>время, сек.</th>
+        <th>Используемая<br/>память, КБ</th>
+      </tr>
+      {% for info in test_infos %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ info.result }}</td>
+          <td>{{ info.used_time }}</td>
+          <td>{{ info.used_memory }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
   {% if attempt.error_message %}
     <pre>{{ attempt.error_message }}</pre>
   {% endif %}

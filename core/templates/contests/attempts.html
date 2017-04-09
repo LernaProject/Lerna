@@ -13,7 +13,6 @@
       <th>Вердикт</th>
       <th>Используемое<br/>время, сек</th>
       <th>Используемая<br/>память, КБ</th>
-      <th>Исходный<br/>код</th>
     </tr>
     {% for attempt in attempts %}
       <tr>
@@ -24,16 +23,9 @@
           </a>
         </td>
         <td>{{ attempt.compiler.name }}</td>
-        <td>
-          {% if attempt.result == "Compilation error" %}
-            <a href="{{ attempt.get_absolute_url }}">Compilation error</a>
-          {% else %}
-            {{ attempt.verdict|default:'Waiting' }}
-          {% endif %}
-        </td>
+        <td><a href="{{ attempt.get_absolute_url }}">{{ attempt.verdict|default:'Waiting' }}</a></td>
         <td>{{ attempt.used_time|default_if_none:'' }}</td>
         <td>{{ attempt.used_memory|default_if_none:'' }}</td>
-        <td><a href="{{ attempt.get_absolute_url }}">[link]</a></td>
       </tr>
     {% endfor %}
     </table>

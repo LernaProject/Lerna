@@ -4,7 +4,7 @@ from django.http                import Http404
 from django.views.generic       import TemplateView, ListView
 
 from .util       import NotificationListMixin, SelectContestMixin, get_relative_time_info
-from core.models import Attempt
+from core.models import Attempt, TestInfo
 from core.util   import highlight_source
 
 
@@ -65,10 +65,22 @@ class AttemptDetailsView(LoginRequiredMixin, NotificationListMixin, TemplateView
         if user.id != attempt.user_id and not user.is_staff:
             raise PermissionDenied('Вы не можете просматривать исходный код чужих посылок.')
 
+        if attempt.contest.is_school:
+            test_infos = list(
+                TestInfo
+                .objects
+                .filter(attempt=attempt)
+                .order_by('test_number')
+                .only('result', 'used_time', 'used_memory')
+            )
+        else:
+            test_infos = None
+
         source, styles = highlight_source(attempt.source, attempt.compiler.highlighter)
         context.update(
             contest=attempt.problem_in_contest.contest,
             attempt=attempt,
+            test_infos=test_infos,
             notifications=self.get_notifications(attempt.problem_in_contest.contest),
             highlighted_source=source,
             highlighting_styles=styles,
