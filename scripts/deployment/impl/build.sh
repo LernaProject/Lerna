@@ -14,7 +14,10 @@ echo "- call docker build"
 # --no-cache - do not use cached intermediate images
 # --force-rm - remove all intermediate containers after build
 # -t <name>  - image name
-docker build --no-cache --force-rm -t ${DOCKER_IMAGE_ID} ${DOCKER_BUILD_DIR}/
+docker build \
+    --no-cache --force-rm \
+    --build-arg MAIL_DOMAIN="${LERNA_MAIL_DOMAIN:-}" \
+    -t ${DOCKER_IMAGE_ID} ${DOCKER_BUILD_DIR}/
 
 echo "- remove temporary files"
 rm ${DOCKER_BUILD_DIR}/requirements.txt.tmp

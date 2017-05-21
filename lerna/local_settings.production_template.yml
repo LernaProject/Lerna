@@ -2,7 +2,7 @@
 # Copy this file, rename it to local_settings.yml and edit.
 # It will not be checked into the version control system.
 
-SECRET_KEY:
+SECRET_KEY: ~
 
 # A list of host/domain names that Django site can serve.
 ALLOWED_HOSTS:
@@ -10,6 +10,9 @@ ALLOWED_HOSTS:
 - 127.0.0.1
 - '[::1]'
 - .example.com
+
+DEFAULT_FROM_EMAIL: webmaster@localhost
+SERVER_EMAIL:       root@localhost
 
 TIME_ZONE: Asia/Novosibirsk
 

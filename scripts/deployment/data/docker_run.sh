@@ -17,5 +17,8 @@ echo "- nginx launch"
 nginx -t
 nginx &
 
+echo "- postfix launch"
+service postfix start
+
 echo "- launch gunicorn inside supervisor"
-/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

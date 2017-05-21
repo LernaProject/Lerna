@@ -73,6 +73,8 @@ TEMPLATES:
 
 WSGI_APPLICATION: lerna.wsgi.application
 
+EMAIL_SUBJECT_PREFIX: '[Lerna] '
+
 # Internationalization
 LANGUAGE_CODE: ru-RU
 USE_I18N: true

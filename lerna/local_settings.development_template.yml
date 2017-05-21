@@ -4,9 +4,11 @@
 
 DEBUG: true
 
-SECRET_KEY: development_secret_key
+SECRET_KEY: ~
 
 INTERNAL_IPS: [127.0.0.1]
+
+EMAIL_BACKEND: django.core.mail.backends.console.EmailBackend
 
 TIME_ZONE: Asia/Novosibirsk
 
@@ -14,8 +16,8 @@ DATABASES:
   default:
     ENGINE:   django.db.backends.postgresql_psycopg2
     NAME:     lerna
-    USER:     lerna_db_user
-    PASSWORD: lerna_db_password
+    USER:     ~
+    PASSWORD: ~
     HOST:     localhost
     # PORT:   5432
 
