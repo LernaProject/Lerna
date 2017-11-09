@@ -79,19 +79,3 @@ def rank_users(users, field_name, start=1):
             rank = '%d-%d' % (i, j - 1)
             for user in g:
                 user.rank = rank
-
-
-class Achievement(md.Model):
-    # TODO: Add the DB index.
-    user               = md.ForeignKey(User, md.CASCADE, db_index=False)
-    achievement_number = md.IntegerField()
-    created_at         = md.DateTimeField(auto_now_add=True)
-    updated_at         = md.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table        = 'achievements'
-        unique_together = ('user', 'achievement_number')
-        get_latest_by   = 'created_at'
-
-    def __str__(self):
-        return '{0.user}#{0.achievement_number}'.format(self)
