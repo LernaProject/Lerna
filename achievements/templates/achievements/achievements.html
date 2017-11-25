@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} {{ block.super }} :: Достижения {% endblock %}
+
+{% block content %}
+  <h2>Достижения пользователя {{ user.username }}</h2>
+  <h3>Полученные достижения:</h3>
+  {% for achievement in unlocked %}
+     <table cellspacing="0" cellpadding="0" class="lerna-achievement">
+        <tr>
+            <td class="lerna-achievement-icon">
+                {% if not achievement.achievement.icon_path %}
+                    <img alt="pic" src="{% static 'lerna/icons/default_achievement_icon.png' %}"/>
+                {% else %}
+                    <img alt="pic" src="{{ achievement.achievement.icon_path }}"/>
+                {% endif %}
+            </td>
+            <td>
+              <div class="lerna-achievement-desc">
+                <div class="lerna-achievement-progress-bar" style="width: 100%;">
+                    </div>
+                <h4>{{ achievement.achievement.name }}</h4>
+                {{ achievement.achievement.description }}
+                <div class="lerna-achievement-time">{{ achievement.earned_at }}</div>
+              </div>
+            </td>
+            <td class="lerna-achievement-points">{{ achievement.achievement.points }}</td>
+         </tr>
+     </table>
+  {% endfor %}
+  <h3>Неполученные достижения:</h3>
+  {% for achievement in locked %}
+     <table cellspacing="0" cellpadding="0" class="lerna-achievement">
+        <tr>
+            <td class="lerna-achievement-icon">
+                {% if not achievement.achievement.icon_path %}
+                    <img alt="pic" src="{% static 'lerna/icons/default_achievement_icon.png' %}"/>
+                {% else %}
+                    <img alt="pic" src="{{ achievement.achievement.icon_path }}"/>
+                {% endif %}
+            </td>
+            <td>
+              <div class="lerna-achievement-desc">
+                <div class="lerna-achievement-progress-bar" style="width: {{ achievement.progress_percent }}%;">
+                    </div>
+                <h4>{{ achievement.achievement.name }}</h4>
+                {{ achievement.achievement.description }}
+                <div class="lerna-achievement-percent">{{ achievement.progress_percent }}%</div>
+              </div>
+            </td>
+            <td class="lerna-achievement-points">{{ achievement.achievement.points }}</td>
+         </tr>
+     </table>
+  {% endfor %}
+{% endblock %}
