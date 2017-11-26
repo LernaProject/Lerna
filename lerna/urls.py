@@ -5,10 +5,12 @@ from django.contrib   import admin
 
 from news.views  import IndexView
 from users.views import Registration, Login, Logout
+from achievements.views import AchievementsView
 
 urlpatterns = (
     url(r'^$', IndexView.as_view(), name='index'),
     url(r'^news/', include('news.urls', namespace='news')),
+    url(r'^achievements/', include('achievements.urls', namespace='achievements')),
     url(r'^contests/', include('core.urls', namespace='contests')),
     url(r'^global_statistics/', include('global_statistics.urls', namespace='global_statistics')),
     url(r'^admin/', include(admin.site.urls)),
