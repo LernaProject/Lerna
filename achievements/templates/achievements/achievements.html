@@ -17,11 +17,11 @@
                 {% endif %}
             </td>
             <td>
-              <div class="lerna-achievement-desc">
+              <div class="lerna-achievement-info">
                 <div class="lerna-achievement-progress-bar" style="width: 100%;">
                     </div>
-                <h4>{{ achievement.achievement.name }}</h4>
-                {{ achievement.achievement.description }}
+                <div class="lerna-achievement-name">{{ achievement.achievement.name }}</div>
+                <div class="lerna-achievement-description">{{ achievement.achievement.description }}</div>
                 <div class="lerna-achievement-time">{{ achievement.earned_at }}</div>
               </div>
             </td>
@@ -41,11 +41,11 @@
                 {% endif %}
             </td>
             <td>
-              <div class="lerna-achievement-desc">
+              <div class="lerna-achievement-info">
                 <div class="lerna-achievement-progress-bar" style="width: {{ achievement.progress_percent }}%;">
                     </div>
-                <h4>{{ achievement.achievement.name }}</h4>
-                {{ achievement.achievement.description }}
+                <div class="lerna-achievement-name">{{ achievement.achievement.name }}</div>
+                <div class="lerna-achievement-description">{{ achievement.achievement.description }}</div>
                 <div class="lerna-achievement-percent">{{ achievement.progress_percent }}%</div>
               </div>
             </td>
