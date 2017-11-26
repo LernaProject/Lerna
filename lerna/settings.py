@@ -51,9 +51,9 @@ def _init_settings():
         except OSError:
             pass
         else:
-            # output = pd.convert_text('', 'html', format='latex')
-            # if output not in ('', '\n'):
-            #     raise Exception('pandoc is found, but has not passed a sample test (%r)' % output)
+            output = pd.convert_text('', 'html', format='latex')
+            if output not in ('', '\n'):
+                raise Exception('pandoc is found, but has not passed a sample test (%r)' % output)
 
             def check_filter(f):
                 try:
