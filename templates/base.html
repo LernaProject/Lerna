@@ -53,7 +53,7 @@
               <a href="{% url 'global_statistics:attempts' %}">{{ user.username }}</a>
               <ul class="menu vertical">
                 <li><a href="{% url 'global_statistics:attempts' %}">Попытки</a></li>
-                <li><a href="{% url 'achievements:achievements' request.user.id %}">Достижения</a></li>
+{#                <li><a href="{% url 'achievements:achievements' request.user.id %}">Достижения</a></li>#}
                 <li><a href="{% url 'logout' %}?back={{ request.path }}">Выйти</a></li>
               </ul>
             </li>
