@@ -23,6 +23,7 @@ class Achievement(md.Model):
     contest     = md.ForeignKey(Contest, null=True, blank=True, default=None)
     author      = md.CharField(max_length=255, null=True, blank=True, default=None)
     origin      = md.CharField(max_length=255, null=True, blank=True, default=None)
+    language    = md.CharField(max_length=255, null=True, blank=True, default=None)
 
     class Meta:
         db_table      = 'achievements'
@@ -46,6 +47,8 @@ class Achievement(md.Model):
             query = query & (Q(problem_in_contest__problem__author__contains=self.author) | Q(problem_in_contest__problem__developer__contains=self.author))
         if self.origin:
             query = query & Q(problem__origin=self.origin)
+        if self.language:
+            query = query & Q(compiler__highlighter=self.language)
         attempts = Attempt.objects.filter(query).order_by('problem_in_contest__problem', 'time').distinct('problem_in_contest__problem')
         attempts_amount = len(attempts)
 
