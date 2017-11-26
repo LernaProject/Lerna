@@ -63,6 +63,9 @@ class Achievement(md.Model):
 
         return AchievementStatus(self, False, None, 100 * attempts_amount / self.amount)
 
+    def __str__(self):
+        return self.name
+
 class UserAchievement(md.Model):
     user        = md.ForeignKey(User, md.CASCADE)
     achievement = md.ForeignKey(Achievement, md.CASCADE)
