@@ -40,9 +40,9 @@ class Achievement(md.Model):
 
         query = Q(user=user) & (Q(result='Accepted') | (Q(result='Tested') & Q(score__gt=99.99)))
         if self.problem:
-            query = query & Q(problem=self.problem)
+            query = query & Q(problem_in_contest__problem=self.problem)
         if self.contest:
-            query = query & Q(contest=self.contest)
+            query = query & Q(problem_in_contest__contest=self.contest)
         if self.author:
             query = query & (Q(problem_in_contest__problem__author__contains=self.author) | Q(problem_in_contest__problem__developer__contains=self.author))
         if self.origin:
