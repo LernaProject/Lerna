@@ -53,6 +53,7 @@ class Achievement(md.Model):
         attempts_amount = len(attempts)
 
         if attempts_amount >= self.amount:
+            attempts = sorted(attempts, key=lambda x: x.time)
             earned_at = attempts[self.amount - 1].time
             UserAchievement.objects.create(
                 user=user,
