@@ -73,19 +73,29 @@ class BaseXMLStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, View):
             users[user_id] = username
             compilers[compiler_id] = (codename, compiler_name)
             status, test = Attempt.encode_ejudge_verdict(result, score)
-            pts = 0
-            if (score is not None):
-                pts = int(score)
-            a.write(
-                b'<run run_id="%d" time="%d"'
-                b' user_id="%d" prob_id="%d" lang_id="%d" status="%s" score="%d" test="%d"'
-                b' nsec="%d" run_uuid="%s" passed_mode="yes"/>' % (
-                    attempt_id, submit_time_sec,
-                    user_id, pic_id, compiler_id, status, pts, test,
-                    time_ns or 0, str(uuid.uuid4()).encode(),
+            if (contest.is_school):
+                pts = 0
+                if (score is not None):
+                    pts = int(score)
+                a.write(
+                    b'<run run_id="%d" time="%d"'
+                    b' user_id="%d" prob_id="%d" lang_id="%d" status="%s" score="%d" test="%d"'
+                    b' nsec="%d" run_uuid="%s" passed_mode="yes"/>' % (
+                        attempt_id, submit_time_sec,
+                        user_id, pic_id, compiler_id, status, pts, test,
+                        time_ns or 0, str(uuid.uuid4()).encode(),
+                    )
                 )
-            )
-
+            else:
+                a.write(
+                    b'<run run_id="%d" time="%d"'
+                    b' user_id="%d" prob_id="%d" lang_id="%d" status="%s" test="%d"'
+                    b' nsec="%d" run_uuid="%s" passed_mode="yes"/>' % (
+                        attempt_id, submit_time_sec,
+                        user_id, pic_id, compiler_id, status, test,
+                        time_ns or 0, str(uuid.uuid4()).encode(),
+                    )
+                )
         r = HttpResponse(content_type='application/xml')
         r.write(
             b'<?xml version="1.0" encoding="utf-8"?>'
