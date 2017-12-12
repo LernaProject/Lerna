@@ -75,10 +75,10 @@ class BaseXMLStandingsView(StandingsDueTimeMixinABC, SelectContestMixin, View):
             status, test = Attempt.encode_ejudge_verdict(result, score)
             a.write(
                 b'<run run_id="%d" time="%d"'
-                b' user_id="%d" prob_id="%d" lang_id="%d" status="%s" test="%d"'
+                b' user_id="%d" prob_id="%d" lang_id="%d" status="%s" score="%d" test="%d"'
                 b' nsec="%d" run_uuid="%s" passed_mode="yes"/>' % (
                     attempt_id, submit_time_sec,
-                    user_id, pic_id, compiler_id, status, test,
+                    user_id, pic_id, compiler_id, status, int(score), test,
                     time_ns or 0, str(uuid.uuid4()).encode(),
                 )
             )
