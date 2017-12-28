@@ -13,12 +13,14 @@
       <th>Ранг</th>
       <th>Имя</th>
       <th>Задач (из {{ problems_total_amount }})</th>
+      <th></th>
     </tr>
     {% for user in user_list %}
       <tr>
          <td>{{ user.rank }}</td>
          <td>{{ user.username }}</td>
          <td>{{ user.problems_solved }}</td>
+         <td><a href="{% url 'achievements:achievements' user.id %}">Достижения</a></td>
       </tr>
     {% endfor %}
     </table>
