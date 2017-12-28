@@ -10,13 +10,13 @@ class AchievementsView(TemplateView):
         context = super().get_context_data(**kwargs)
         user_id = self.kwargs['user_id']
 
-        user = User.objects.get(id=user_id)
+        viewed_user = User.objects.get(id=user_id)
 
         achievements = Achievement.objects.all()
         unlocked = []
         locked = []
         for achievement in achievements:
-            status = achievement.status(user)
+            status = achievement.status(viewed_user)
             if status.unlocked:
                 unlocked.append(status)
             else:
@@ -26,7 +26,7 @@ class AchievementsView(TemplateView):
         locked = sorted(locked, key=lambda x: (x.progress_percent, -x.achievement.points), reverse=True)
 
         context.update(
-            user=user,
+            viewed_user=viewed_user,
             unlocked=unlocked,
             locked=locked
         )

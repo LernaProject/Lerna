@@ -4,7 +4,7 @@
 {% block title %} {{ block.super }} :: Достижения {% endblock %}
 
 {% block content %}
-  <h2>Достижения пользователя {{ user.username }}</h2>
+  <h2>Достижения пользователя {{ viewed_user.username }}</h2>
   <h3>Полученные достижения:</h3>
   {% for achievement in unlocked %}
      <table cellspacing="0" cellpadding="0" class="lerna-achievement">
