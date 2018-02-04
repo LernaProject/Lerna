@@ -1,3 +1,5 @@
+import collections
+
 from django.contrib.auth.mixins   import LoginRequiredMixin
 from django.db.models             import F, Q, Count
 from django.db.models.expressions import RawSQL
@@ -162,3 +164,68 @@ class ProblemInTrainingsView(ListView):
         problem = Problem.objects.only('name').get(id=self.kwargs['problem_id'])
         context.update(problem=problem)
         return context
+
+
+ProblemStatus = collections.namedtuple('ProblemStatus', 'problem_id problem_name solved_at')
+
+
+class UserProblemsView(ListView):
+    template_name = 'global_statistics/user_problems.html'
+    context_object_name = 'problem_statuses'
+    allow_empty = True
+    paginate_by = 50
+    paginate_orphans = 1
+    sort_by_time = False
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        try:
+            viewed_user = (
+                User
+                .objects
+                .get(id=user_id)
+            )
+        except User.DoesNotExist:
+            raise Http404('Не существует пользователя с запрошенным id.')
+
+        query = Q(user=viewed_user) & Q(problem_in_contest__contest__is_admin=False) & (
+            Q(result='Accepted') | (Q(result='Tested') & Q(score__gt=99.99)))
+        attempts = Attempt.objects.filter(query).order_by('problem_in_contest__problem', 'time').distinct(
+            'problem_in_contest__problem')
+
+        problem_statuses = []
+        for attempt in attempts:
+            problem_statuses.append(
+                ProblemStatus(attempt.problem.id, attempt.problem.name,
+                              attempt.time)
+            )
+
+        if self.sort_by_time:
+            problem_statuses = sorted(problem_statuses, key=lambda x: x.solved_at, reverse=True)
+        else:
+            problem_statuses = sorted(problem_statuses, key=lambda x: x.problem_name)
+
+        return problem_statuses
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user_id = self.kwargs['user_id']
+        try:
+            viewed_user = (
+                User
+                    .objects
+                    .get(id=user_id)
+            )
+        except User.DoesNotExist:
+            raise Http404('Не существует пользователя с запрошенным id.')
+
+        context.update(
+            viewed_user=viewed_user,
+            sort_by_time=self.sort_by_time
+        )
+        return context
+
+
+class UserProblemsByTimeView(UserProblemsView):
+    sort_by_time = True

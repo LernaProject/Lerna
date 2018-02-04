@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} {{ block.super }} :: Решённые задачи {% endblock %}
+
+{% block content %}
+  <h4>Задачи, решённые пользователем {{ viewed_user.username }}</h4>
+
+  {% if sort_by_time %}
+    <a class="button" href="{% url 'global_statistics:user_problems' viewed_user.id %}">
+      Сортировать по названию
+    </a>
+  {% else %}
+    <a class="button" href="{% url 'global_statistics:user_problems_sorted_by_time' viewed_user.id %}">
+      Сортировать по времени
+    </a>
+  {% endif %}
+
+  <table>
+    <th>Задача</th>
+    <th>Время сдачи</th>
+    {% for problem_status in problem_statuses %}
+      <tr>
+        <td>
+          <a href="{% url 'global_statistics:problem_in_trainings' problem_status.problem_id %}">
+            {{ problem_status.problem_name }}
+          </a>
+        </td>
+        <td>
+          {{ problem_status.solved_at }}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+
+{% block pagination %}
+  {% if sort_by_time %}
+    {% with page_link='global_statistics:user_problems_sorted_by_time' page_param=viewed_user.id %}
+      {{ block.super }}
+    {% endwith %}
+  {% else %}
+    {% with page_link='global_statistics:user_problems' page_param=viewed_user.id %}
+      {{ block.super }}
+    {% endwith %}
+  {% endif %}
+{% endblock %}
