@@ -1,7 +1,8 @@
 {% extends 'contests/item_base.html' %}
 
-{% load contest_filters %}
+{% load static %}
 
+{% load contest_filters %}
 
 {% block content %}
   {{ block.super }}
@@ -26,11 +27,16 @@
             Последняя попытка:
           {% endif %}
         </span>
-        <span>{{ value }}</span>
+        <span>{{ value|default_if_none:'—' }}</span>
       </div>
     {% endfor %}
 
-    <table>
+    {% if not contest.is_training %}
+      <br/>
+      <button class="button" id="showtime">Скрыть время в таблице</button>
+    {% endif %}
+
+    <table class="unstriped standings-table">
     <tr>
       <th>Ранг</th>
       <th>Имя</th>
@@ -56,7 +62,7 @@
     {% for row in standings %}
       <tr>
         <td>{{ row.rank }}</td>
-        <td>{{ row.username }}</td>
+        <td style="text-align: left;">{{ row.username }}</td>
         {% for attempt in row.attempts %}
           <td>{{ attempt|default_if_none:'.'|linebreaksbr }}</td>
         {% endfor %}
@@ -69,7 +75,7 @@
     {% for code, stat in statistics.items %}
       <tr>
         <td>{# rank #}</td>
-        <td>
+        <td style="text-align: left;">
           {% if code == 'total_runs' %}
             Всего попыток
           {% elif code == 'accepted' %}
@@ -100,4 +106,9 @@
     {% endfor %}
     </table>
   {% endif %}
+
+  {% block javascript_links %}
+    {{ block.super }}
+    <script src="{% static 'lerna/scripts/standings-coloring.js' %}"></script>
+  {% endblock javascript_links %}
 {% endblock %}

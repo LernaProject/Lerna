@@ -68,3 +68,14 @@
     margin-top: -3px;
   }
 }
+
+
+.standings-table {
+  border-collapse: collapse;
+  border: 0;
+  td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 4px;
+  }
+}
