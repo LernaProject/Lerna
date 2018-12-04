@@ -22,7 +22,8 @@
       <tr>
          <td>{{ user.rank }}</td>
          <td>{{ user.username }}</td>
-         <td>{{ user.problems_solved }}</td>
+         <td><a href="{% url 'global_statistics:user_problems_sorted_by_time' user.id %}">
+             {{ user.problems_solved }}</a></td>
          <td><a href="{% url 'achievements:achievements' user.id %}">Достижения</a></td>
       </tr>
     {% endfor %}

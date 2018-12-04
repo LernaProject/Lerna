@@ -38,7 +38,8 @@ class Achievement(md.Model):
         if info is not None:
             return AchievementStatus(self, True, info.earned_at, 100)
 
-        query = Q(user=user) & (Q(result='Accepted') | (Q(result='Tested') & Q(score__gt=99.99)))
+        query = Q(user=user) & Q(problem_in_contest__contest__is_admin=False) & (
+            Q(result='Accepted') | (Q(result='Tested') & Q(score__gt=99.99)))
         if self.problem:
             query = query & Q(problem_in_contest__problem=self.problem)
         if self.contest:
