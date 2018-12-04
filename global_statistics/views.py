@@ -45,6 +45,7 @@ class RatingIndexView(ListView):
                     GROUP BY id
                 ) subq
                 JOIN users u ON u.id = subq.id
+                WHERE subq.problems_solved >= 10
                 ORDER BY subq.problems_solved DESC, subq.last_success
             """)
         )
