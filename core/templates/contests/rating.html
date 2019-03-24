@@ -106,9 +106,9 @@
     {% endfor %}
     </table>
   {% endif %}
-
-  {% block javascript_links %}
-    {{ block.super }}
-    <script src="{% static 'lerna/scripts/standings-coloring.js' %}"></script>
-  {% endblock javascript_links %}
 {% endblock %}
+
+{% block javascript_links %}
+  {{ block.super }}
+  <script src="{% static 'lerna/scripts/standings-coloring.js' %}"></script>
+{% endblock javascript_links %}
