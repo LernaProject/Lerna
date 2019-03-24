@@ -81,7 +81,18 @@
     <h4>Прошедшие соревнования:</h4>
     {% for contest in past_contest_list %}
       <div class="lerna-contests-listed">
-        <div class="lerna-contests-listed__title"><a href="{{ contest.get_absolute_url }}">{{ contest.name }}</a></div>
+        <div class="lerna-contests-listed__title">
+          {% if contest.is_registration_required %}
+            {% if contest.available %}
+              <img alt="🔓" class="lerna-indicator" src="{% static 'lerna/icons/unlocked.svg' %}"
+                   title="Вы допущены к участию"/>
+            {% else %}
+              <img alt="🔒" class="lerna-indicator" src="{% static 'lerna/icons/locked.svg' %}"
+                   title="Доступ к участию закрыт"/>
+            {% endif %}
+          {% endif %}
+          <a href="{{ contest.get_absolute_url }}">{{ contest.name }}
+        </a></div>
         <div class="lerna-contests-listed__meta">
           {% if contest.is_school %}
             <div>Подсчёт результатов по количеству пройденных тестов.</div>
